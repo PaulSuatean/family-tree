@@ -6,22 +6,51 @@
   <title>Family Trees - Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="../styles/components.css" />
   <link rel="stylesheet" href="../styles/page-overrides.css" />
   <link rel="stylesheet" href="../styles/page-common.css" />
-  <link rel="stylesheet" href="../styles/dashboard.css" />
+  <link rel="stylesheet" href="../styles/dashboard.css?v=5" />
+  <link rel="stylesheet" href="../styles/shell.css?v=7" />
 </head>
-<body class="dashboard-page">
-  <header class="topbar app-header">
-    <div class="brand-group">
-      <button id="themeBtn" title="Switch theme" aria-label="Switch theme">
-        <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
+<body class="dashboard-page site-shell has-app-toolbar">
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a href="../index.html" class="site-header__brand" aria-label="Go to homepage">Ancestrio</a>
+      <button
+        id="siteMenuBtn"
+        class="site-menu-btn"
+        type="button"
+        aria-expanded="false"
+        aria-controls="siteNav"
+        aria-label="Toggle navigation"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">menu</span>
       </button>
-      <div class="brand">Ancestrio</div>
+      <nav class="site-header__nav" id="siteNav" aria-label="Primary">
+        <a href="../index.html">Home</a>
+        <a href="demo-tree.html">Demo</a>
+        <a href="store.html?product=parchment&source=site-header&view=tree">Store</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="site-header__actions">
+        <button id="themeBtn" title="Switch theme" aria-label="Switch theme">
+          <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <header class="topbar app-header dashboard-overview">
+    <div class="dashboard-overview__heading">
+      <p class="app-kicker">Workspace Dashboard</p>
+      <h1 id="dashboardTitle" class="page-title">Your Family Trees</h1>
+    </div>
+    <div class="dashboard-overview__support">
+      <p class="page-subtitle">Create, organize, preview, and order keepsakes from the family trees in your account.</p>
     </div>
     <div class="controls controls-dashboard">
       <div class="user-info">
@@ -35,20 +64,16 @@
         </button>
       </div>
     </div>
+    <div class="dashboard-overview__create dashboard-hero-actions page-hero__actions">
+      <button id="createTreeBtn" class="dashboard-fab" title="Create new tree" aria-label="Create new tree">
+        <span class="material-symbols-outlined" aria-hidden="true">add</span>
+        New Tree
+      </button>
+    </div>
   </header>
 
-  <main class="dashboard-main">
+  <main class="dashboard-main page-container">
     <div class="dashboard-container">
-      <div class="dashboard-hero">
-        <h2 id="dashboardTitle">Your Family Trees</h2>
-        <div class="dashboard-hero-actions" style="display: none;">
-          <button id="createTreeBtn" class="dashboard-fab" title="Create new tree" aria-label="Create new tree">
-            <span class="material-symbols-outlined" aria-hidden="true">add</span>
-            New Tree
-          </button>
-        </div>
-      </div>
-
       <div id="treesGrid" class="trees-grid">
         <!-- Trees will be loaded here -->
       </div>
@@ -57,6 +82,11 @@
         <span class="material-symbols-outlined empty-icon">account_tree</span>
         <h3>No family trees yet</h3>
         <p>Create your first family tree to get started</p>
+        <div class="empty-steps" aria-hidden="true">
+          <span>Set the central person</span>
+          <span>Add birthdays and places</span>
+          <span>Preview and order later</span>
+        </div>
         <button id="createTreeBtnEmpty" class="create-tree-btn-secondary">
           <span class="material-symbols-outlined">add</span>
           Create Your First Tree
@@ -394,11 +424,12 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="../scripts/site-header.js?v=6"></script>
   <script src="../scripts/theme-toggle.js"></script>
   <script src="../scripts/dom-display.js"></script>
   <script src="../scripts/firebase-config.js?v=5"></script>
   <script src="../scripts/store-utils.js"></script>
-  <script src="../scripts/dashboard.js?v=4"></script>
+  <script src="../scripts/dashboard.js?v=6"></script>
   <script
     type="text/plain"
     data-consent="optional"

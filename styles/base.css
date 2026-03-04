@@ -1,4 +1,8 @@
 /* Ensure all critical elements are opaque in dark mode to prevent stars showing through */
+[hidden] {
+  display: none !important;
+}
+
 body.theme-dark .page {
   background: transparent;
   position: relative;

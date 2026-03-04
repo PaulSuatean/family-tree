@@ -23,7 +23,6 @@
     height: calc(100vh - var(--editor-header-height));
     min-height: 0;
     padding: 16px 0;
-    box-sizing: border-box;
     overflow: hidden;
   }
 
@@ -41,7 +40,6 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 12px;
   }
 
   body.editor-page .editor-layout {
@@ -81,12 +79,8 @@
   }
 }
 
-.dashboard-link {
-  text-decoration: none;
-}
-
 body.theme-dark .editor-main {
-  background: #0b1d33;
+  background: transparent;
 }
 
 body.editor-page {
@@ -95,6 +89,85 @@ body.editor-page {
   --editor-scrollbar-thumb: rgba(96, 165, 250, 0.5);
   --editor-scrollbar-thumb-hover: rgba(125, 189, 255, 0.72);
   --editor-header-action-width: 140px;
+  --editor-panel-bg: var(--shell-panel-bg-accented);
+  --editor-panel-bg-strong: var(--shell-panel-bg-accented-strong);
+  --editor-elevated-bg: var(--shell-panel-bg-soft);
+  --editor-field-bg: var(--shell-field-bg);
+  --editor-field-bg-soft: var(--shell-panel-bg-muted);
+  --editor-row-bg: var(--shell-row-bg-accented);
+  --editor-border-color: var(--shell-panel-border);
+  --editor-border-soft: var(--shell-panel-border-soft);
+  --editor-border-subtle: color-mix(in srgb, var(--editor-border-soft) 78%, transparent);
+  --editor-shadow: var(--shadow-md);
+  --editor-shadow-strong: var(--shadow-lg);
+  --editor-canvas-bg:
+    linear-gradient(rgba(120, 98, 68, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 98, 68, 0.08) 1px, transparent 1px),
+    radial-gradient(circle at 14% 12%, rgba(36, 92, 90, 0.08), transparent 28%),
+    linear-gradient(145deg, rgba(251, 246, 238, 0.98) 0%, rgba(240, 229, 212, 0.96) 100%);
+  --editor-canvas-bg-size: 28px 28px, 28px 28px, auto, auto;
+  --editor-canvas-bg-repeat: repeat, repeat, no-repeat, no-repeat;
+  --editor-canvas-bg-position: 0 0, 0 0, center center, center center;
+  --editor-overlay-bg: var(--shell-overlay-bg);
+}
+
+body.theme-dark.editor-page {
+  --editor-scrollbar-track: rgba(16, 28, 42, 0.9);
+  --editor-scrollbar-thumb: rgba(108, 179, 172, 0.4);
+  --editor-scrollbar-thumb-hover: rgba(140, 205, 198, 0.62);
+  --editor-border-subtle: rgba(177, 196, 214, 0.1);
+  --editor-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
+  --editor-shadow-strong: 0 28px 60px rgba(0, 0, 0, 0.32);
+  --editor-canvas-bg:
+    linear-gradient(rgba(141, 169, 178, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(141, 169, 178, 0.08) 1px, transparent 1px),
+    radial-gradient(circle at 14% 12%, rgba(108, 179, 172, 0.12), transparent 28%),
+    linear-gradient(145deg, rgba(19, 30, 43, 0.98) 0%, rgba(12, 19, 29, 0.98) 100%);
+  --editor-canvas-bg-size: 28px 28px, 28px 28px, auto, auto;
+  --editor-canvas-bg-repeat: repeat, repeat, no-repeat, no-repeat;
+  --editor-canvas-bg-position: 0 0, 0 0, center center, center center;
+  --editor-overlay-bg: var(--shell-overlay-bg);
+}
+
+body.editor-page[data-view-bg="parchment-classic"] {
+  --editor-canvas-bg:
+    radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.34), transparent 34%),
+    radial-gradient(circle at 82% 78%, rgba(81, 55, 18, 0.09), transparent 40%),
+    repeating-linear-gradient(0deg, rgba(112, 78, 33, 0.05) 0 1px, transparent 1px 6px),
+    linear-gradient(162deg, #f0dfbd 0%, #dec596 50%, #e7d5ad 100%);
+  --editor-canvas-bg-size: auto, auto, auto, auto;
+  --editor-canvas-bg-repeat: no-repeat, no-repeat, repeat, no-repeat;
+  --editor-canvas-bg-position: center center, center center, 0 0, center center;
+}
+
+body.editor-page[data-view-bg="parchment-vintage"] {
+  --editor-canvas-bg:
+    radial-gradient(circle at 74% 18%, rgba(255, 235, 189, 0.22), transparent 30%),
+    radial-gradient(circle at 22% 84%, rgba(91, 54, 21, 0.16), transparent 36%),
+    repeating-linear-gradient(90deg, rgba(66, 43, 18, 0.08) 0 1px, transparent 1px 8px),
+    linear-gradient(168deg, #d5b78b 0%, #b69263 52%, #cfb286 100%);
+  --editor-canvas-bg-size: auto, auto, auto, auto;
+  --editor-canvas-bg-repeat: no-repeat, no-repeat, repeat, no-repeat;
+  --editor-canvas-bg-position: center center, center center, 0 0, center center;
+}
+
+body.editor-page[data-view-bg="parchment-minimal"] {
+  --editor-canvas-bg:
+    radial-gradient(circle at 20% 22%, rgba(255, 255, 255, 0.3), transparent 36%),
+    radial-gradient(circle at 84% 72%, rgba(92, 66, 29, 0.07), transparent 42%),
+    linear-gradient(164deg, #f5ecd7 0%, #e9dbc0 52%, #f3e9d2 100%);
+  --editor-canvas-bg-size: auto, auto, auto;
+  --editor-canvas-bg-repeat: no-repeat, no-repeat, no-repeat;
+  --editor-canvas-bg-position: center center, center center, center center;
+}
+
+body.editor-page[data-view-bg="parchment-photo"] {
+  --editor-canvas-bg:
+    linear-gradient(180deg, rgba(56, 39, 18, 0.2) 0%, rgba(255, 251, 238, 0.12) 100%),
+    url("../images/store/parchment.webp");
+  --editor-canvas-bg-size: auto, cover;
+  --editor-canvas-bg-repeat: no-repeat, no-repeat;
+  --editor-canvas-bg-position: center center, center center;
 }
 
 body.editor-page:not(.focus-mode) .app-header .controls.controls-editor > button,
@@ -105,8 +178,8 @@ body.editor-page:not(.focus-mode) .app-header .controls.controls-editor > a > bu
 @media (min-width: 769px) {
   body.editor-page:not(.focus-mode) .app-header .controls.controls-editor > button,
   body.editor-page:not(.focus-mode) .app-header .controls.controls-editor > a > button {
-    width: var(--editor-header-action-width);
-    min-width: var(--editor-header-action-width);
+    width: auto;
+    min-width: 0;
   }
 }
 
@@ -332,7 +405,7 @@ select.form-input {
 }
 
 body.theme-dark .sidebar-section {
-  background: #0b1d33;
+  background: var(--editor-panel-bg);
   backdrop-filter: none;
   z-index: 2;
 }
@@ -473,7 +546,7 @@ body.theme-dark .sidebar-section {
 }
 
 body.theme-dark .editor-tabs {
-  background: #132a46;
+  background: var(--editor-elevated-bg);
   backdrop-filter: none;
   z-index: 3;
 }
@@ -531,7 +604,7 @@ body.theme-dark .editor-tabs {
 }
 
 body.theme-dark .visual-editor {
-  background: #0b1d33;
+  background: var(--editor-panel-bg);
   z-index: 2;
 }
 
@@ -583,7 +656,7 @@ body.theme-dark .visual-editor {
 }
 
 body.theme-dark .visual-toolbar {
-  background: #132a46;
+  background: var(--editor-elevated-bg);
   backdrop-filter: none;
 }
 
@@ -629,7 +702,7 @@ body.theme-dark .visual-toolbar {
 }
 
 body.theme-dark .visual-canvas {
-  background-color: #132a46;
+  background-color: transparent;
   background-image:
     linear-gradient(0deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.08)),
     linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
@@ -642,10 +715,16 @@ body.theme-dark .visual-canvas {
   height: 620px;
   display: block;
   cursor: grab;
+  outline: none;
 }
 
 #visualTree:active {
   cursor: grabbing;
+}
+
+#visualTree:focus,
+#visualTree:focus-visible {
+  outline: none;
 }
 
 /* Use shared .person styles from base/components; add editor-specific overrides here */
@@ -860,7 +939,7 @@ body.theme-dark .visual-canvas {
 }
 
 body.theme-dark .add-member-card {
-  background: #0b1d33;
+  background: var(--editor-panel-bg-strong);
   backdrop-filter: none;
 }
 
@@ -1307,38 +1386,27 @@ body.theme-dark .add-member-card {
 }
 
 @media (max-width: 768px) {
-  .header-left, .header-right {
+  body.editor-page.has-app-toolbar:not(.focus-mode) .app-header {
+    padding: 10px 12px;
+  }
+
+  body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .editor-header-bar {
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
+    gap: 10px;
   }
-  
-  .editor-header .editor-container {
-    flex-direction: column;
+
+  body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .brand-group {
+    width: 100%;
   }
 
   body.editor-page:not(.focus-mode) .app-header .controls.controls-editor {
-    left: calc(var(--header-corner-inset) + var(--header-corner-size) + 8px);
-    right: var(--header-corner-inset);
-    max-width: none;
     display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     justify-content: stretch;
     align-items: center;
     gap: 6px;
-    overflow-x: visible;
-    overflow-y: visible;
-  }
-
-  body.editor-page:not(.focus-mode) .app-header .controls.controls-editor > a {
     width: 100%;
-    height: 100%;
-    min-width: 0;
-    min-height: 0;
-    padding: 0;
-    display: flex;
-    flex: 1 1 auto;
   }
 
   body.editor-page:not(.focus-mode) .app-header .controls.controls-editor > * {
@@ -1351,7 +1419,7 @@ body.theme-dark .add-member-card {
     min-width: 0;
     height: 44px;
     min-height: 44px;
-    padding: 0 5px;
+    padding: 0 8px;
     font-size: 0.82rem;
     font-weight: 600;
     justify-content: center;
@@ -1412,7 +1480,7 @@ body.theme-dark .add-member-card {
   body.editor-page:not(.focus-mode) .app-header .controls.controls-editor > a > button {
     height: 42px;
     min-height: 42px;
-    padding: 0 4px;
+    padding: 0 6px;
     font-size: 0.78rem;
   }
 
@@ -1467,46 +1535,956 @@ body.theme-dark .privacy-badge.private {
 }
 
 body.theme-dark .privacy-radio {
-  background: rgba(19, 42, 70, 0.9);
+  background: var(--editor-field-bg-soft);
 }
 
 body.theme-dark .setting-toggle-track {
-  background: rgba(19, 42, 70, 0.9);
+  background: var(--editor-field-bg-soft);
 }
 
 /* JSON Editor Dark Mode - Ensure Solid Backgrounds */
 body.theme-dark .json-toolbar {
-  background: #132a46;
+  background: var(--editor-elevated-bg);
   backdrop-filter: none;
   z-index: 3;
 }
 
 body.theme-dark .json-editor {
-  background: #0b1d33;
+  background: var(--editor-field-bg);
   backdrop-filter: none;
   z-index: 2;
 }
 
 body.theme-dark .json-editor-wrapper {
-  background: #0b1d33;
+  background: transparent;
   backdrop-filter: none;
   z-index: 2;
 }
 
 body.theme-dark .tool-btn {
-  background: #132a46;
+  background: var(--editor-field-bg);
   z-index: 3;
 }
 
 body.theme-dark .editor-content {
-  background: #0b1d33;
+  background: var(--editor-panel-bg);
   backdrop-filter: none;
   z-index: 2;
 }
 
 body.theme-dark .tab-content {
-  background: #0b1d33;
+  background: transparent;
   backdrop-filter: none;
   z-index: 2;
+}
+
+/* Premium heritage editor pass */
+body.editor-page .editor-main {
+  padding: 14px 0 24px;
+}
+
+body.editor-page .editor-container {
+  max-width: 1360px;
+  padding: 0 18px;
+}
+
+body.editor-page .editor-layout {
+  gap: 14px;
+}
+
+body.editor-page .editor-sidebar {
+  gap: 14px;
+}
+
+body.editor-page .sidebar-section {
+  padding: 18px 18px 16px;
+  border-radius: 24px;
+  border: 1px solid var(--editor-border-soft);
+  background: var(--editor-panel-bg);
+  box-shadow: var(--editor-shadow);
+}
+
+body.editor-page .tree-settings-section {
+  box-shadow: var(--editor-shadow);
+}
+
+body.editor-page .instructions-section {
+  background: var(--editor-panel-bg);
+}
+
+body.editor-page .sidebar-section h3 {
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--editor-border-subtle);
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+
+body.editor-page .form-group {
+  gap: 8px;
+}
+
+body.editor-page .form-label,
+body.editor-page .field-label {
+  padding: 0;
+  margin-bottom: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+body.editor-page .form-input,
+body.editor-page .field-input {
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 16px;
+  border: 1px solid var(--editor-border-soft);
+  background: var(--editor-field-bg);
+  font-size: 0.94rem;
+}
+
+body.editor-page textarea.form-input,
+body.editor-page textarea.field-input {
+  min-height: 110px;
+  padding: 14px;
+}
+
+body.editor-page .form-input:focus,
+body.editor-page .field-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--ring);
+}
+
+body.editor-page .instructions-list {
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+body.editor-page .editor-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 16px;
+  border: 1px solid var(--editor-border-soft);
+  border-radius: 28px;
+  background: var(--editor-panel-bg);
+  box-shadow: var(--editor-shadow);
+}
+
+body.editor-page .editor-tabs {
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--editor-border-soft);
+  background: color-mix(in srgb, var(--editor-elevated-bg) 86%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+body.editor-page .editor-tab {
+  min-height: 42px;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+body.editor-page .editor-tab.active {
+  background: var(--gradient-primary);
+  color: #ffffff;
+}
+
+body.editor-page .tab-content {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--editor-border-subtle);
+  border-radius: calc(var(--radius-xl) + 2px);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.editor-page .visual-editor,
+body.editor-page .json-editor-wrapper {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 14px;
+  min-height: 0;
+  padding: 0;
+}
+
+body.editor-page .visual-editor {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+body.editor-page .visual-canvas {
+  grid-row: 1;
+}
+
+body.editor-page .visual-toolbar {
+  grid-row: 2;
+}
+
+body.editor-page .visual-toolbar,
+body.editor-page .json-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--editor-border-subtle);
+  background: color-mix(in srgb, var(--editor-elevated-bg) 72%, transparent);
+  box-shadow: var(--shadow-sm);
+}
+
+body.editor-page .visual-toolbar-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+body.editor-page .visual-toolbar-group .tool-btn {
+  min-height: 40px;
+  padding-inline: 10px;
+}
+
+body.editor-page .visual-toolbar-hint,
+body.editor-page .json-status {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+body.editor-page .tool-btn {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid var(--editor-border-soft);
+  background: var(--editor-field-bg);
+  color: var(--text);
+  font-weight: 800;
+}
+
+body.editor-page .tool-btn:hover,
+body.editor-page .tool-btn:focus-visible {
+  background: var(--editor-field-bg-soft);
+  box-shadow: var(--shadow-sm);
+}
+
+body.editor-page .visual-canvas {
+  min-height: 620px;
+  border-radius: 24px;
+  border: 1px solid var(--editor-border-soft);
+  background: var(--editor-canvas-bg);
+  background-size: var(--editor-canvas-bg-size);
+  background-repeat: var(--editor-canvas-bg-repeat);
+  background-position: var(--editor-canvas-bg-position);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+body.editor-page .json-editor {
+  min-height: 620px;
+  border-radius: 24px;
+  border: 1px solid var(--editor-border-soft);
+  background: var(--editor-field-bg);
+  color: var(--text);
+  font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+body.editor-page .add-member-popup {
+  padding: 5px;
+  border-radius: 18px;
+  border: 1px solid var(--editor-border-soft);
+  background: var(--editor-panel-bg-strong);
+  box-shadow: var(--editor-shadow-strong);
+}
+
+body.editor-page .add-member-popup-item {
+  min-height: 40px;
+  border-radius: 14px;
+  padding: 6px 10px;
+}
+
+body.editor-page .add-member-modal {
+  background: var(--editor-overlay-bg);
+  backdrop-filter: blur(10px);
+}
+
+body.editor-page .add-member-card {
+  width: min(680px, calc(100vw - 24px));
+  max-height: min(88vh, 920px);
+  border-radius: calc(var(--radius-xl) + 6px);
+  border: 1px solid var(--editor-border-soft);
+  background: var(--editor-panel-bg-strong);
+  box-shadow: var(--editor-shadow-strong);
+}
+
+body.editor-page .add-member-header,
+body.editor-page .add-member-footer {
+  padding: 18px 20px;
+}
+
+body.editor-page .add-member-header {
+  border-bottom: 1px solid var(--editor-border-subtle);
+}
+
+body.editor-page .add-member-header h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+
+body.editor-page .add-member-body {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+}
+
+body.editor-page .photo-upload-section {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+}
+
+body.editor-page .photo-upload-preview {
+  width: 124px;
+  height: 124px;
+  border-radius: 26px;
+  border: 1px dashed color-mix(in srgb, var(--line) 74%, var(--accent) 26%);
+  background:
+    radial-gradient(circle at 22% 22%, rgba(36, 92, 90, 0.08), transparent 30%),
+    linear-gradient(145deg, rgba(255, 251, 246, 0.84) 0%, rgba(243, 232, 218, 0.8) 100%);
+}
+
+body.editor-page .photo-upload-preview img {
+  border-radius: 24px;
+}
+
+body.editor-page .photo-upload-hint {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+body.editor-page .required-fields,
+body.editor-page .countries-section {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--editor-border-subtle);
+  background: color-mix(in srgb, var(--editor-field-bg-soft) 82%, transparent);
+}
+
+body.editor-page .field-row {
+  gap: 12px;
+}
+
+body.editor-page .countries-section .person-list {
+  gap: 10px;
+}
+
+body.editor-page .countries-section .person-row {
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid var(--editor-border-subtle);
+  background: var(--editor-row-bg);
+}
+
+body.editor-page .countries-section .btn-remove-person,
+body.editor-page .countries-section .btn-add-person,
+body.editor-page .add-member-footer .btn-primary,
+body.editor-page .add-member-footer .btn-secondary {
+  min-height: 44px;
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+body.editor-page .add-member-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid var(--editor-border-subtle);
+}
+
+body.editor-page .action-btn,
+body.editor-page .btn-secondary,
+body.editor-page .file-input,
+body.editor-page .guest-mode-notice,
+body.editor-page .privacy-radio,
+body.editor-page .setting-toggle-track,
+body.editor-page .modal-dialog {
+  border-color: var(--editor-border-soft);
+}
+
+body.editor-page .action-btn,
+body.editor-page .btn-secondary,
+body.editor-page .file-input,
+body.editor-page .guest-mode-notice {
+  background: var(--editor-field-bg);
+  box-shadow: none;
+}
+
+body.editor-page .privacy-radio,
+body.editor-page .setting-toggle-track {
+  background: var(--editor-field-bg-soft);
+}
+
+body.editor-page .modal {
+  background: var(--editor-overlay-bg);
+  backdrop-filter: blur(14px);
+}
+
+body.editor-page .modal-dialog {
+  background: var(--editor-panel-bg-strong);
+  box-shadow: var(--editor-shadow-strong);
+}
+
+body.editor-page .photo-upload-preview {
+  border-color: color-mix(in srgb, var(--editor-border-color) 74%, var(--accent) 26%);
+}
+
+body.theme-dark.editor-page .visual-canvas {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header {
+  min-height: 0;
+  padding: 8px 14px;
+  border-color: var(--editor-border-soft);
+  border-radius: 24px;
+  background: var(--editor-panel-bg-strong);
+  box-shadow: var(--editor-shadow);
+  display: block;
+}
+
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .editor-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+}
+
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .brand-group {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .editor-header-title {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .brand {
+  font-size: clamp(1.05rem, 1.8vw, 1.45rem);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .app-meta {
+  display: none;
+}
+
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .app-kicker {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+}
+
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .controls.controls-editor {
+  gap: 6px;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+}
+
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .controls.controls-editor > button,
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .controls.controls-editor > a > button {
+  min-height: 40px;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border-color: var(--border);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .controls.controls-editor .material-symbols-outlined {
+  font-size: 18px;
+}
+
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .controls.controls-editor > button:hover,
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .controls.controls-editor > button:focus-visible,
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .controls.controls-editor > a > button:hover,
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .controls.controls-editor > a > button:focus-visible {
+  border-color: var(--accent);
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: none;
+}
+
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .controls.controls-editor > button:disabled {
+  opacity: 0.56;
+  cursor: default;
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .controls.controls-editor > button:disabled:hover,
+body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .controls.controls-editor > button:disabled:focus-visible {
+  background: var(--surface);
+  color: var(--muted);
+  box-shadow: none;
+}
+
+@media (min-width: 1025px) {
+  body.editor-page {
+    overflow-y: hidden;
+  }
+
+  body.editor-page .editor-main {
+    height: calc(100dvh - var(--page-stack-height-current));
+    min-height: 0;
+    padding: 12px 0 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  body.editor-page .editor-sidebar .tree-settings-section {
+    flex: 0 1 auto;
+  }
+
+  body.editor-page .editor-sidebar .instructions-section {
+    flex: 1 1 260px;
+    min-height: 0;
+  }
+
+  body.editor-page .tab-content,
+  body.editor-page .tab-content.active,
+  body.editor-page .visual-editor,
+  body.editor-page .json-editor-wrapper {
+    min-height: 0;
+  }
+
+  body.editor-page .visual-canvas,
+  body.editor-page .json-editor {
+    min-height: 0;
+    height: auto;
+  }
+}
+
+@media (max-width: 1080px) {
+  body.editor-page .field-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  body.editor-page .editor-container {
+    padding: 0 12px;
+  }
+
+  body.editor-page .editor-content {
+    padding: 12px;
+    border-radius: 24px;
+  }
+
+  body.editor-page .visual-editor,
+  body.editor-page .json-editor-wrapper,
+  body.editor-page .sidebar-section,
+  body.editor-page .add-member-body {
+    padding: 16px;
+  }
+
+  body.editor-page .visual-toolbar,
+  body.editor-page .json-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  body.editor-page .visual-toolbar-group {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  body.editor-page .visual-toolbar-group .tool-btn {
+    min-height: 38px;
+    padding-inline: 8px;
+  }
+}
+
+@media (max-width: 1024px) {
+  body.editor-page .visual-canvas,
+  body.editor-page .json-editor {
+    min-height: 460px;
+  }
+}
+
+@media (max-width: 560px) {
+  body.editor-page .visual-canvas,
+  body.editor-page .json-editor {
+    min-height: 360px;
+  }
+}
+
+/* Editor workspace refresh */
+body.editor-page .editor-container {
+  width: var(--shell-width);
+  max-width: none;
+  padding: 0;
+}
+
+body.editor-page .editor-layout {
+  width: 100%;
+  max-width: none;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+body.editor-page .editor-content {
+  width: 100%;
+  padding: 18px;
+  border-radius: 30px;
+}
+
+body.editor-page .editor-content .editor-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+
+body.editor-page .editor-content .brand-group {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+body.editor-page .editor-content .editor-header-title {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+body.editor-page .editor-content .app-kicker {
+  margin: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+}
+
+body.editor-page .editor-content .brand {
+  font-size: clamp(1.05rem, 1.8vw, 1.45rem);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.editor-page .editor-content .controls.controls-editor {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+}
+
+body.editor-page .editor-content .controls.controls-editor > button {
+  min-height: 40px;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border-color: var(--border);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+body.editor-page .editor-content .controls.controls-editor .material-symbols-outlined {
+  font-size: 18px;
+}
+
+body.editor-page .editor-content .controls.controls-editor > button:hover,
+body.editor-page .editor-content .controls.controls-editor > button:focus-visible {
+  border-color: var(--accent);
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: none;
+}
+
+body.editor-page .editor-content .controls.controls-editor > button:disabled {
+  opacity: 0.56;
+  cursor: default;
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+body.editor-page .editor-content .controls.controls-editor > button:disabled:hover,
+body.editor-page .editor-content .controls.controls-editor > button:disabled:focus-visible {
+  background: var(--surface);
+  color: var(--muted);
+  box-shadow: none;
+}
+
+body.editor-page .editor-tabs {
+  display: inline-grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  width: 100%;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 999px;
+  border: 1px solid var(--shell-panel-border);
+  background: color-mix(in srgb, var(--shell-panel-bg) 88%, transparent);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(16px);
+}
+
+body.editor-page .editor-tab-highlight {
+  display: none;
+}
+
+body.editor-page .editor-tab {
+  min-height: 46px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  align-self: center;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.96rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition:
+    background var(--transition-base) ease,
+    color var(--transition-base) ease,
+    transform var(--transition-base) ease;
+}
+
+body.editor-page .editor-tab .material-symbols-outlined {
+  font-size: 18px;
+}
+
+body.editor-page .editor-tab:hover {
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+body.editor-page .editor-tab.active {
+  background: var(--gradient-primary);
+  color: #ffffff;
+}
+
+body.editor-page .editor-tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+body.editor-page .tab-content {
+  margin-top: 18px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+body.editor-page .visual-editor,
+body.editor-page .json-editor-wrapper,
+body.editor-page .settings-editor {
+  min-height: 0;
+}
+
+body.editor-page .settings-editor {
+  flex: 1;
+  display: flex;
+}
+
+body.editor-page .settings-editor-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  min-height: 0;
+}
+
+body.editor-page .settings-editor .sidebar-section {
+  margin: 0;
+  padding: 22px 22px 18px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  border: 1px solid var(--editor-border-soft);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.04) 100%),
+    var(--editor-panel-bg);
+  box-shadow: var(--editor-shadow);
+}
+
+body.theme-dark.editor-page .settings-editor .sidebar-section {
+  background: var(--editor-panel-bg);
+}
+
+body.editor-page .settings-editor .tree-settings-section,
+body.editor-page .settings-editor .instructions-section {
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+body.editor-page .settings-editor .instructions-section {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%),
+    var(--editor-panel-bg);
+}
+
+body.editor-page .settings-editor .instructions-list {
+  margin-top: 2px;
+  padding-left: 18px;
+}
+
+body.editor-page .settings-editor .instructions-list li + li {
+  margin-top: 8px;
+}
+
+@media (min-width: 1025px) {
+  body.editor-page .editor-content,
+  body.editor-page .tab-content.active,
+  body.editor-page .settings-editor,
+  body.editor-page .settings-editor-grid {
+    min-height: 0;
+  }
+
+  body.editor-page .editor-container,
+  body.editor-page .editor-layout,
+  body.editor-page .editor-content {
+    height: 100%;
+  }
+
+  body.editor-page .editor-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  body.editor-page .tab-content.active,
+  body.editor-page .visual-editor,
+  body.editor-page .json-editor-wrapper,
+  body.editor-page .settings-editor,
+  body.editor-page .settings-editor-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  body.editor-page .visual-editor,
+  body.editor-page .json-editor-wrapper {
+    height: 100%;
+  }
+
+  body.editor-page .visual-canvas,
+  body.editor-page .json-editor {
+    min-height: 0;
+  }
+
+  body.editor-page .visual-canvas {
+    height: auto;
+  }
+
+  body.editor-page #visualTree {
+    height: 100%;
+  }
+}
+
+@media (max-width: 980px) {
+  body.editor-page .settings-editor-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  body.editor-page .editor-content {
+    padding: 14px;
+    border-radius: 24px;
+  }
+
+  body.editor-page .editor-content .editor-header-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 0;
+  }
+
+  body.editor-page .editor-content .controls.controls-editor {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  body.editor-page .editor-content .controls.controls-editor > button {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    min-height: 44px;
+    padding: 0 8px;
+    font-size: 0.82rem;
+    justify-content: center;
+    gap: 4px;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  body.editor-page .editor-content .controls.controls-editor > button .material-symbols-outlined {
+    font-size: 15px;
+  }
+
+  body.editor-page .editor-tabs {
+    gap: 5px;
+    padding: 5px;
+  }
+
+  body.editor-page .editor-tab {
+    min-height: 42px;
+    padding: 0 8px;
+    font-size: 0.84rem;
+    gap: 6px;
+  }
+
+  body.editor-page .editor-tab .material-symbols-outlined {
+    font-size: 16px;
+  }
+
+  body.editor-page .tab-content {
+    margin-top: 14px;
+  }
+
+  body.editor-page .settings-editor .sidebar-section {
+    padding: 18px 16px 16px;
+  }
+}
+
+@media (max-width: 560px) {
+  body.editor-page .editor-content .controls.controls-editor > button {
+    height: 42px;
+    min-height: 42px;
+    padding: 0 6px;
+    font-size: 0.78rem;
+  }
+
+  body.editor-page .editor-content .controls.controls-editor > button .material-symbols-outlined {
+    font-size: 14px;
+  }
+
+  body.editor-page .editor-tabs {
+    gap: 4px;
+    padding: 4px;
+  }
+
+  body.editor-page .editor-tab {
+    min-height: 40px;
+    font-size: 0.76rem;
+  }
+
+  body.editor-page .editor-tab .material-symbols-outlined {
+    display: none;
+  }
 }
 

@@ -4,155 +4,168 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>About & Contact - Ancestrio</title>
-  <meta name="description" content="Learn about the Ancestrio project and get in touch" />
+  <meta name="description" content="Learn why Ancestrio exists, how the project approaches family data, and how to get in touch." />
   <link rel="icon" type="image/svg+xml" href="../images/other/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="../styles/components.css" />
   <link rel="stylesheet" href="../styles/page-overrides.css" />
-  <link rel="stylesheet" href="../styles/pages/contact.css" />
+  <link rel="stylesheet" href="../styles/pages/contact.css?v=3" />
+  <link rel="stylesheet" href="../styles/shell.css?v=7" />
 </head>
-<body class="contact-page-layout">
-  <header class="topbar app-header">
-    <div class="brand-group">
-      <button id="themeBtn" title="Switch theme" aria-label="Switch theme">
-        <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
+<body class="contact-page-layout site-shell site-public">
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a href="../index.html" class="site-header__brand" aria-label="Go to homepage">Ancestrio</a>
+      <button
+        id="siteMenuBtn"
+        class="site-menu-btn"
+        type="button"
+        aria-expanded="false"
+        aria-controls="siteNav"
+        aria-label="Toggle navigation"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">menu</span>
       </button>
-      <div class="brand">Ancestrio</div>
-    </div>
-    <div class="controls controls-simple">
-      <a href="../index.html" class="icon-btn" title="Back to landing page" aria-label="Back to landing page">
-        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
-      </a>
+      <nav class="site-header__nav" id="siteNav" aria-label="Primary">
+        <a href="../index.html">Home</a>
+        <a href="demo-tree.html">Demo</a>
+        <a href="store.html?product=parchment&source=site-header&view=tree">Store</a>
+        <a href="contact.html" aria-current="page">Contact</a>
+      </nav>
+      <div class="site-header__actions">
+        <a href="auth.html" class="site-btn site-btn--secondary">Sign In</a>
+        <a href="dashboard.html" class="site-btn site-btn--primary" hidden aria-hidden="true" tabindex="-1">Dashboard</a>
+        <button id="themeBtn" title="Switch theme" aria-label="Switch theme">
+          <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
+        </button>
+      </div>
     </div>
   </header>
 
-  <main class="contact-page">
-    <div class="contact-container">
-      <div class="page-header">
-        <h1 class="page-title">About This Project</h1>
-        <p class="page-subtitle">
-          Helping families preserve their heritage and connect across generations
+  <main class="page-container contact-page">
+    <section class="contact-hero">
+      <p class="page-kicker">About & Contact</p>
+      <h1 class="page-title">A family story workspace built to feel more personal than genealogy software.</h1>
+      <p class="page-subtitle">
+        Ancestrio started as a practical way to understand real family connections, then grew into a project focused on browsing, preserving, and eventually printing those stories.
+      </p>
+    </section>
+
+    <section class="contact-story surface-card">
+      <div class="contact-story-intro">
+        <p class="contact-story-label">Why This Exists</p>
+        <h2>Family history matters more when it becomes easier to revisit and share.</h2>
+      </div>
+      <div class="contact-story-body">
+        <p>
+          Family stories connect generations, but most tools make those stories feel like records to manage instead of relationships to understand. I built Ancestrio to make my own family history easier to browse, easier to preserve, and easier to turn into something tangible.
+        </p>
+        <p>
+          The demo tree uses real relationship patterns, and the product direction stays practical: one workspace for editing, one viewer that stays readable, and keepsakes that come from the same underlying data rather than a separate manual process.
         </p>
       </div>
+    </section>
 
-      <!-- Why Section - Full Width -->
-      <section class="content-section content-section--why">
-        <h2 class="section-title">
-          <span class="section-icon">💡</span>
-          Why This Exists
-        </h2>
-        <div class="section-content">
-          <p>
-            Family stories connect us to our roots and create bonds across generations. I built this tool to uncover the story of my grandfather and discover how big of a family he has created. The demo tree you see is based on my actual family members—real people, real connections, real heritage.
-          </p>
-          <p>
-            This project makes it <strong>easy and beautiful</strong> to preserve your family's history—documenting stories, tracking important dates, and exploring the connections that make us who we are.
-          </p>
+    <section class="contact-grid">
+      <article class="contact-panel contact-panel--features surface-card">
+        <p class="contact-panel-kicker">What The Project Covers</p>
+        <h2>Current focus</h2>
+        <ul class="feature-list">
+          <li>Interactive family tree viewer</li>
+          <li>Birthday calendar from stored dates</li>
+          <li>Journey globe from country data</li>
+          <li>Cloud-backed account workspace</li>
+          <li>Guest mode for local-only trials</li>
+          <li>Print keepsake ordering flow</li>
+        </ul>
+      </article>
+
+      <article class="contact-panel contact-panel--privacy surface-card">
+        <p class="contact-panel-kicker">Project Position</p>
+        <h2>Open source and privacy-first</h2>
+        <p>The code is public on GitHub, and the project does not exist to profile, sell, or trade family data.</p>
+        <a
+          class="contact-inline-link"
+          href="https://github.com/PaulSuatean/paulsuatean.github.io"
+          target="_blank"
+          rel="noopener noreferrer"
+        >View the repository</a>
+      </article>
+
+      <article class="contact-panel contact-panel--reach surface-card">
+        <p class="contact-panel-kicker">Get In Touch</p>
+        <h2>Questions, feedback, or collaboration</h2>
+        <div class="contact-methods">
+          <div class="contact-card">
+            <span class="contact-card-icon material-symbols-outlined" aria-hidden="true">mail</span>
+            <div>
+              <div class="contact-card-title">Email</div>
+              <a href="mailto:suatean.paul@gmail.com">suatean.paul@gmail.com</a>
+            </div>
+          </div>
+          <div class="contact-card">
+            <span class="contact-card-icon material-symbols-outlined" aria-hidden="true">code</span>
+            <div>
+              <div class="contact-card-title">GitHub</div>
+              <a href="https://github.com/PaulSuatean/paulsuatean.github.io" target="_blank" rel="noopener noreferrer">@PaulSuatean</a>
+            </div>
+          </div>
+          <div class="contact-card">
+            <span class="contact-card-icon material-symbols-outlined" aria-hidden="true">public</span>
+            <div>
+              <div class="contact-card-title">Location</div>
+              <span>Romania</span>
+            </div>
+          </div>
         </div>
-      </section>
+      </article>
+    </section>
 
-      <div class="main-grid">
-        <!-- Key Features - Left (Wider) -->
-        <section class="content-section">
-          <h2 class="section-title">
-            <span class="section-icon">🌟</span>
-            Key Features
-          </h2>
-          <div class="section-content">
-            <ul class="feature-list">
-              <li>Interactive tree visualization</li>
-              <li>Birthday calendar</li>
-              <li>Photos & details</li>
-              <li>Dark/light themes</li>
-              <li>Cloud storage</li>
-              <li>Mobile-friendly</li>
-              <li>Fast search</li>
-              <li>Secure & private</li>
-            </ul>
-            <div class="open-source-note">
-              <p class="open-source-note-text"><strong>🔓 Fully Open Source & No Data Collection:</strong> All code is on GitHub—transparent and privacy-focused. I don't collect, track, or sell your data. Your family data belongs to you and stays with you.</p>
-            </div>
-          </div>
-        </section>
+    <section class="support-strip surface-card">
+      <div class="support-strip-copy">
+        <p class="contact-panel-kicker">Support</p>
+        <h2>Help keep the project open, free, and maintained.</h2>
+        <p>If Ancestrio is useful, support helps fund continued polishing, fixes, and new keepsake work.</p>
+      </div>
+      <a href="https://www.buymeacoffee.com/paulsuatean" class="coffee-btn" target="_blank" rel="noopener noreferrer">
+        <span class="material-symbols-outlined coffee-btn-icon" aria-hidden="true">local_cafe</span>
+        <span>Support on Buy Me a Coffee</span>
+      </a>
+    </section>
+  </main>
 
-        <!-- Get In Touch - Middle (Narrowest) -->
-        <section class="content-section">
-          <h2 class="section-title">
-            <span class="section-icon">📬</span>
-            Get In Touch
-          </h2>
-          <div class="section-content">
-            <p>
-              Questions, feedback, or suggestions? I'd love to hear from you!
-            </p>
-          </div>
-          
-          <div class="contact-grid">
-            <div class="contact-card">
-              <span class="contact-card-icon">📧</span>
-              <div class="contact-card-title">Email:</div>
-              <div class="contact-card-text">
-                <a href="mailto:paul.suatean@example.com">paul.suatean@example.com</a>
-              </div>
-            </div>
-            
-            <div class="contact-card">
-              <span class="contact-card-icon">🐙</span>
-              <div class="contact-card-title">GitHub:</div>
-              <div class="contact-card-text">
-                <a href="https://github.com/PaulSuatean/paulsuatean.github.io" target="_blank" rel="noopener noreferrer">
-                  @PaulSuatean
-                </a>
-              </div>
-            </div>
-            
-            <div class="contact-card">
-              <span class="contact-card-icon">🌍</span>
-              <div class="contact-card-title">Location:</div>
-              <div class="contact-card-text">
-                Romania
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Buy Me a Coffee - Right -->
-        <section class="content-section">
-          <h2 class="section-title">
-            <span class="section-icon">☕</span>
-            Support
-          </h2>
-          <div class="section-content">
-            <p>
-              Enjoy this project? Buy me a coffee to support development!
-            </p>
-          </div>
-          
-          <div class="support-cta">
-            <a href="https://www.buymeacoffee.com/paulsuatean" class="coffee-btn" target="_blank" rel="noopener noreferrer">
-              <span class="material-symbols-outlined coffee-btn-icon" aria-hidden="true">local_cafe</span>
-              <span>Support on Buy Me a Coffee</span>
-            </a>
-          </div>
-          
-          <div class="support-note-wrap">
-            <p class="support-note">
-              Your support helps keep this project free and open source for everyone
-            </p>
-          </div>
-        </section>
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p>&copy; <span data-site-footer-year></span> Ancestrio</p>
+      <div class="site-footer__links">
+        <a href="store.html?product=parchment&source=contact-footer&view=tree">Store</a>
+        <a href="demo-tree.html">Demo</a>
+        <a href="contact.html" aria-current="page">Contact</a>
+        <a
+          href="https://github.com/PaulSuatean/paulsuatean.github.io"
+          target="_blank"
+          rel="noopener noreferrer"
+        >GitHub</a>
       </div>
     </div>
-  </main>
+  </footer>
 
   <script src="../scripts/runtime.js"></script>
   <script src="../scripts/night-sky.js"></script>
   <script src="../scripts/day-clouds.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="../scripts/site-header.js?v=6"></script>
+  <script src="../scripts/firebase-config.js?v=5"></script>
+  <script>
+    initializeFirebase();
+  </script>
   <script src="../scripts/theme-toggle.js"></script>
   <script src="../scripts/contact.js"></script>
   <script

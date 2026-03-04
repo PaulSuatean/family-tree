@@ -6,115 +6,114 @@
   <title>Editor - Ancestrio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="../styles/components.css" />
   <link rel="stylesheet" href="../styles/page-overrides.css" />
   <link rel="stylesheet" href="../styles/page-common.css" />
-  <link rel="stylesheet" href="../styles/editor.css" />
+  <link rel="stylesheet" href="../styles/editor.css?v=5" />
+  <link rel="stylesheet" href="../styles/shell.css?v=7" />
 </head>
-<body class="editor-page">
-  <header class="topbar app-header">
-    <div class="brand-group">
-      <button id="themeBtn" title="Switch theme" aria-label="Switch theme">
-        <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
+<body class="editor-page site-shell">
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a href="../index.html" class="site-header__brand" aria-label="Go to homepage">Ancestrio</a>
+      <button
+        id="siteMenuBtn"
+        class="site-menu-btn"
+        type="button"
+        aria-expanded="false"
+        aria-controls="siteNav"
+        aria-label="Toggle navigation"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">menu</span>
       </button>
-      <div class="brand" id="treeTitle">Loading...</div>
-    </div>
-    <div class="controls controls-editor">
-      <button id="saveBtn" title="Save changes" aria-label="Save changes" disabled>
-        <span class="material-symbols-outlined" aria-hidden="true">save</span>
-        <span class="save-btn-label">Save</span>
-      </button>
-      <button id="viewTreeBtn" title="Preview tree" aria-label="Preview tree">
-        <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
-        Preview
-      </button>
-      <button id="dashboardBtn" type="button" class="dashboard-link" title="Back to Dashboard" aria-label="Back to dashboard">
-        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
-        Dashboard
-      </button>
+      <nav class="site-header__nav" id="siteNav" aria-label="Primary">
+        <a href="../index.html">Home</a>
+        <a href="demo-tree.html">Demo</a>
+        <a href="store.html?product=parchment&source=site-header&view=tree">Store</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="site-header__actions">
+        <a href="auth.html" class="site-btn site-btn--secondary">Sign In</a>
+        <a href="dashboard.html" class="site-btn site-btn--primary" hidden aria-hidden="true" tabindex="-1">Dashboard</a>
+        <button id="themeBtn" title="Switch theme" aria-label="Switch theme">
+          <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
+        </button>
+      </div>
     </div>
   </header>
 
   <main class="editor-main">
     <div class="editor-container">
       <div class="editor-layout">
-        <div class="editor-sidebar">
-          <div class="sidebar-section tree-settings-section">
-            <h3>
-              <span class="material-symbols-outlined">settings</span>
-              Tree Settings
-            </h3>
-            <div class="form-group">
-              <label class="form-label">Tree Name</label>
-              <input type="text" id="editTreeName" class="form-input" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Description</label>
-              <textarea id="editTreeDescription" class="form-input" rows="3"></textarea>
-            </div>
-            <div class="form-group form-group-setting">
-              <label class="form-label setting-label">Privacy</label>
-              <input type="hidden" id="editTreePrivacy" value="private" />
-              <div class="privacy-radio" role="radiogroup" aria-label="Tree privacy">
-                <input type="radio" id="editTreePrivacyPrivate" name="editTreePrivacyChoice" value="private" checked />
-                <input type="radio" id="editTreePrivacyPublic" name="editTreePrivacyChoice" value="public" />
-                <span class="privacy-radio-slider" aria-hidden="true"></span>
-                <label for="editTreePrivacyPrivate" class="privacy-radio-option privacy-radio-option-private">Private</label>
-                <label for="editTreePrivacyPublic" class="privacy-radio-option privacy-radio-option-public">Public</label>
+        <div class="editor-content">
+          <div class="editor-header-bar">
+            <div class="brand-group">
+              <div class="editor-header-title">
+                <p class="app-kicker">Editor</p>
+                <div class="brand" id="treeTitle">Loading...</div>
               </div>
             </div>
-            <div class="form-group form-group-setting">
-              <label class="form-label setting-label" for="editCalendarDates">Dates for Calendar</label>
-              <label class="setting-toggle" aria-label="Toggle calendar dates">
-                <input type="checkbox" id="editCalendarDates" checked />
-                <span class="setting-toggle-track" aria-hidden="true"></span>
-                <span class="setting-toggle-state" aria-hidden="true"></span>
-              </label>
-            </div>
-            <div class="form-group form-group-setting">
-              <label class="form-label setting-label" for="editGlobeCountries">Countries for Globe</label>
-              <label class="setting-toggle" aria-label="Toggle globe countries">
-                <input type="checkbox" id="editGlobeCountries" checked />
-                <span class="setting-toggle-track" aria-hidden="true"></span>
-                <span class="setting-toggle-state" aria-hidden="true"></span>
-              </label>
+            <div class="controls controls-editor">
+              <button id="saveBtn" type="button" class="tool-btn editor-header-btn" title="Save changes" aria-label="Save changes" disabled>
+                <span class="material-symbols-outlined" aria-hidden="true">save</span>
+                <span class="save-btn-label">Save</span>
+              </button>
+              <button id="viewTreeBtn" type="button" class="tool-btn editor-header-btn" title="Preview tree" aria-label="Preview tree">
+                <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                Preview
+              </button>
             </div>
           </div>
-
-          <div class="sidebar-section instructions-section">
-            <h3>
-              <span class="material-symbols-outlined">help</span>
-              Instructions
-            </h3>
-            <ul class="instructions-list">
-              <li>Click a person card to edit name, birthday, photo, and visited countries</li>
-              <li>Click the blue + on a member to add a Parent, Spouse, or Child</li>
-              <li>Click the red delete button on a member to remove them (with confirmation)</li>
-              <li>Use Zoom In, Zoom Out, and Reset to navigate the visual editor</li>
-              <li>Switch to JSON Editor to format and validate tree data</li>
-              <li>Changes are saved to the cloud when you click Save Changes</li>
-              <li>Use Preview to open the current tree view</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="editor-content">
-          <div class="editor-tabs">
-            <button class="editor-tab active" data-tab="visual">
+          <div class="editor-tabs" role="tablist" aria-label="Editor sections">
+            <span class="editor-tab-highlight" aria-hidden="true"></span>
+            <button
+              class="editor-tab active"
+              type="button"
+              data-tab="visual"
+              data-tab-index="0"
+              role="tab"
+              id="visualTabTrigger"
+              aria-selected="true"
+              aria-controls="visualTab"
+            >
               <span class="material-symbols-outlined">account_tree</span>
               Visual Editor
             </button>
-            <button class="editor-tab" data-tab="json">
+            <button
+              class="editor-tab"
+              type="button"
+              data-tab="json"
+              data-tab-index="1"
+              role="tab"
+              id="jsonTabTrigger"
+              aria-selected="false"
+              aria-controls="jsonTab"
+              tabindex="-1"
+            >
               <span class="material-symbols-outlined">code</span>
               JSON Editor
             </button>
+            <button
+              class="editor-tab"
+              type="button"
+              data-tab="settings"
+              data-tab-index="2"
+              role="tab"
+              id="settingsTabTrigger"
+              aria-selected="false"
+              aria-controls="settingsTab"
+              tabindex="-1"
+            >
+              <span class="material-symbols-outlined">settings</span>
+              Tree Settings
+            </button>
           </div>
 
-          <div class="tab-content active" id="visualTab">
+          <div class="tab-content active" id="visualTab" role="tabpanel" aria-labelledby="visualTabTrigger">
             <div class="visual-editor">
               <div class="visual-toolbar">
                 <div class="visual-toolbar-group">
@@ -139,7 +138,7 @@
             </div>
           </div>
 
-          <div class="tab-content" id="jsonTab">
+          <div class="tab-content" id="jsonTab" role="tabpanel" aria-labelledby="jsonTabTrigger" hidden>
             <div class="json-editor-wrapper">
               <div class="json-toolbar">
                 <button id="formatJsonBtn" class="tool-btn">
@@ -157,6 +156,70 @@
                 <span class="json-status" id="jsonStatus"></span>
               </div>
               <textarea id="jsonEditor" class="json-editor" spellcheck="false"></textarea>
+            </div>
+          </div>
+
+          <div class="tab-content" id="settingsTab" role="tabpanel" aria-labelledby="settingsTabTrigger" hidden>
+            <div class="settings-editor">
+              <div class="settings-editor-grid">
+                <div class="sidebar-section tree-settings-section">
+                  <h3>
+                    <span class="material-symbols-outlined">settings</span>
+                    Tree Settings
+                  </h3>
+                  <div class="form-group">
+                    <label class="form-label">Tree Name</label>
+                    <input type="text" id="editTreeName" class="form-input" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="editTreeDescription" class="form-input" rows="3"></textarea>
+                  </div>
+                  <div class="form-group form-group-setting">
+                    <label class="form-label setting-label">Privacy</label>
+                    <input type="hidden" id="editTreePrivacy" value="private" />
+                    <div class="privacy-radio" role="radiogroup" aria-label="Tree privacy">
+                      <input type="radio" id="editTreePrivacyPrivate" name="editTreePrivacyChoice" value="private" checked />
+                      <input type="radio" id="editTreePrivacyPublic" name="editTreePrivacyChoice" value="public" />
+                      <span class="privacy-radio-slider" aria-hidden="true"></span>
+                      <label for="editTreePrivacyPrivate" class="privacy-radio-option privacy-radio-option-private">Private</label>
+                      <label for="editTreePrivacyPublic" class="privacy-radio-option privacy-radio-option-public">Public</label>
+                    </div>
+                  </div>
+                  <div class="form-group form-group-setting">
+                    <label class="form-label setting-label" for="editCalendarDates">Dates for Calendar</label>
+                    <label class="setting-toggle" aria-label="Toggle calendar dates">
+                      <input type="checkbox" id="editCalendarDates" checked />
+                      <span class="setting-toggle-track" aria-hidden="true"></span>
+                      <span class="setting-toggle-state" aria-hidden="true"></span>
+                    </label>
+                  </div>
+                  <div class="form-group form-group-setting">
+                    <label class="form-label setting-label" for="editGlobeCountries">Countries for Globe</label>
+                    <label class="setting-toggle" aria-label="Toggle globe countries">
+                      <input type="checkbox" id="editGlobeCountries" checked />
+                      <span class="setting-toggle-track" aria-hidden="true"></span>
+                      <span class="setting-toggle-state" aria-hidden="true"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="sidebar-section instructions-section">
+                  <h3>
+                    <span class="material-symbols-outlined">help</span>
+                    Instructions
+                  </h3>
+                  <ul class="instructions-list">
+                    <li>Click a person card to edit name, birthday, photo, and visited countries</li>
+                    <li>Click the blue + on a member to add a Parent, Spouse, or Child</li>
+                    <li>Click the red delete button on a member to remove them (with confirmation)</li>
+                    <li>Use Zoom In, Zoom Out, and Reset to navigate the visual editor</li>
+                    <li>Switch to JSON Editor to format and validate tree data</li>
+                    <li>Changes are saved to the cloud when you click Save Changes</li>
+                    <li>Use Preview to open the current tree view</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -285,6 +348,7 @@
   <script src="../scripts/theme-toggle.js"></script>
   <script src="../scripts/dom-display.js"></script>
   <script src="../scripts/firebase-config.js?v=5"></script>
+  <script src="../scripts/site-header.js?v=6"></script>
   <script src="../scripts/editor.js?v=4"></script>
   <script
     type="text/plain"

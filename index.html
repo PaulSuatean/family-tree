@@ -3,92 +3,295 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ancestrio - Family Tree</title>
-  <meta name="description" content="Create and explore your family tree with Ancestrio" />
+  <title>Ancestrio | Private Family Story Workspace</title>
+  <meta name="description" content="Build your family tree, explore birthdays and journeys, and order premium keepsakes from one private workspace." />
   <link rel="icon" type="image/svg+xml" href="images/other/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   <link rel="stylesheet" href="styles/theme.css" />
   <link rel="stylesheet" href="styles/base.css" />
   <link rel="stylesheet" href="styles/components.css" />
   <link rel="stylesheet" href="styles/page-overrides.css" />
-  <link rel="stylesheet" href="styles/pages/landing.css" />
+  <link rel="stylesheet" href="styles/pages/landing.css?v=2" />
+  <link rel="stylesheet" href="styles/shell.css?v=7" />
 </head>
-<body class="landing-page">
-  <header class="topbar app-header">
-    <div class="brand-group">
-      <button id="themeBtn" type="button" aria-pressed="false" aria-label="Switch theme" title="Switch theme">
-        <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
+<body class="landing-page site-shell site-public">
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a href="index.html" class="site-header__brand" aria-label="Go to homepage">Ancestrio</a>
+      <button
+        id="siteMenuBtn"
+        class="site-menu-btn"
+        type="button"
+        aria-expanded="false"
+        aria-controls="siteNav"
+        aria-label="Toggle navigation"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">menu</span>
       </button>
-    </div>
-    <div class="controls controls-simple">
-      <a
-        href="pages/store.html?product=bundle&source=landing&view=tree"
-        class="icon-btn"
-        aria-label="Open store"
-        title="Store"
-      >
-        <span class="material-symbols-outlined" aria-hidden="true">shopping_bag</span>
-      </a>
-      <a
-        href="https://github.com/PaulSuatean/paulsuatean.github.io"
-        class="icon-btn"
-        aria-label="View source code on GitHub"
-        title="GitHub"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <span class="material-symbols-outlined" aria-hidden="true">code</span>
-      </a>
+      <nav class="site-header__nav" id="siteNav" aria-label="Primary">
+        <a href="index.html" aria-current="page">Home</a>
+        <a href="pages/demo-tree.html">Demo</a>
+        <a href="pages/store.html?product=parchment&source=site-header&view=tree">Store</a>
+        <a href="pages/contact.html">Contact</a>
+      </nav>
+      <div class="site-header__actions">
+        <a href="pages/auth.html" class="site-btn site-btn--secondary">Sign In</a>
+        <a href="pages/dashboard.html" class="site-btn site-btn--primary" hidden aria-hidden="true" tabindex="-1">Dashboard</a>
+        <button id="themeBtn" type="button" aria-pressed="false" aria-label="Switch theme" title="Switch theme">
+          <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
+        </button>
+      </div>
     </div>
   </header>
-  <div class="triangle-container">
-    <!-- Ancestrio Title -->
-    <div class="ancestrio-brand">
-      <div class="ancestrio-title">Ancestrio</div>
-      <div class="ancestrio-subtitle">Tree, Calendar &amp; Globe</div>
+
+  <main>
+    <section class="landing-hero">
+      <div class="landing-hero-copy">
+        <p class="landing-kicker">Private Family Workspace</p>
+        <h1>Build the family tree once. Reuse it across every meaningful keepsake.</h1>
+        <p class="landing-subtitle">
+          Ancestrio gives families a calmer place to map generations, track birthdays, preview travel stories, and turn lived history into print-ready keepsakes.
+        </p>
+        <div class="landing-hero-cta">
+          <a href="pages/auth.html" class="landing-btn landing-btn-primary">Start Your Tree</a>
+          <a href="pages/demo-tree.html" class="landing-btn landing-btn-secondary">Explore the Demo</a>
+        </div>
+        <ul class="landing-metrics" aria-label="Platform highlights">
+          <li><strong>Private</strong><span>Family workspace by default</span></li>
+          <li><strong>3 Views</strong><span>Tree, calendar, and globe</span></li>
+          <li><strong>Print Ready</strong><span>Keepsakes from real data</span></li>
+        </ul>
+      </div>
+
+      <aside class="landing-hero-stage" aria-label="Platform preview">
+        <article class="hero-stage-card hero-stage-card--primary">
+          <p class="hero-stage-label">Workspace Flow</p>
+          <h2>From family history to finished keepsake</h2>
+          <p>Organize one tree, then branch into browsing, birthday planning, and keepsake ordering without starting over.</p>
+          <div class="hero-stage-pills">
+            <span>Tree editor</span>
+            <span>Birthday calendar</span>
+            <span>Journey globe</span>
+          </div>
+        </article>
+
+        <article class="hero-stage-card hero-stage-card--tree">
+          <div class="hero-stage-card-head">
+            <span class="material-symbols-outlined" aria-hidden="true">account_tree</span>
+            <span>Interactive tree</span>
+          </div>
+          <div class="hero-stage-tree">
+            <span class="hero-stage-node">Grandparents</span>
+            <span class="hero-stage-branch" aria-hidden="true"></span>
+            <span class="hero-stage-node">Parents</span>
+            <span class="hero-stage-branch" aria-hidden="true"></span>
+            <span class="hero-stage-node hero-stage-node--active">You</span>
+          </div>
+        </article>
+
+        <article class="hero-stage-card hero-stage-card--keepsake">
+          <div class="hero-stage-card-head">
+            <span class="material-symbols-outlined" aria-hidden="true">featured_seasonal_and_gifts</span>
+            <span>Keepsake studio</span>
+          </div>
+          <ul class="hero-stage-list">
+            <li>Parchment wall print</li>
+            <li>Birthday desk calendar</li>
+            <li>Family journey globe</li>
+          </ul>
+          <a href="pages/store.html?product=parchment&source=landing&view=tree" class="hero-panel-link">See the store</a>
+        </article>
+      </aside>
+    </section>
+
+    <section class="landing-proof" aria-label="Core platform value">
+      <article class="proof-card">
+        <p class="proof-card-label">Clarity</p>
+        <h2>One family source of truth</h2>
+        <p>Keep names, relationships, birthdays, and places in one system instead of scattered notes and screenshots.</p>
+      </article>
+      <article class="proof-card">
+        <p class="proof-card-label">Usability</p>
+        <h2>Built for browsing, not database work</h2>
+        <p>Big targets, cleaner controls, and single-column forms keep the experience easier on desktop and mobile.</p>
+      </article>
+      <article class="proof-card">
+        <p class="proof-card-label">Keepsakes</p>
+        <h2>Real outputs, not just a viewer</h2>
+        <p>Move from editing to ordering when the family wants something tangible on a wall, desk, or shelf.</p>
+      </article>
+    </section>
+
+    <section class="landing-products" id="products" aria-labelledby="productsTitle">
+      <div class="section-heading">
+        <p class="landing-kicker">Featured Keepsakes</p>
+        <h2 id="productsTitle">Designed around real family data</h2>
+      </div>
+      <div class="product-cards">
+        <article class="product-card">
+          <img src="images/store/parchment.webp" alt="Printed parchment family tree" loading="lazy" />
+          <div class="product-card-body">
+            <p class="product-card-kicker">Wall display</p>
+            <h3>Printed Parchment Family Tree</h3>
+            <p>Turn your tree into an heirloom-style print with cleaner hierarchy and three style directions.</p>
+            <a href="pages/store.html?product=parchment&source=landing&view=tree">View product</a>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <img src="images/store/calendar.webp" alt="Birthday calendar pages" loading="lazy" />
+          <div class="product-card-body">
+            <p class="product-card-kicker">Desk format</p>
+            <h3>Mini Birthday Calendar</h3>
+            <p>Keep birthdays visible month by month without re-entering dates outside the family workspace.</p>
+            <a href="pages/store.html?product=calendar&source=landing&view=calendar">View product</a>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <img src="images/store/globe.webp" alt="Family globe with travel markers" loading="lazy" />
+          <div class="product-card-body">
+            <p class="product-card-kicker">Story object</p>
+            <h3>Family Journey Globe</h3>
+            <p>Highlight countries tied to family movement, travel, and migration in a physical display piece.</p>
+            <a href="pages/store.html?product=globe&source=landing&view=globe">View product</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="landing-features" id="features" aria-labelledby="featuresTitle">
+      <div class="section-heading">
+        <p class="landing-kicker">Platform Capabilities</p>
+        <h2 id="featuresTitle">A browsing-first genealogy experience</h2>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card feature-card--highlight">
+          <span class="material-symbols-outlined" aria-hidden="true">account_tree</span>
+          <h3>Interactive Tree View</h3>
+          <p>Follow generations, inspect people, and navigate with search, zoom, focus mode, and a calmer viewer layout.</p>
+        </article>
+        <article class="feature-card">
+          <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+          <h3>Birthday Calendar</h3>
+          <p>Transform birthdays into a usable monthly planning view with upcoming reminders already built in.</p>
+        </article>
+        <article class="feature-card">
+          <span class="material-symbols-outlined" aria-hidden="true">public</span>
+          <h3>Journey Globe</h3>
+          <p>Show family geography in a way that reads like a story instead of a spreadsheet of locations.</p>
+        </article>
+        <article class="feature-card">
+          <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+          <h3>Privacy First</h3>
+          <p>Start private, explore in guest mode locally, and keep the project open about how data is handled.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="landing-steps" id="how-it-works" aria-labelledby="stepsTitle">
+      <div class="section-heading">
+        <p class="landing-kicker">How It Works</p>
+        <h2 id="stepsTitle">A simple workflow from setup to order</h2>
+      </div>
+      <ol class="steps-list">
+        <li>
+          <span>1</span>
+          <h3>Set up the family tree</h3>
+          <p>Use the dashboard wizard and editor to add core people, birthdays, relationships, and optional locations.</p>
+        </li>
+        <li>
+          <span>2</span>
+          <h3>Switch between views</h3>
+          <p>Browse the tree visually, check birthdays in calendar view, and explore places in globe view.</p>
+        </li>
+        <li>
+          <span>3</span>
+          <h3>Order a keepsake</h3>
+          <p>Pick a product, submit your details, and receive follow-up directly from the project rather than a generic checkout.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="landing-faq" id="faq" aria-labelledby="faqTitle">
+      <div class="section-heading">
+        <p class="landing-kicker">FAQ</p>
+        <h2 id="faqTitle">Common questions before you start</h2>
+      </div>
+      <div class="faq-list">
+        <article class="faq-item">
+          <button type="button" class="faq-toggle" aria-expanded="false">
+            Is this a full online checkout?
+            <span class="material-symbols-outlined" aria-hidden="true">expand_more</span>
+          </button>
+          <div class="faq-content">
+            <p>No. Ordering is lead capture in v1. You submit the request and receive follow-up details directly.</p>
+          </div>
+        </article>
+        <article class="faq-item">
+          <button type="button" class="faq-toggle" aria-expanded="false">
+            Do I need an account before trying it?
+            <span class="material-symbols-outlined" aria-hidden="true">expand_more</span>
+          </button>
+          <div class="faq-content">
+            <p>No. You can inspect the demo tree first, and the auth page also offers local guest mode.</p>
+          </div>
+        </article>
+        <article class="faq-item">
+          <button type="button" class="faq-toggle" aria-expanded="false">
+            What does the store use from my tree?
+            <span class="material-symbols-outlined" aria-hidden="true">expand_more</span>
+          </button>
+          <div class="faq-content">
+            <p>It uses the family data you already entered so keepsakes line up with the tree, birthdays, and places you maintain.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="landing-cta">
+      <div class="landing-cta-copy">
+        <p class="landing-kicker">Ready To Begin</p>
+        <h2>Start the family workspace now, order keepsakes when the story feels ready.</h2>
+        <p>Create your tree privately, explore the experience, and come back to the store when you want a finished object.</p>
+      </div>
+      <div class="landing-hero-cta">
+        <a href="pages/auth.html" class="landing-btn landing-btn-primary">Create Account</a>
+        <a href="pages/contact.html" class="landing-btn landing-btn-secondary">Ask a Question</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p>&copy; <span data-site-footer-year></span> Ancestrio</p>
+      <div class="site-footer__links">
+        <a href="pages/store.html?product=parchment&source=landing&view=tree">Store</a>
+        <a href="pages/demo-tree.html">Demo</a>
+        <a href="pages/contact.html">Contact</a>
+        <a
+          href="https://github.com/PaulSuatean/paulsuatean.github.io"
+          target="_blank"
+          rel="noopener noreferrer"
+        >GitHub</a>
+      </div>
     </div>
+  </footer>
 
-    <!-- Left Triangle - DEMO -->
-    <a href="pages/demo-tree.html" class="triangle triangle-left">
-      <div class="triangle-content">
-        <div class="triangle-card">
-          <span class="triangle-icon material-symbols-outlined" aria-hidden="true">account_tree</span>
-          <div class="triangle-label">Demo</div>
-          <div class="triangle-desc">Explore a sample family tree</div>
-        </div>
-      </div>
-    </a>
-
-    <!-- Right Triangle - CREATE -->
-    <a href="pages/auth.html" class="triangle triangle-right">
-      <div class="triangle-content">
-        <div class="triangle-card">
-          <span class="triangle-icon material-symbols-outlined" aria-hidden="true">auto_awesome</span>
-          <div class="triangle-label">Create</div>
-          <div class="triangle-desc">Build your own family tree</div>
-        </div>
-      </div>
-    </a>
-
-    <!-- Bottom Triangle - CONTACT -->
-    <a href="pages/contact.html" class="triangle triangle-bottom" data-night-sky>
-      <div class="triangle-content">
-        <div class="triangle-card">
-          <div class="contact-icon-section">
-            <span class="triangle-icon material-symbols-outlined" aria-hidden="true">mail</span>
-          </div>
-          <div class="contact-text-section">
-            <div class="triangle-label">Contact</div>
-            <div class="triangle-desc">Get in touch with us</div>
-          </div>
-        </div>
-      </div>
-    </a>
-  </div>
   <script src="scripts/runtime.js"></script>
+  <script src="scripts/night-sky.js"></script>
+  <script src="scripts/day-clouds.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="scripts/site-header.js?v=6"></script>
+  <script src="scripts/firebase-config.js?v=5"></script>
+  <script>
+    initializeFirebase();
+  </script>
   <script src="scripts/theme-toggle.js"></script>
   <script src="scripts/landing.js"></script>
   <script

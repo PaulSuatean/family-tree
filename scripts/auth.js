@@ -77,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       showLoading(loginForm);
       await signInWithPasswordIdentifier(resolvedLogin, password);
+      window.AncestrioHeaderAuthCache?.setFromUser?.(auth.currentUser || null);
       localStorage.removeItem('guestMode');
       console.log('Login successful, redirecting...');
       redirectAfterAuth();
@@ -134,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('User document created in Firestore');
       
       console.log('Signup successful, redirecting...');
+      window.AncestrioHeaderAuthCache?.setFromUser?.(userCredential.user || auth.currentUser || null);
       localStorage.removeItem('guestMode');
       redirectAfterAuth();
     } catch (error) {
@@ -165,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isAnonymous: false
       });
       
+      window.AncestrioHeaderAuthCache?.setFromUser?.(result.user || auth.currentUser || null);
       localStorage.removeItem('guestMode');
       redirectAfterAuth();
     } catch (error) {

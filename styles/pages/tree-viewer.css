@@ -8,6 +8,14 @@ body.tree-viewer-page {
   --viewer-calendar-panel-gap: 12px;
   --viewer-calendar-panel-left: calc(var(--viewer-style-panel-left) + var(--viewer-style-panel-width) + var(--viewer-calendar-panel-gap));
   --viewer-calendar-panel-right: 10px;
+  --viewer-bubble-fill: var(--node-fill);
+  --viewer-bubble-stroke: var(--node-stroke);
+  --viewer-bubble-hover-fill: url(#personGradient);
+  --viewer-bubble-hover-stroke: var(--accent);
+  --viewer-bubble-shadow: var(--node-shadow);
+  --viewer-bubble-hover-shadow: drop-shadow(0 8px 24px rgba(59, 130, 246, 0.2));
+  --viewer-bubble-name-color: var(--text);
+  --viewer-bubble-meta-color: var(--muted);
 }
 
 .view-style-panel {
@@ -22,9 +30,8 @@ body.tree-viewer-page {
   gap: 10px;
   padding: 10px;
   border-radius: 22px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.86);
-  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  border: 1px solid var(--shell-panel-border);
+  background: color-mix(in srgb, var(--shell-panel-bg) 88%, transparent);
   box-shadow: var(--shadow-md);
   backdrop-filter: blur(12px);
   overflow-y: auto;
@@ -32,15 +39,14 @@ body.tree-viewer-page {
 }
 
 body.theme-dark .view-style-panel {
-  background: rgba(11, 29, 51, 0.88);
-  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  background: color-mix(in srgb, var(--shell-panel-bg) 88%, transparent);
 }
 
 body.tree-viewer-page.view-calendar #birthdaySection {
   inset: var(--viewer-style-panel-top) var(--viewer-calendar-panel-right) var(--viewer-style-panel-bottom) var(--viewer-calendar-panel-left);
-  border: 1px solid var(--border);
+  border: 1px solid var(--shell-panel-border);
   border-radius: 20px;
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  background: color-mix(in srgb, var(--shell-panel-bg) 90%, transparent);
   backdrop-filter: blur(10px);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
@@ -56,10 +62,8 @@ body.theme-dark.tree-viewer-page.view-calendar #birthdaySection {
   gap: 8px;
   padding: 8px;
   border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.38);
-  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
-  background: rgba(241, 245, 249, 0.78);
-  background: color-mix(in srgb, var(--surface-2) 78%, transparent);
+  border: 1px solid var(--shell-panel-border-soft);
+  background: color-mix(in srgb, var(--shell-panel-bg-soft) 78%, transparent);
 }
 
 .view-style-group-title {
@@ -79,8 +83,8 @@ body.theme-dark.tree-viewer-page.view-calendar #birthdaySection {
 }
 
 .view-style-option {
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--shell-panel-border);
+  background: var(--shell-field-bg);
   color: var(--text);
   border-radius: 999px;
   min-height: 36px;
@@ -329,5 +333,164 @@ body.tree-viewer-page #tree.dna-active .person.dna-suppress rect {
   body.tree-viewer-page.view-calendar #birthdaySection {
     border-radius: 14px;
     padding-inline: 6px;
+  }
+}
+
+body.demo-tree-page.site-shell:not(.focus-mode) .topbar {
+  width: var(--shell-width);
+  margin: var(--site-header-button-gap) auto 0;
+  padding: var(--site-header-button-gap) 18px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 58%),
+    var(--shell-panel-bg-accented);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+
+body.demo-tree-page.site-shell.view-calendar #birthdaySection {
+  top: var(--viewer-style-panel-top);
+  bottom: auto;
+  left: calc((100vw - var(--shell-width)) / 2);
+  right: calc((100vw - var(--shell-width)) / 2);
+  height: fit-content;
+  max-height: calc(100dvh - var(--viewer-style-panel-top) - 108px);
+}
+
+body.demo-tree-page.site-shell.view-calendar #birthdaySection .birthday-months {
+  align-content: center;
+}
+
+body.theme-dark.demo-tree-page.site-shell:not(.focus-mode) .topbar {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 58%),
+    var(--shell-panel-bg-accented);
+  border-bottom-color: var(--border);
+}
+
+body.demo-tree-page.site-shell:not(.focus-mode) .brand-group {
+  min-width: 0;
+}
+
+body.demo-tree-page.site-shell:not(.focus-mode) .app-header .brand {
+  max-width: none;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree > button,
+body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree > a,
+body.demo-tree-page.site-shell:not(.focus-mode) #upcomingBtn {
+  min-height: var(--shell-control-height);
+  border-radius: var(--shell-control-radius);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree > button,
+body.demo-tree-page.site-shell:not(.focus-mode) #upcomingBtn {
+  border: 1px solid var(--shell-panel-border);
+  background: var(--shell-field-bg-soft);
+  color: var(--text);
+  padding: 0 18px;
+}
+
+body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree > a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: 1px solid var(--shell-panel-border);
+  background: var(--shell-field-bg-soft);
+  color: var(--text);
+}
+
+body.demo-tree-page.site-shell:not(.focus-mode) #searchBtn,
+body.demo-tree-page.site-shell:not(.focus-mode) #helpBtn,
+body.demo-tree-page.site-shell:not(.focus-mode) #themeBtn,
+body.demo-tree-page.site-shell:not(.focus-mode) #backBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--shell-control-height);
+  min-width: var(--shell-control-height);
+  padding: 0;
+}
+
+body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree > button:hover,
+body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree > button:focus-visible,
+body.demo-tree-page.site-shell:not(.focus-mode) #upcomingBtn:hover,
+body.demo-tree-page.site-shell:not(.focus-mode) #upcomingBtn:focus-visible,
+body.demo-tree-page.site-shell:not(.focus-mode) #backBtn:hover,
+body.demo-tree-page.site-shell:not(.focus-mode) #backBtn:focus-visible {
+  border-color: rgba(36, 92, 90, 0.35);
+  box-shadow: var(--shadow-md);
+  outline: none;
+}
+
+body.demo-tree-page.site-shell:not(.focus-mode) #searchBtn .material-symbols-outlined,
+body.demo-tree-page.site-shell:not(.focus-mode) #helpBtn .material-symbols-outlined,
+body.demo-tree-page.site-shell:not(.focus-mode) #themeBtn .material-symbols-outlined,
+body.demo-tree-page.site-shell:not(.focus-mode) #backBtn .material-symbols-outlined {
+  display: block;
+  font-size: 21px;
+  line-height: 1;
+}
+
+@media (min-width: 769px) {
+  body.demo-tree-page.site-shell:not(.focus-mode) .topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+  }
+
+  body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree {
+    flex-wrap: nowrap;
+  }
+}
+
+@media (max-width: 768px) {
+  body.demo-tree-page.site-shell:not(.focus-mode) .topbar {
+    width: var(--shell-width);
+    margin-top: 10px;
+    padding: 12px 14px;
+    border-radius: 20px;
+  }
+
+  body.demo-tree-page.site-shell:not(.focus-mode) .app-header .brand {
+    font-size: 1.1rem;
+  }
+
+  body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree > button,
+  body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree > a,
+  body.demo-tree-page.site-shell:not(.focus-mode) #upcomingBtn {
+    min-height: 44px;
+    padding: 0 12px;
+  }
+
+  body.demo-tree-page.site-shell:not(.focus-mode) #searchBtn,
+  body.demo-tree-page.site-shell:not(.focus-mode) #helpBtn,
+  body.demo-tree-page.site-shell:not(.focus-mode) #themeBtn,
+  body.demo-tree-page.site-shell:not(.focus-mode) #backBtn {
+    width: 44px;
+    min-width: 44px;
+    padding: 0;
   }
 }

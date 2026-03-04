@@ -10,6 +10,48 @@ const AUTH_STATE_TIMEOUT_MS = 10000;
 const TREE_LOAD_TIMEOUT_MS = 12000;
 const LOCAL_GUEST_TREE_KEY = 'ancestrio:guest-tree:v1';
 
+function syncDashboardHeaderAuthActions(user = null) {
+  const header = document.querySelector('.site-header');
+  if (!header) return;
+
+  const signInLink = header.querySelector('.site-header__actions a[href="auth.html"]');
+  const dashboardLink = header.querySelector('.site-header__actions a[href="dashboard.html"]');
+  const isAuthenticated = Boolean(user && !user.isAnonymous);
+  const identity = sanitizeText(user?.displayName || user?.email);
+
+  header.classList.toggle('site-header--authenticated', isAuthenticated);
+
+  if (signInLink) {
+    signInLink.hidden = isAuthenticated;
+    signInLink.setAttribute('aria-hidden', isAuthenticated ? 'true' : 'false');
+    if (isAuthenticated) {
+      signInLink.setAttribute('tabindex', '-1');
+    } else {
+      signInLink.removeAttribute('tabindex');
+    }
+  }
+
+  if (dashboardLink) {
+    dashboardLink.hidden = !isAuthenticated;
+    dashboardLink.setAttribute('aria-hidden', isAuthenticated ? 'false' : 'true');
+    if (isAuthenticated) {
+      dashboardLink.removeAttribute('tabindex');
+    } else {
+      dashboardLink.setAttribute('tabindex', '-1');
+    }
+
+    if (isAuthenticated && identity) {
+      dashboardLink.setAttribute('title', `Dashboard for ${identity}`);
+      dashboardLink.setAttribute('aria-label', `Dashboard for ${identity}`);
+    } else {
+      dashboardLink.removeAttribute('title');
+      dashboardLink.setAttribute('aria-label', 'Dashboard');
+    }
+  }
+
+  window.AncestrioHeaderAuthCache?.setFromUser?.(user || null);
+}
+
 function showErrorText(errorEl, message) {
   if (!errorEl) return;
   if (message) errorEl.textContent = message;
@@ -138,6 +180,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       displayName: 'Guest',
       email: ''
     };
+    syncDashboardHeaderAuthActions(currentUser);
     configureGuestDashboardUI();
     updateDashboardTitle(currentUser);
     await loadTrees();
@@ -170,15 +213,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.clearTimeout(authStateTimeoutId);
       if (user) {
         currentUser = user;
+        syncDashboardHeaderAuthActions(currentUser);
         updateDashboardTitle(currentUser);
         await loadTrees();
       } else {
+        syncDashboardHeaderAuthActions(null);
         window.location.href = 'auth.html';
       }
     },
     (error) => {
       authStateResolved = true;
       window.clearTimeout(authStateTimeoutId);
+      syncDashboardHeaderAuthActions(null);
       console.error('Auth state listener error:', error);
       window.AncestrioDomDisplay.hide('loadingState');
       showDashboardStatus('Authentication failed. Please sign in again.');
@@ -790,6 +836,10 @@ function getCurrentUserName(user) {
   return email.includes('@') ? email.split('@')[0] : email;
 }
 
+function formatDashboardUserName(name) {
+  return String(name || '').replace(/\b([a-z])/g, (match) => match.toUpperCase());
+}
+
 function updateDashboardTitle(user) {
   const titleEl = document.getElementById('dashboardTitle');
   if (!titleEl) return;
@@ -799,7 +849,8 @@ function updateDashboardTitle(user) {
   }
 
   const username = getCurrentUserName(user);
-  titleEl.textContent = username ? `${username}'s Family Trees` : 'Your Family Trees';
+  const formattedUsername = formatDashboardUserName(username);
+  titleEl.textContent = formattedUsername ? `${formattedUsername}'s Family Trees` : 'Your Family Trees';
 }
 
 function withTimeout(promise, timeoutMs, timeoutCode) {
@@ -823,14 +874,14 @@ function withTimeout(promise, timeoutMs, timeoutCode) {
 }
 
 function showDashboardStatus(message) {
-  const hero = document.querySelector('.dashboard-hero');
-  if (!hero) return;
+  const overviewSupport = document.querySelector('.dashboard-overview__support');
+  if (!overviewSupport) return;
   let status = document.getElementById('dashboardStatus');
   if (!status) {
     status = document.createElement('p');
     status.id = 'dashboardStatus';
     status.className = 'dashboard-status';
-    hero.appendChild(status);
+    overviewSupport.appendChild(status);
   }
   status.textContent = message;
   window.AncestrioDomDisplay.show(status);
@@ -860,7 +911,9 @@ function mapTreesFromSnapshot(snapshot) {
 
 function setCreateTreeButtonVisibility(visible) {
   const createTreeActions = document.querySelector('.dashboard-hero-actions');
-  window.AncestrioDomDisplay.setDisplay(createTreeActions, visible ? 'block' : 'none');
+  if (!createTreeActions) return;
+  // Keep the primary CTA visible in the merged overview card even when the list is empty.
+  window.AncestrioDomDisplay.setDisplay(createTreeActions, 'flex');
 }
 
 function configureGuestDashboardUI() {
@@ -1607,12 +1660,14 @@ async function confirmDelete() {
 async function logout() {
   if (isLocalGuestMode) {
     localStorage.removeItem('guestMode');
+    window.AncestrioHeaderAuthCache?.setFromUser?.(null);
     window.location.href = 'auth.html';
     return;
   }
 
   try {
     await auth.signOut();
+    window.AncestrioHeaderAuthCache?.setFromUser?.(null);
     window.location.href = 'auth.html';
   } catch (error) {
     console.error('Error signing out:', error);

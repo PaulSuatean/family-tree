@@ -151,9 +151,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Guard when page is loaded without an initialized Firebase app.
+    // Directly opened public links should fall back to the public site, not auth.
     const hasFirebaseApp = typeof firebase !== 'undefined' && Array.isArray(firebase.apps) && firebase.apps.length > 0;
     const loggedIn = hasFirebaseApp && firebase.auth().currentUser;
-    window.location.href = loggedIn ? 'dashboard.html' : 'auth.html';
+    window.location.href = loggedIn ? 'dashboard.html' : '../index.html';
   });
 });

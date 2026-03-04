@@ -1,36 +1,36 @@
 (function () {
   window.AncestrioTheme?.initThemeToggle({ persistInitialTheme: true });
 
-  const container = document.querySelector('.triangle-container');
-  const leftTriangle = document.querySelector('.triangle-left');
-  const rightTriangle = document.querySelector('.triangle-right');
-  const bottomTriangle = document.querySelector('.triangle-bottom');
+  const faqItems = Array.from(document.querySelectorAll('.faq-item'));
 
-  function clearHoverClasses() {
-    container?.classList.remove('hover-left', 'hover-right', 'hover-bottom');
+  function setFaqState(item, isOpen) {
+    if (!item) return;
+    const toggle = item.querySelector('.faq-toggle');
+    const content = item.querySelector('.faq-content');
+    if (!toggle || !content) return;
+
+    item.classList.toggle('is-open', isOpen);
+    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    content.style.maxHeight = isOpen ? `${content.scrollHeight}px` : '0px';
   }
 
-  leftTriangle?.addEventListener('mouseenter', () => {
-    clearHoverClasses();
-    container?.classList.add('hover-left');
-  });
-  leftTriangle?.addEventListener('mouseleave', () => {
-    container?.classList.remove('hover-left');
+  faqItems.forEach((item) => {
+    const toggle = item.querySelector('.faq-toggle');
+    if (!toggle) return;
+
+    setFaqState(item, false);
+    toggle.addEventListener('click', () => {
+      const shouldOpen = !item.classList.contains('is-open');
+      faqItems.forEach((entry) => setFaqState(entry, false));
+      setFaqState(item, shouldOpen);
+    });
   });
 
-  rightTriangle?.addEventListener('mouseenter', () => {
-    clearHoverClasses();
-    container?.classList.add('hover-right');
-  });
-  rightTriangle?.addEventListener('mouseleave', () => {
-    container?.classList.remove('hover-right');
-  });
-
-  bottomTriangle?.addEventListener('mouseenter', () => {
-    clearHoverClasses();
-    container?.classList.add('hover-bottom');
-  });
-  bottomTriangle?.addEventListener('mouseleave', () => {
-    container?.classList.remove('hover-bottom');
+  window.addEventListener('resize', () => {
+    faqItems.forEach((item) => {
+      if (item.classList.contains('is-open')) {
+        setFaqState(item, true);
+      }
+    });
   });
 })();

@@ -13,6 +13,7 @@ const firebaseConfig = {
 
 // Initialize Firebase (will be used by other scripts)
 let app, auth, db, storage;
+const HEADER_AUTH_CACHE_KEY = 'ancestrio:header-auth-state:v1';
 
 // Check if running locally
 const LOCAL_LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
@@ -140,10 +141,45 @@ function initializeFirebase() {
     console.log('Firebase initialized successfully');
     console.log('Auth:', auth);
     console.log('Firestore:', db);
+    try {
+      document.dispatchEvent(new CustomEvent('ancestrio:firebase-ready', {
+        detail: { auth, db, storage, app }
+      }));
+    } catch (_) {
+      // Ignore event dispatch failures in older browsers.
+    }
     return true;
   } catch (error) {
     console.error('Error initializing Firebase:', error);
     notifyUser('Firebase initialization failed: ' + error.message, 'error', { duration: 7000 });
     return false;
   }
+}
+
+function cacheHeaderAuthState(user) {
+  try {
+    const payload = user && !user.isAnonymous ? {
+      authenticated: true,
+      isAnonymous: false,
+      displayName: typeof user.displayName === 'string' ? user.displayName : '',
+      email: typeof user.email === 'string' ? user.email : '',
+      updatedAt: Date.now()
+    } : {
+      authenticated: false,
+      isAnonymous: Boolean(user && user.isAnonymous),
+      displayName: '',
+      email: '',
+      updatedAt: Date.now()
+    };
+    localStorage.setItem(HEADER_AUTH_CACHE_KEY, JSON.stringify(payload));
+  } catch (_) {
+    // Ignore storage failures.
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.AncestrioHeaderAuthCache = {
+    key: HEADER_AUTH_CACHE_KEY,
+    setFromUser: cacheHeaderAuthState
+  };
 }

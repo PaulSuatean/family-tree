@@ -13,9 +13,13 @@ let visualState = {
   svg: null,
   g: null,
   zoom: null,
+  isProgrammaticTransform: false,
   hasUserTransform: false,
   pendingRender: null,
-  autoSeeded: false
+  autoSeeded: false,
+  initialDataReady: false,
+  hasRenderedTree: false,
+  hasAnimatedInitialFit: false
 };
 
 // Add member state
@@ -38,6 +42,14 @@ const THUMBNAIL_MAX_BYTES = 220 * 1024;
 const IMAGE_FIELD_NAMES = new Set(['image', 'spouseImage', 'thumb', 'spouseThumb', 'thumbnailData']);
 const SAVE_BUTTON_DEFAULT_LABEL = 'Save';
 const SAVE_BUTTON_DIRTY_SUFFIX = ' *';
+
+function isVisualTestMode() {
+  try {
+    return window.__ancestrioVisualTest === true || localStorage.getItem('ancestrio-visual-test') === 'true';
+  } catch (error) {
+    return window.__ancestrioVisualTest === true;
+  }
+}
 const SAVE_BUTTON_SAVING_LABEL = 'Saving...';
 const SAVE_BUTTON_SAVED_LABEL = 'Saved!';
 
@@ -462,29 +474,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Event listeners
   document.getElementById('saveBtn').addEventListener('click', saveTree);
   document.getElementById('viewTreeBtn').addEventListener('click', openPreview);
-  document.getElementById('dashboardBtn')?.addEventListener('click', async () => {
-    const targetHref = isLocalGuestMode ? 'dashboard.html?guest=1' : 'dashboard.html';
-    const dashboardBtn = document.getElementById('dashboardBtn');
-    let reenableTimer = null;
-
-    if (dashboardBtn) {
-      dashboardBtn.disabled = true;
-      reenableTimer = setTimeout(() => {
-        dashboardBtn.disabled = false;
-      }, 2500);
-    }
-
-    try {
-      await ensureTreeThumbnailForDashboard();
-    } catch (error) {
-      console.warn('Proceeding to dashboard without thumbnail update:', error);
-    } finally {
-      if (reenableTimer) clearTimeout(reenableTimer);
-      if (dashboardBtn) dashboardBtn.disabled = false;
-    }
-
-    window.location.href = targetHref;
-  });
   
   // Sidebar actions
   document.getElementById('addPersonBtn')?.addEventListener('click', addFamilyMember);
@@ -492,9 +481,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('importJsonBtn')?.addEventListener('click', showImportModal);
   
   // Tabs
-  document.querySelectorAll('.editor-tab').forEach(tab => {
+  document.querySelectorAll('.editor-tab').forEach((tab) => {
     tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+    tab.addEventListener('keydown', handleEditorTabKeydown);
   });
+  setActiveEditorTabState(document.querySelector('.editor-tab.active')?.dataset.tab || 'visual');
   
   // JSON toolbar
   document.getElementById('formatJsonBtn').addEventListener('click', formatJson);
@@ -549,7 +540,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   syncMemberCountriesSectionVisibility();
 
   initVisualEditor();
-  scheduleVisualRender(true);
+  if (visualState.initialDataReady) {
+    scheduleVisualRender(true);
+  }
   
   // Warn before leaving with unsaved changes
   window.addEventListener('beforeunload', (e) => {
@@ -605,6 +598,9 @@ async function loadTree() {
     const jsonEditor = document.getElementById('jsonEditor');
     jsonEditor.value = JSON.stringify(currentTree.data || {}, null, 2);
     visualState.autoSeeded = false;
+    visualState.initialDataReady = true;
+    visualState.hasRenderedTree = false;
+    visualState.hasAnimatedInitialFit = false;
 
     scheduleVisualRender(true);
     
@@ -667,6 +663,9 @@ function loadGuestTree() {
     const jsonEditor = document.getElementById('jsonEditor');
     jsonEditor.value = JSON.stringify(currentTree.data || {}, null, 2);
     visualState.autoSeeded = false;
+    visualState.initialDataReady = true;
+    visualState.hasRenderedTree = false;
+    visualState.hasAnimatedInitialFit = false;
 
     hasUnsavedChanges = false;
     updateSaveButton();
@@ -690,6 +689,9 @@ function loadGuestTree() {
     syncMemberBirthdayFieldVisibility();
     syncMemberCountriesSectionVisibility();
     document.getElementById('jsonEditor').value = JSON.stringify(currentTree.data || {}, null, 2);
+    visualState.initialDataReady = true;
+    visualState.hasRenderedTree = false;
+    visualState.hasAnimatedInitialFit = false;
     hasUnsavedChanges = false;
     updateSaveButton();
     scheduleVisualRender(true);
@@ -863,9 +865,14 @@ function applyExportThemeVariables(svgNode) {
     }
   });
 
-  // Keep person bubble backgrounds consistent in thumbnails across themes.
-  const lightThemeBubbleBg = (rootStyles.getPropertyValue('--surface-2') || '#f1f3f5').trim();
-  svgNode.style.setProperty('--person-bubble-bg', lightThemeBubbleBg);
+  const activeBubbleBg = (
+    bodyStyles.getPropertyValue('--node-fill') ||
+    bodyStyles.getPropertyValue('--surface') ||
+    rootStyles.getPropertyValue('--node-fill') ||
+    rootStyles.getPropertyValue('--surface') ||
+    '#f1f3f5'
+  ).trim();
+  svgNode.style.setProperty('--person-bubble-bg', activeBubbleBg);
 }
 
 async function generateTreeThumbnail() {
@@ -887,18 +894,18 @@ async function generateTreeThumbnail() {
     }
     
     // Fixed thumbnail dimensions
-    const thumbnailWidth = 800;
-    const thumbnailHeight = 600;
+    const thumbnailWidth = 1080;
+    const thumbnailHeight = 720;
     
     // Add padding around the tree content
-    const padding = 100;
+    const padding = 40;
     const contentWidth = bbox.width + padding * 2;
     const contentHeight = bbox.height + padding * 2;
     
     // Calculate scale to fit the tree in the thumbnail while maintaining aspect ratio
     const scaleX = thumbnailWidth / contentWidth;
     const scaleY = thumbnailHeight / contentHeight;
-    const scale = Math.min(scaleX, scaleY, 1); // Don't scale up, max 1:1
+    const scale = Math.min(scaleX, scaleY, 2.25);
     
     // Calculate centered position
     const scaledWidth = bbox.width * scale;
@@ -987,6 +994,7 @@ function waitForVisualRender(ms = 160) {
 }
 
 async function ensureTreeThumbnailForDashboard() {
+  if (isVisualTestMode()) return false;
   if (isLocalGuestMode) return false;
   if (!treeId || !currentTree) return false;
   if (hasUnsavedChanges) return false;
@@ -1377,23 +1385,67 @@ function cleanupLocalPreviewDrafts() {
 
   keysToDelete.forEach((key) => localStorage.removeItem(key));
 }
-function switchTab(tabName) {
-  // Update tabs
-  document.querySelectorAll('.editor-tab').forEach(tab => {
-    tab.classList.toggle('active', tab.dataset.tab === tabName);
-  });
-  
-  // Update content
-  document.querySelectorAll('.tab-content').forEach(content => {
-    content.classList.remove('active');
-  });
-  
-  if (tabName === 'visual') {
-    document.getElementById('visualTab').classList.add('active');
-    scheduleVisualRender(true);
-  } else if (tabName === 'json') {
-    document.getElementById('jsonTab').classList.add('active');
+function handleEditorTabKeydown(event) {
+  const tabs = Array.from(document.querySelectorAll('.editor-tab'));
+  const currentIndex = tabs.findIndex((tab) => tab === event.currentTarget);
+  if (currentIndex === -1) return;
+
+  let nextIndex = currentIndex;
+  if (event.key === 'ArrowRight') {
+    nextIndex = (currentIndex + 1) % tabs.length;
+  } else if (event.key === 'ArrowLeft') {
+    nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+  } else if (event.key === 'Home') {
+    nextIndex = 0;
+  } else if (event.key === 'End') {
+    nextIndex = tabs.length - 1;
+  } else {
+    return;
   }
+
+  event.preventDefault();
+  const nextTab = tabs[nextIndex];
+  nextTab?.focus();
+  if (nextTab?.dataset.tab) {
+    switchTab(nextTab.dataset.tab);
+  }
+}
+
+function setActiveEditorTabState(tabName, options = {}) {
+  const { renderVisual = false } = options;
+  const tabs = Array.from(document.querySelectorAll('.editor-tab'));
+  if (!tabs.length) return;
+
+  const activeTab = tabs.find((tab) => tab.dataset.tab === tabName) || tabs[0];
+  const activeTabName = activeTab.dataset.tab || 'visual';
+  const activePanelId = activeTab.getAttribute('aria-controls') || `${activeTabName}Tab`;
+  const activeIndex = Number.parseInt(activeTab.dataset.tabIndex || '0', 10);
+
+  tabs.forEach((tab) => {
+    const isActive = tab === activeTab;
+    tab.classList.toggle('active', isActive);
+    tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    tab.setAttribute('tabindex', isActive ? '0' : '-1');
+  });
+
+  document.querySelectorAll('.tab-content').forEach((content) => {
+    const isActive = content.id === activePanelId;
+    content.classList.toggle('active', isActive);
+    content.hidden = !isActive;
+  });
+
+  const tabList = document.querySelector('.editor-tabs');
+  if (tabList) {
+    tabList.style.setProperty('--active-index', Number.isFinite(activeIndex) ? String(activeIndex) : '0');
+  }
+
+  if (renderVisual && activeTabName === 'visual') {
+    scheduleVisualRender(true);
+  }
+}
+
+function switchTab(tabName) {
+  setActiveEditorTabState(tabName, { renderVisual: true });
 }
 
 function formatJson() {
@@ -1568,7 +1620,9 @@ function initVisualEditor() {
     .scaleExtent([0.2, 2.5])
     .on('zoom', (event) => {
       visualState.g.attr('transform', event.transform);
-      visualState.hasUserTransform = true;
+      if (!visualState.isProgrammaticTransform) {
+        visualState.hasUserTransform = true;
+      }
       // Hide popup when panning/zooming
       hideAddMemberPopup();
     });
@@ -1652,7 +1706,14 @@ function scheduleVisualRender(resetTransform) {
   if (visualState.pendingRender) {
     clearTimeout(visualState.pendingRender);
   }
+  const shouldRenderImmediately = visualState.initialDataReady && !visualState.hasRenderedTree;
+  if (shouldRenderImmediately) {
+    visualState.pendingRender = null;
+    renderVisualEditor(!!resetTransform);
+    return;
+  }
   visualState.pendingRender = setTimeout(() => {
+    visualState.pendingRender = null;
     renderVisualEditor(!!resetTransform);
   }, 80);
 }
@@ -1660,6 +1721,11 @@ function scheduleVisualRender(resetTransform) {
 function renderVisualEditor(resetTransform) {
   if (!visualState.initialized) {
     console.log('Visual state not initialized');
+    return;
+  }
+  if (!visualState.initialDataReady) {
+    // Avoid rendering a seeded placeholder before the saved tree payload arrives.
+    visualState.g.selectAll('*').remove();
     return;
   }
   const jsonEditor = document.getElementById('jsonEditor');
@@ -1687,6 +1753,7 @@ function renderVisualEditor(resetTransform) {
     visualState.g.selectAll('*').remove();
     return;
   }
+  visualState.hasRenderedTree = true;
 
   // Keep full hierarchy in editor so parents/siblings remain visible and editable.
   // Origin re-rooting is handled in the viewer renderer.
@@ -2197,6 +2264,87 @@ function renderVisualEditor(resetTransform) {
   };
   alignAncestorRowsByGeneration();
 
+  const alignDescendantRowsByGeneration = () => {
+    const originNode = nodes.find((node) => !!(node && node.data && node.data.isOrigin));
+    if (!originNode || !Number.isFinite(originNode.y)) return;
+
+    const rowTolerance = 0.5;
+    const isSameRow = (a, b) => Math.abs((Number(a) || 0) - (Number(b) || 0)) <= rowTolerance;
+    const uniqueSortedNumbers = (values) => {
+      const result = [];
+      values
+        .filter((value) => Number.isFinite(value))
+        .sort((a, b) => a - b)
+        .forEach((value) => {
+          if (!result.length || !isSameRow(result[result.length - 1], value)) {
+            result.push(value);
+          }
+        });
+      return result;
+    };
+    const getRowCards = (rowY) => {
+      const cards = [];
+      nodes
+        .filter((node) => isSameRow(node.y, rowY))
+        .forEach((node) => {
+          cards.push({
+            x: getPrimaryCenterForNode(node, getRenderableSpouseCount(node)),
+            applyDelta: (dx) => { node.x += dx; }
+          });
+        });
+      spouseNodes
+        .filter((node) => isSameRow(node.y, rowY))
+        .forEach((node) => {
+          cards.push({
+            x: node.x,
+            applyDelta: (dx) => { node.x += dx; }
+          });
+        });
+      cards.sort((a, b) => a.x - b.x);
+      return cards;
+    };
+    const getIncomingAnchorX = (childNode) => {
+      const parentNode = childNode && childNode.parent;
+      if (!parentNode) return null;
+      const parentSpouseEntries = spouseEntriesByPrimaryId.get(parentNode.data.id) || [];
+      if (!parentSpouseEntries.length) {
+        return getPrimaryCenterForNode(parentNode, 0);
+      }
+      const sourceIndex = getChildSpouseSourceIndexForAlign(childNode);
+      const renderIndex = resolveRenderSpouseIndex(parentSpouseEntries, sourceIndex);
+      return getMergeCenterForSpouseBranch(parentNode, parentSpouseEntries.length, renderIndex);
+    };
+
+    const descendantRowYs = uniqueSortedNumbers(
+      nodes
+        .filter((node) => Number(node.y) > originNode.y + rowTolerance)
+        .map((node) => Number(node.y))
+    );
+
+    descendantRowYs.forEach((rowY) => {
+      const rowCards = getRowCards(rowY);
+      if (!rowCards.length) return;
+
+      const anchorCenters = uniqueSortedNumbers(
+        nodes
+          .filter((node) => isSameRow(node.y, rowY))
+          .map((node) => getIncomingAnchorX(node))
+      );
+      if (!anchorCenters.length) return;
+
+      const currentCenterX = (rowCards[0].x + rowCards[rowCards.length - 1].x) / 2;
+      const targetCenterX = (anchorCenters[0] + anchorCenters[anchorCenters.length - 1]) / 2;
+      const deltaX = targetCenterX - currentCenterX;
+      if (!Number.isFinite(deltaX) || Math.abs(deltaX) < 0.75) return;
+
+      rowCards.forEach((card) => {
+        card.applyDelta(deltaX);
+        card.x += deltaX;
+      });
+    });
+  };
+  alignDescendantRowsByGeneration();
+
   const renderNodes = nodes.concat(spouseNodes, spouseAncestorPrimaryNodes, spouseAncestorSpouseNodes);
   const hasOriginNode = renderNodes.some((node) => !!(node && node.data && node.data.isOrigin));
 
@@ -2573,7 +2721,20 @@ function centerVisualTree(nodes, nodeSize) {
   const translateX = width / 2 - ((minX + maxX) / 2) * scale;
   const translateY = height / 2 - ((minY + maxY) / 2) * scale;
   const transform = d3.zoomIdentity.translate(translateX, translateY).scale(scale);
-  visualState.svg.call(visualState.zoom.transform, transform);
+  const shouldAnimateFit = !visualState.hasAnimatedInitialFit;
+  visualState.isProgrammaticTransform = true;
+  if (shouldAnimateFit) {
+    visualState.svg.transition()
+      .duration(450)
+      .call(visualState.zoom.transform, transform)
+      .on('end interrupt', () => {
+        visualState.isProgrammaticTransform = false;
+      });
+    visualState.hasAnimatedInitialFit = true;
+  } else {
+    visualState.svg.call(visualState.zoom.transform, transform);
+    visualState.isProgrammaticTransform = false;
+  }
   visualState.hasUserTransform = false;
 }
 

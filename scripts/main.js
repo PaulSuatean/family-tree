@@ -966,6 +966,9 @@
   setView(currentView);
 
   function getTreeDefaultPadding() {
+    if (document.body.classList.contains('demo-tree-page') && !document.body.classList.contains('has-app-toolbar')) {
+      return mobileQuery && mobileQuery.matches ? 6 : 18;
+    }
     return mobileQuery && mobileQuery.matches ? 12 : 36;
   }
   function getTreeFocusPadding() {

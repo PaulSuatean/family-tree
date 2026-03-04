@@ -44,4 +44,12 @@ Use only the root files:
 - Store ordering is lead capture only in v1 (no payment checkout flow yet).
 - Email notifications are sent through Formspree or FormSubmit from the store order form.
 - Configure the endpoint in `pages/store.html` on `#orderForm[data-formspree-endpoint]`.
+- Valid endpoint formats:
+  - Formspree: `https://formspree.io/f/<FORM_ID>`
+  - FormSubmit AJAX: `https://formsubmit.co/ajax/<YOUR_EMAIL>`
+- Notes for FormSubmit:
+  - `/ajax/...` is recommended because it returns verifiable API success/error responses.
+  - `/el/...` is an Email Link page flow and should be used as a link destination, not as the store order endpoint.
+  - For classic form POST endpoints, use `https://formsubmit.co/<YOUR_EMAIL_OR_RANDOM_STRING>`.
+  - First submissions may require FormSubmit activation via email before delivery begins.
 - If a user is signed in, the order is also written to Firestore collection: `storeOrders`.

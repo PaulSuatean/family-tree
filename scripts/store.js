@@ -108,6 +108,8 @@
   let lastProductModalTrigger = null;
   let productPreviewGallery = [];
   let selectedPreviewIndex = 0;
+  let ordersUnsubscribe = null;
+  let ordersSubscriptionUserId = '';
 
   const refs = {};
 
@@ -181,6 +183,45 @@
     return digits.length >= 7 && digits.length <= 15;
   }
 
+  function isLikelyEmailAddress(value) {
+    const safeValue = sanitizeText(value, 180);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(safeValue);
+  }
+
+  function getFormsubmitEndpointMode(url) {
+    if (!(url instanceof URL) || url.host !== FORMSUBMIT_HOST) return '';
+    const segments = url.pathname.split('/').filter(Boolean).map((part) => sanitizeText(part, 160));
+    if (segments.length === 2 && segments[0] === 'el' && /^[a-zA-Z0-9_-]+$/.test(segments[1])) {
+      return 'email-link';
+    }
+    if (segments.length === 2 && segments[0] === 'ajax') {
+      const target = decodeURIComponent(segments[1]);
+      return isLikelyEmailAddress(target) || /^[a-zA-Z0-9_-]+$/.test(target) ? 'ajax' : '';
+    }
+    if (segments.length === 1) {
+      const target = decodeURIComponent(segments[0]);
+      return isLikelyEmailAddress(target) ? 'direct-email' : '';
+    }
+    return '';
+  }
+
+  function toFormsubmitAjaxEndpoint(endpoint) {
+    try {
+      const url = new URL(endpoint);
+      if (url.host !== FORMSUBMIT_HOST) return endpoint;
+      const mode = getFormsubmitEndpointMode(url);
+      if (mode === 'direct-email') {
+        const emailAddress = decodeURIComponent(url.pathname.split('/').filter(Boolean)[0] || '');
+        const cloned = new URL(url.toString());
+        cloned.pathname = `/ajax/${encodeURIComponent(emailAddress)}`;
+        return cloned.toString();
+      }
+      return url.toString();
+    } catch (_) {
+      return endpoint;
+    }
+  }
+
   function sanitizeEmailEndpoint(value) {
     const raw = sanitizeText(value, 220);
     if (!raw || raw.includes(EMAIL_PROVIDER_PLACEHOLDER)) return '';
@@ -192,7 +233,7 @@
       }
 
       const isValidFormspreePath = url.host === FORMSPREE_HOST && /^\/f\/[a-zA-Z0-9]+\/?$/.test(url.pathname);
-      const isValidFormsubmitPath = url.host === FORMSUBMIT_HOST && /^\/(?:el|ajax)\/[a-zA-Z0-9_-]+\/?$/.test(url.pathname);
+      const isValidFormsubmitPath = getFormsubmitEndpointMode(url) !== '';
       if (!isValidFormspreePath && !isValidFormsubmitPath) return '';
       return url.toString();
     } catch (_) {
@@ -432,6 +473,240 @@
     if (refs.orderLoginLink) {
       refs.orderLoginLink.href = buildAuthLoginHref();
     }
+    if (refs.storeOrdersLoginLink) {
+      refs.storeOrdersLoginLink.href = buildAuthLoginHref();
+    }
+  }
+
+  function stopOrdersSubscription() {
+    if (typeof ordersUnsubscribe === 'function') {
+      ordersUnsubscribe();
+    }
+    ordersUnsubscribe = null;
+    ordersSubscriptionUserId = '';
+  }
+
+  function normalizeOrderStatus(value) {
+    const normalized = sanitizeText(value, 32).toLowerCase().replace(/[\s_]+/g, '-');
+    if (normalized === 'in-progress' || normalized === 'inprogress') {
+      return 'processing';
+    }
+    if (normalized === 'canceled') {
+      return 'cancelled';
+    }
+    if (['new', 'processing', 'shipped', 'delivered', 'cancelled'].includes(normalized)) {
+      return normalized;
+    }
+    return 'new';
+  }
+
+  function getOrderStatusMeta(status) {
+    const safeStatus = normalizeOrderStatus(status);
+    const statusMap = {
+      new: { label: 'New', className: 'is-new' },
+      processing: { label: 'Processing', className: 'is-processing' },
+      shipped: { label: 'Shipped', className: 'is-shipped' },
+      delivered: { label: 'Delivered', className: 'is-delivered' },
+      cancelled: { label: 'Cancelled', className: 'is-cancelled' }
+    };
+    return statusMap[safeStatus] || statusMap.new;
+  }
+
+  function getTimestampMillis(value) {
+    if (!value) return 0;
+    try {
+      if (typeof value.toDate === 'function') {
+        const dateValue = value.toDate();
+        return dateValue instanceof Date ? dateValue.getTime() : 0;
+      }
+      if (value instanceof Date) {
+        return value.getTime();
+      }
+      if (typeof value === 'object' && typeof value.seconds === 'number') {
+        return value.seconds * 1000;
+      }
+      const parsed = new Date(value);
+      return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  function formatOrderDate(value) {
+    const timestamp = getTimestampMillis(value);
+    if (!timestamp) return 'Pending confirmation';
+    try {
+      return new Intl.DateTimeFormat(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      }).format(new Date(timestamp));
+    } catch (_) {
+      return 'Pending confirmation';
+    }
+  }
+
+  function formatOrderTotal(value, currency) {
+    const amount = Number(value);
+    const safeAmount = Number.isFinite(amount) ? amount : 0;
+    const safeCurrency = sanitizeText(currency, 3).toUpperCase();
+    if (/^[A-Z]{3}$/.test(safeCurrency)) {
+      try {
+        return new Intl.NumberFormat(undefined, {
+          style: 'currency',
+          currency: safeCurrency,
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(safeAmount);
+      } catch (_) {
+        return formatCurrency(safeAmount);
+      }
+    }
+    return formatCurrency(safeAmount);
+  }
+
+  function setOrdersEmptyState(message, options = {}) {
+    if (refs.storeOrdersList) {
+      refs.storeOrdersList.innerHTML = '';
+    }
+    if (refs.storeOrdersEmpty) {
+      refs.storeOrdersEmpty.textContent = sanitizeText(message, 260);
+      refs.storeOrdersEmpty.style.display = message ? 'block' : 'none';
+    }
+    if (refs.storeOrdersLoginLink) {
+      refs.storeOrdersLoginLink.style.display = options.showLogin ? 'inline-flex' : 'none';
+    }
+  }
+
+  function renderOrdersList(orders) {
+    if (!refs.storeOrdersList || !refs.storeOrdersEmpty) return;
+    refs.storeOrdersList.innerHTML = '';
+
+    if (!Array.isArray(orders) || !orders.length) {
+      setOrdersEmptyState('No orders yet. Place your first order above.');
+      return;
+    }
+
+    refs.storeOrdersEmpty.textContent = '';
+    refs.storeOrdersEmpty.style.display = 'none';
+    if (refs.storeOrdersLoginLink) {
+      refs.storeOrdersLoginLink.style.display = 'none';
+    }
+
+    orders.forEach((order) => {
+      const item = document.createElement('li');
+      item.className = 'store-orders-item';
+
+      const head = document.createElement('div');
+      head.className = 'store-orders-item-head';
+
+      const titleWrap = document.createElement('div');
+      const title = document.createElement('p');
+      title.className = 'store-orders-item-title';
+      title.textContent = `${sanitizeText(order.productLabel, 120)} x${order.quantity}`;
+      titleWrap.appendChild(title);
+
+      const statusMeta = getOrderStatusMeta(order.status);
+      const statusPill = document.createElement('span');
+      statusPill.className = `store-order-status-pill ${statusMeta.className}`;
+      statusPill.textContent = statusMeta.label;
+
+      head.appendChild(titleWrap);
+      head.appendChild(statusPill);
+
+      const shortId = sanitizeText(order.id, 80).slice(0, 8);
+      const meta = document.createElement('p');
+      meta.className = 'store-orders-item-meta';
+      meta.textContent = shortId
+        ? `Order #${shortId} | ${formatOrderDate(order.createdAt)}`
+        : `Placed ${formatOrderDate(order.createdAt)}`;
+
+      const total = document.createElement('p');
+      total.className = 'store-orders-item-total';
+      total.textContent = `Total: ${formatOrderTotal(order.total, order.currency)}`;
+
+      item.appendChild(head);
+      item.appendChild(meta);
+      item.appendChild(total);
+      refs.storeOrdersList.appendChild(item);
+    });
+  }
+
+  function subscribeToSignedInOrders() {
+    if (!currentUser) return;
+
+    const userId = sanitizeText(currentUser.uid || '', 120);
+    if (!userId) {
+      setOrdersEmptyState('Could not resolve your account for order tracking.');
+      return;
+    }
+
+    if (ordersUnsubscribe && ordersSubscriptionUserId === userId) {
+      return;
+    }
+
+    stopOrdersSubscription();
+
+    if (typeof db === 'undefined' || !db || typeof firebase === 'undefined' || !firebase.firestore) {
+      setOrdersEmptyState('Order tracking is unavailable right now. Please refresh and try again.');
+      return;
+    }
+
+    ordersSubscriptionUserId = userId;
+    setOrdersEmptyState('Loading your orders...');
+
+    try {
+      ordersUnsubscribe = db
+        .collection('storeOrders')
+        .where('userId', '==', userId)
+        .onSnapshot(
+          (snapshot) => {
+            const orders = snapshot.docs
+              .map((doc) => {
+                const data = doc.data() || {};
+                return {
+                  id: doc.id || '',
+                  productLabel: sanitizeText(data.productLabel || 'Store order', 120),
+                  quantity: Math.max(1, Math.min(999, Math.floor(Number(data.quantity) || 1))),
+                  total: Number(data.total) || 0,
+                  currency: sanitizeText(data.currency || CURRENCY, 3).toUpperCase() || CURRENCY,
+                  status: normalizeOrderStatus(data.status),
+                  createdAt: data.createdAt || data.updatedAt || null,
+                  createdAtMillis: getTimestampMillis(data.createdAt || data.updatedAt || null)
+                };
+              })
+              .sort((left, right) => right.createdAtMillis - left.createdAtMillis);
+
+            renderOrdersList(orders);
+          },
+          (error) => {
+            console.error('Failed to load account orders:', error);
+            setOrdersEmptyState('Could not load your order history right now. Please try again later.');
+          }
+        );
+    } catch (error) {
+      console.error('Failed to subscribe to account orders:', error);
+      setOrdersEmptyState('Could not start order tracking. Please refresh and try again.');
+    }
+  }
+
+  function syncOrdersWithAuth() {
+    if (!refs.storeOrdersPanel) return;
+
+    if (!currentUser) {
+      stopOrdersSubscription();
+      if (refs.storeOrdersSubtitle) {
+        refs.storeOrdersSubtitle.textContent = 'Sign in to view orders saved in your account and track their status.';
+      }
+      setOrdersEmptyState('Sign in to view your order history.', { showLogin: true });
+      return;
+    }
+
+    if (refs.storeOrdersSubtitle) {
+      const identity = sanitizeText(currentUser.email || currentUser.displayName || 'your account', 120);
+      refs.storeOrdersSubtitle.textContent = `Tracking orders for ${identity}.`;
+    }
+    subscribeToSignedInOrders();
   }
 
   function updateAuthUI() {
@@ -813,6 +1088,29 @@
 
   async function sendOrderEmailNotification(endpoint, order) {
     const provider = getEmailProvider(endpoint);
+    if (!provider) {
+      throw new Error('Unsupported email provider endpoint.');
+    }
+
+    let formsubmitMode = '';
+    let requestEndpoint = endpoint;
+    if (provider === 'formsubmit') {
+      formsubmitMode = (() => {
+        try {
+          return getFormsubmitEndpointMode(new URL(endpoint));
+        } catch (_) {
+          return '';
+        }
+      })();
+      if (!formsubmitMode) {
+        throw new Error('Invalid FormSubmit endpoint format.');
+      }
+      if (formsubmitMode === 'email-link') {
+        throw new Error('FormSubmit /el/... is an Email Link page and cannot be used as an automated order endpoint. Use FormSubmit /ajax/<your-email> or /<your-email-or-random-string>.');
+      }
+      requestEndpoint = toFormsubmitAjaxEndpoint(endpoint);
+    }
+
     const formData = new FormData();
     const shippingAddress = formatAddressLine(order);
     const subject = `New store order: ${sanitizeText(order.productLabel, 80)} x${order.quantity}`;
@@ -822,6 +1120,9 @@
     const fields = {
       _subject: subject,
       _replyto: order.contactEmail,
+      name: order.contactName,
+      email: order.contactEmail,
+      subject,
       customer_name: order.contactName,
       customer_email: order.contactEmail,
       customer_phone: order.contactPhone,
@@ -857,29 +1158,33 @@
       formData.append(key, safeValue);
     });
 
-    const requestOptions = provider === 'formsubmit'
-      ? {
-          method: 'POST',
-          mode: 'no-cors',
-          body: formData
-        }
-      : {
-          method: 'POST',
-          headers: { Accept: 'application/json' },
-          body: formData
-        };
-
-    const response = await fetch(endpoint, requestOptions);
-
-    if (provider === 'formsubmit') {
-      return;
-    }
+    const response = await fetch(requestEndpoint, {
+      method: 'POST',
+      headers: { Accept: 'application/json' },
+      body: formData
+    });
 
     let parsed = null;
+    let rawText = '';
     try {
-      parsed = await response.json();
+      rawText = await response.text();
+      parsed = rawText ? JSON.parse(rawText) : null;
     } catch (_) {
       parsed = null;
+    }
+
+    if (provider === 'formsubmit') {
+      const successValue = String(parsed?.success || '').toLowerCase();
+      const explicitFailure = successValue && successValue !== 'true';
+      const details = sanitizeText(parsed?.message || parsed?.error || rawText || '', 220);
+      if (!response.ok || explicitFailure) {
+        throw new Error(details || `FormSubmit error (${response.status}).`);
+      }
+      return {
+        provider: 'formsubmit',
+        mode: formsubmitMode || 'ajax',
+        deliveryVerified: true
+      };
     }
 
     if (!response.ok || (parsed && parsed.ok === false)) {
@@ -888,9 +1193,15 @@
             .map((entry) => sanitizeText(entry?.message || entry?.field || '', 180))
             .filter(Boolean)
             .join('; ')
-        : sanitizeText(parsed?.error || parsed?.message || '', 180);
+        : sanitizeText(parsed?.error || parsed?.message || rawText || '', 220);
       throw new Error(details || `Email service error (${response.status}).`);
     }
+
+    return {
+      provider: 'formspree',
+      mode: 'api',
+      deliveryVerified: true
+    };
   }
 
   async function persistSignedInOrder(order) {
@@ -1004,7 +1315,8 @@
         }
       };
 
-      await sendOrderEmailNotification(endpoint, order);
+      const emailResult = await sendOrderEmailNotification(endpoint, order);
+      const deliveryVerified = emailResult?.deliveryVerified !== false;
 
       let persistedInAccount = false;
       try {
@@ -1013,19 +1325,35 @@
         console.warn('Order email sent, but Firestore persistence failed:', dbError);
       }
 
-      notifyUser(
-        persistedInAccount
-          ? 'Order submitted successfully. Email sent and order saved to your account.'
-          : 'Order submitted successfully. Email sent and we will contact you soon.',
-        'success',
-        { duration: 6200 }
-      );
+      if (deliveryVerified) {
+        notifyUser(
+          persistedInAccount
+            ? 'Order submitted successfully. Notification sent to our team and order saved to your account.'
+            : 'Order submitted successfully. Notification sent to our team and we will contact you soon.',
+          'success',
+          { duration: 6200 }
+        );
+      } else {
+        notifyUser(
+          persistedInAccount
+            ? 'Order submitted. FormSubmit accepted the request and your order was saved. If no email appears, check spam and complete FormSubmit activation.'
+            : 'Order submitted. FormSubmit accepted the request. If no email appears, check spam and complete FormSubmit activation.',
+          'warning',
+          { duration: 9000 }
+        );
+      }
 
       resetOrderForm();
       closeProductModal();
     } catch (error) {
       console.error('Failed to submit store order:', error);
-      notifyUser('Failed to submit order. Please verify details and try again.', 'error');
+      const errorDetails = sanitizeText(error?.message || '', 220);
+      notifyUser(
+        errorDetails
+          ? `Failed to submit order. ${errorDetails}`
+          : 'Failed to submit order. Please verify details and try again.',
+        'error'
+      );
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
@@ -1039,6 +1367,7 @@
     if (typeof initializeFirebase !== 'function') {
       currentUser = null;
       updateAuthUI();
+      syncOrdersWithAuth();
       return;
     }
 
@@ -1046,6 +1375,7 @@
     if (!firebaseInitialized || typeof auth === 'undefined' || !auth) {
       currentUser = null;
       updateAuthUI();
+      syncOrdersWithAuth();
       return;
     }
 
@@ -1054,11 +1384,13 @@
         currentUser = user || null;
         prefillContactFromUser();
         updateAuthUI();
+        syncOrdersWithAuth();
       },
       (error) => {
         console.error('Order auth state error:', error);
         currentUser = null;
         updateAuthUI();
+        syncOrdersWithAuth();
       }
     );
   }
@@ -1131,6 +1463,8 @@
     refs.continueShoppingBtn?.addEventListener('click', () => {
       closeProductModal();
     });
+
+    window.addEventListener('beforeunload', stopOrdersSubscription);
   }
 
   function initializeRefs() {
@@ -1160,6 +1494,11 @@
     refs.summaryTotal = document.getElementById('summaryTotal');
     refs.submitOrderBtn = document.getElementById('submitOrderBtn');
     refs.storeBackBtn = document.getElementById('storeBackBtn');
+    refs.storeOrdersPanel = document.getElementById('storeOrdersPanel');
+    refs.storeOrdersSubtitle = document.getElementById('storeOrdersSubtitle');
+    refs.storeOrdersEmpty = document.getElementById('storeOrdersEmpty');
+    refs.storeOrdersLoginLink = document.getElementById('storeOrdersLoginLink');
+    refs.storeOrdersList = document.getElementById('storeOrdersList');
 
     refs.storeProductModal = document.getElementById('storeProductModal');
     refs.storeProductDialog = document.getElementById('storeProductDialog');
@@ -1193,6 +1532,7 @@
     bindModalEvents();
     bindEvents();
     updateLoginLink();
+    syncOrdersWithAuth();
     updateContextText();
     setSelectedProduct(selectedProduct, { updateUrl: false });
     renderProductPreview();

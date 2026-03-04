@@ -7,41 +7,113 @@
   <meta name="description" content="Order printed keepsakes from your family tree data." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="../styles/components.css" />
   <link rel="stylesheet" href="../styles/page-overrides.css" />
   <link rel="stylesheet" href="../styles/page-common.css" />
-  <link rel="stylesheet" href="../styles/pages/store.css" />
+  <link rel="stylesheet" href="../styles/pages/store.css?v=2" />
+  <link rel="stylesheet" href="../styles/shell.css?v=7" />
 </head>
-<body class="store-page">
-  <header class="topbar app-header">
-    <div class="brand-group">
-      <button id="themeBtn" title="Switch theme" aria-label="Switch theme">
-        <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
+<body class="store-page site-shell site-public">
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a href="../index.html" class="site-header__brand" aria-label="Go to homepage">Ancestrio</a>
+      <button
+        id="siteMenuBtn"
+        class="site-menu-btn"
+        type="button"
+        aria-expanded="false"
+        aria-controls="siteNav"
+        aria-label="Toggle navigation"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">menu</span>
       </button>
-      <div class="brand">Ancestrio Store</div>
-    </div>
-    <div class="controls controls-store">
-      <a id="storeBackBtn" href="dashboard.html" class="icon-btn" title="Back" aria-label="Back">
-        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
-      </a>
+      <nav class="site-header__nav" id="siteNav" aria-label="Primary">
+        <a href="../index.html">Home</a>
+        <a href="demo-tree.html">Demo</a>
+        <a href="store.html?product=parchment&source=site-header&view=tree" aria-current="page">Store</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="site-header__actions">
+        <a href="auth.html" class="site-btn site-btn--secondary">Sign In</a>
+        <a href="dashboard.html" class="site-btn site-btn--primary" hidden aria-hidden="true" tabindex="-1">Dashboard</a>
+        <button id="themeBtn" title="Switch theme" aria-label="Switch theme">
+          <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
+        </button>
+      </div>
     </div>
   </header>
 
-  <main class="store-main">
-    <section class="store-hero">
-      <p class="store-kicker">Print Your Family Story</p>
-      <h1>Family Keepsakes</h1>
-      <p class="store-subtitle">Choose a product, submit your order form, and we will follow up with details.</p>
+  <main class="page-container store-main">
+    <section class="store-hero page-hero">
+      <div class="store-hero-copy">
+        <p class="store-kicker page-kicker">Keepsake Store</p>
+        <h1 class="page-title">Order family objects that come directly from the workspace.</h1>
+        <p class="store-subtitle page-subtitle">
+          Choose a keepsake, review the details, and submit your order request in one flow. This page captures interest and delivery details in v1. It does not process online payment.
+        </p>
+        <div class="store-hero-actions">
+          <a id="storeBackBtn" class="site-btn site-btn--secondary" href="dashboard.html">Back</a>
+          <a href="contact.html" class="site-btn site-btn--primary">Ask About A Custom Order</a>
+        </div>
+      </div>
+      <div class="store-hero-aside">
+        <div class="store-hero-note">
+          <p class="store-hero-note-label">What You Can Order</p>
+          <ul>
+            <li>Parchment family tree print</li>
+            <li>Birthday calendar</li>
+            <li>Family journey globe</li>
+          </ul>
+        </div>
+        <div class="store-hero-note">
+          <p class="store-hero-note-label">How It Works</p>
+          <ol>
+            <li>Open a product</li>
+            <li>Review details</li>
+            <li>Submit your request</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="store-confidence" aria-label="Store trust and ordering expectations">
+      <article>
+        <span class="material-symbols-outlined" aria-hidden="true">verified_user</span>
+        <div>
+          <h2>Lead capture only in v1</h2>
+          <p>You submit the request here and receive direct follow-up rather than a generic checkout flow.</p>
+        </div>
+      </article>
+      <article>
+        <span class="material-symbols-outlined" aria-hidden="true">draw</span>
+        <div>
+          <h2>Built from your existing tree</h2>
+          <p>The store is meant to sit on top of the same family data you already maintain in the workspace.</p>
+        </div>
+      </article>
+      <article>
+        <span class="material-symbols-outlined" aria-hidden="true">person</span>
+        <div>
+          <h2>Account optional</h2>
+          <p>Sign-in helps prefill details and order history, but browsing the store does not require it.</p>
+        </div>
+      </article>
     </section>
 
     <div class="store-layout">
-      <section class="store-products" aria-labelledby="productsHeading">
-        <h2 id="productsHeading">Choose Your Keepsake</h2>
-        <p class="store-products-subtitle">Select a product to open customization and complete your order.</p>
+      <section class="store-products surface-card" aria-labelledby="productsHeading">
+        <div class="store-products-intro">
+          <div>
+            <h2 id="productsHeading">Choose Your Keepsake</h2>
+            <p class="store-products-subtitle">Select a product to open details and continue directly into the order form.</p>
+          </div>
+          <p class="store-help-note">Product details and ordering stay in this panel so the flow feels continuous.</p>
+        </div>
+
         <div class="product-grid" id="productGrid">
           <article class="store-product-card" data-product="parchment" aria-label="Printed Parchment Family Tree">
             <div class="product-photo-wrap">
@@ -52,11 +124,14 @@
                 loading="lazy"
               />
             </div>
-            <h3>Printed Parchment Family Tree</h3>
-            <p>Choose one style and get your family tree printed on premium paper.</p>
-            <p class="product-price" data-price="parchment"></p>
-            <div class="product-card-actions">
-              <button type="button" class="product-cta" data-product-action="preview">View details</button>
+            <div class="store-product-card-copy">
+              <p class="store-product-card-kicker">Wall keepsake</p>
+              <h3>Printed Parchment Family Tree</h3>
+              <p>Choose one style and turn your family structure into an heirloom-style print.</p>
+              <p class="product-price" data-price="parchment"></p>
+              <div class="product-card-actions">
+                <button type="button" class="product-cta" data-product-action="preview">View details</button>
+              </div>
             </div>
           </article>
 
@@ -69,11 +144,14 @@
                 loading="lazy"
               />
             </div>
-            <h3>Mini Birthday Calendar</h3>
-            <p>Compact printable calendars with all family birthdays in one place.</p>
-            <p class="product-price" data-price="calendar"></p>
-            <div class="product-card-actions">
-              <button type="button" class="product-cta" data-product-action="preview">View details</button>
+            <div class="store-product-card-copy">
+              <p class="store-product-card-kicker">Desk format</p>
+              <h3>Mini Birthday Calendar</h3>
+              <p>Compact monthly calendar pages built from birthdays already stored in the workspace.</p>
+              <p class="product-price" data-price="calendar"></p>
+              <div class="product-card-actions">
+                <button type="button" class="product-cta" data-product-action="preview">View details</button>
+              </div>
             </div>
           </article>
 
@@ -86,19 +164,48 @@
                 loading="lazy"
               />
             </div>
-            <h3>Family Journey Globe</h3>
-            <p>Small display globe marking countries visited by your family.</p>
-            <p class="product-price" data-price="globe"></p>
-            <div class="product-card-actions">
-              <button type="button" class="product-cta" data-product-action="preview">View details</button>
+            <div class="store-product-card-copy">
+              <p class="store-product-card-kicker">Shelf object</p>
+              <h3>Family Journey Globe</h3>
+              <p>Highlight countries connected to family movement, travel, and story in a compact display piece.</p>
+              <p class="product-price" data-price="globe"></p>
+              <div class="product-card-actions">
+                <button type="button" class="product-cta" data-product-action="preview">View details</button>
+              </div>
             </div>
           </article>
         </div>
-        <p class="store-help-note">Select a product to open details and continue to order in the same panel.</p>
+
+        <section class="store-orders" id="storeOrdersPanel" aria-labelledby="storeOrdersHeading">
+          <div class="store-orders-header">
+            <div>
+              <h3 id="storeOrdersHeading">My Orders</h3>
+              <p class="store-orders-subtitle" id="storeOrdersSubtitle">Sign in to view orders saved in your account and track their status.</p>
+            </div>
+          </div>
+          <p class="store-orders-empty" id="storeOrdersEmpty">Sign in to view your order history.</p>
+          <a id="storeOrdersLoginLink" class="store-orders-login-link" href="auth.html">Sign In to View Orders</a>
+          <ul class="store-orders-list" id="storeOrdersList" aria-live="polite"></ul>
+        </section>
       </section>
     </div>
   </main>
 
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p>&copy; <span data-site-footer-year></span> Ancestrio</p>
+      <div class="site-footer__links">
+        <a href="store.html?product=parchment&source=store-footer&view=tree" aria-current="page">Store</a>
+        <a href="demo-tree.html">Demo</a>
+        <a href="contact.html">Contact</a>
+        <a
+          href="https://github.com/PaulSuatean/paulsuatean.github.io"
+          target="_blank"
+          rel="noopener noreferrer"
+        >GitHub</a>
+      </div>
+    </div>
+  </footer>
 
   <div class="modal store-product-modal" id="storeProductModal" aria-hidden="true">
     <div class="modal-dialog store-modal-dialog store-product-dialog" id="storeProductDialog" role="dialog" aria-modal="true" aria-labelledby="productPreviewHeading" data-page="preview">
@@ -143,6 +250,7 @@
               <p class="store-modal-kicker">Customize and Order</p>
               <h2 id="orderHeading">Order Form</h2>
               <p class="store-modal-subtitle" id="selectedProductSummary"></p>
+              <p class="store-context" id="orderContextText"></p>
               <p class="order-auth-state" id="orderAuthState">Loading account details...</p>
 
               <div class="order-login-required" id="orderLoginRequired" style="display: none;">
@@ -151,63 +259,84 @@
               </div>
             </div>
 
-            <form id="orderForm" novalidate data-formspree-endpoint="https://formsubmit.co/el/lecetu">
+            <form id="orderForm" novalidate data-formspree-endpoint="https://formsubmit.co/ajax/suatean.paul@gmail.com">
               <div class="order-form-grid">
                 <div class="order-form-fields">
-                  <div class="form-group">
-                    <label class="form-label" for="contactName">Contact Name</label>
-                    <input class="form-input" id="contactName" type="text" maxlength="120" required />
-                  </div>
+                  <section class="order-form-section">
+                    <h3>Product</h3>
+                    <div class="form-group">
+                      <label class="form-label" for="orderProduct">Keepsake</label>
+                      <select class="form-input" id="orderProduct">
+                        <option value="parchment">Printed Parchment Family Tree</option>
+                        <option value="calendar">Mini Birthday Calendar</option>
+                        <option value="globe">Family Journey Globe</option>
+                      </select>
+                    </div>
+                    <div class="form-group form-group-compact">
+                      <label class="form-label" for="orderQuantity">Quantity</label>
+                      <input class="form-input" id="orderQuantity" type="number" min="1" max="999" value="1" required />
+                    </div>
+                    <div class="form-group form-group-wide" id="parchmentStyleGroup">
+                      <label class="form-label" for="parchmentStyle">Parchment Style</label>
+                      <select class="form-input" id="parchmentStyle">
+                        <option value="Classic">Classic</option>
+                        <option value="Minimal">Minimal</option>
+                        <option value="Vintage">Vintage</option>
+                      </select>
+                    </div>
+                  </section>
 
-                  <div class="form-group">
-                    <label class="form-label" for="contactEmail">Contact Email</label>
-                    <input class="form-input" id="contactEmail" type="email" maxlength="160" required />
-                  </div>
+                  <section class="order-form-section">
+                    <h3>Contact</h3>
+                    <div class="form-group">
+                      <label class="form-label" for="contactName">Contact Name</label>
+                      <input class="form-input" id="contactName" type="text" maxlength="120" required />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="contactEmail">Contact Email</label>
+                      <input class="form-input" id="contactEmail" type="email" maxlength="160" required />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="contactPhone">Phone Number</label>
+                      <input class="form-input" id="contactPhone" type="tel" maxlength="32" required placeholder="+1 555 123 4567" />
+                    </div>
+                  </section>
 
-                  <div class="form-group">
-                    <label class="form-label" for="contactPhone">Phone Number</label>
-                    <input class="form-input" id="contactPhone" type="tel" maxlength="32" required placeholder="+1 555 123 4567" />
-                  </div>
+                  <section class="order-form-section">
+                    <h3>Shipping</h3>
+                    <div class="form-group form-group-wide">
+                      <label class="form-label" for="shippingAddress1">Address Line 1</label>
+                      <input class="form-input" id="shippingAddress1" type="text" maxlength="160" required placeholder="Street and number" />
+                    </div>
+                    <div class="form-group form-group-wide">
+                      <label class="form-label" for="shippingAddress2">Address Line 2 (Optional)</label>
+                      <input class="form-input" id="shippingAddress2" type="text" maxlength="160" placeholder="Apartment, suite, floor, etc." />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="shippingCity">City</label>
+                      <input class="form-input" id="shippingCity" type="text" maxlength="80" required />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="shippingPostalCode">Postal Code</label>
+                      <input class="form-input" id="shippingPostalCode" type="text" maxlength="20" required />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="shippingRegion">State / Province</label>
+                      <input class="form-input" id="shippingRegion" type="text" maxlength="80" required />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="shippingCountry">Country</label>
+                      <input class="form-input" id="shippingCountry" type="text" maxlength="80" required />
+                    </div>
+                  </section>
 
-                  <div class="form-group form-group-compact">
-                    <label class="form-label" for="orderQuantity">Quantity</label>
-                    <input class="form-input" id="orderQuantity" type="number" min="1" max="999" value="1" required />
-                  </div>
-
-                  <div class="form-group form-group-wide">
-                    <label class="form-label" for="shippingAddress1">Address Line 1</label>
-                    <input class="form-input" id="shippingAddress1" type="text" maxlength="160" required placeholder="Street and number" />
-                  </div>
-
-                  <div class="form-group form-group-wide">
-                    <label class="form-label" for="shippingAddress2">Address Line 2 (Optional)</label>
-                    <input class="form-input" id="shippingAddress2" type="text" maxlength="160" placeholder="Apartment, suite, floor, etc." />
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label" for="shippingCity">City</label>
-                    <input class="form-input" id="shippingCity" type="text" maxlength="80" required />
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label" for="shippingRegion">State / Province</label>
-                    <input class="form-input" id="shippingRegion" type="text" maxlength="80" required />
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label" for="shippingPostalCode">Postal Code</label>
-                    <input class="form-input" id="shippingPostalCode" type="text" maxlength="20" required />
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label" for="shippingCountry">Country</label>
-                    <input class="form-input" id="shippingCountry" type="text" maxlength="80" required />
-                  </div>
-
-                  <div class="form-group form-group-wide">
-                    <label class="form-label" for="orderNote">Note (Optional)</label>
-                    <textarea class="form-input" id="orderNote" rows="5" maxlength="500" placeholder="Any details or preferences for this order"></textarea>
-                  </div>
+                  <section class="order-form-section">
+                    <h3>Notes</h3>
+                    <div class="form-group form-group-wide">
+                      <label class="form-label" for="orderNote">Note (Optional)</label>
+                      <textarea class="form-input" id="orderNote" rows="5" maxlength="500" placeholder="Any details or preferences for this order"></textarea>
+                    </div>
+                  </section>
                 </div>
 
                 <div class="order-form-actions">
@@ -230,6 +359,7 @@
                     </div>
                   </div>
 
+                  <p class="store-order-trust">Lead capture only in v1. No online payment is processed on this page.</p>
                   <button type="submit" class="btn-primary order-submit-btn" id="submitOrderBtn">Submit Order</button>
                 </div>
               </div>
@@ -246,6 +376,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="../scripts/site-header.js?v=6"></script>
   <script src="../scripts/theme-toggle.js"></script>
   <script src="../scripts/firebase-config.js?v=5"></script>
   <script src="../scripts/store-utils.js"></script>

@@ -5,6 +5,10 @@ firebase-debug.log
 
 # Dependencies
 node_modules/
+playwright-report/
+test-results/
+visual-audit/
+tmp-*.png
 
 # IDE
 .vscode/
