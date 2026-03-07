@@ -1,7 +1,6 @@
 // Authentication Logic
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Auth page loaded');
   const USERNAME_EMAIL_DOMAIN = 'users.ancestrio.local';
   
   // Theme toggle
@@ -15,19 +14,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabButtons = document.querySelectorAll('.auth-tab');
   const forms = document.querySelectorAll('.auth-form');
   const anonymousSignInBtn = document.getElementById('anonymousSignIn');
+  const resetToggleBtn = document.getElementById('passwordResetToggle');
+  const resetPanel = document.getElementById('passwordResetPanel');
+  const resetEmailInput = document.getElementById('resetEmail');
+  const resetSubmitBtn = document.getElementById('resetSubmitBtn');
+  const resetBackBtn = document.getElementById('passwordResetBack');
   const compactAuthLayout = window.matchMedia('(max-width: 768px)');
   const scheduleFormHeightSync = debounce(syncAuthFormHeights, 120);
   const postAuthRedirect = resolvePostAuthRedirect();
-
-  console.log('DOM elements found:', { loginForm, signupForm, errorMessage });
 
   // Initialize Firebase
   const firebaseReady = initializeFirebase();
   if (!firebaseReady) {
     console.error('Firebase initialization failed');
     showError('Cloud sign-in is unavailable right now. You can still continue as Guest (Local).');
-  } else {
-    console.log('Firebase initialized successfully');
   }
 
   // Tab switching
@@ -42,6 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // Show corresponding form
       forms.forEach(form => form.classList.remove('active'));
       document.getElementById(`${tab}Form`).classList.add('active');
+
+      if (tab !== 'login') {
+        setResetPanelVisible(false);
+      }
       
       // Clear error
       hideError();
@@ -58,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Login with email/password
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    console.log('Login form submitted');
     const identifier = document.getElementById('loginIdentifier').value;
     const password = document.getElementById('loginPassword').value;
     const resolvedLogin = resolveLoginIdentity(identifier);
@@ -66,9 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
       showError(resolvedLogin.error);
       return;
     }
-
-    console.log('Attempting login with identifier:', identifier);
-
     if (!firebaseReady) {
       showError('Cloud sign-in is unavailable right now. Try again later or use Guest mode.');
       return;
@@ -79,7 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
       await signInWithPasswordIdentifier(resolvedLogin, password);
       window.AncestrioHeaderAuthCache?.setFromUser?.(auth.currentUser || null);
       localStorage.removeItem('guestMode');
-      console.log('Login successful, redirecting...');
       redirectAfterAuth();
     } catch (error) {
       console.error('Login error:', error);
@@ -92,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sign up with email/password
   signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    console.log('Signup form submitted');
     const usernameRaw = document.getElementById('signupUsername').value;
     const emailRaw = document.getElementById('signupEmail').value;
     const password = document.getElementById('signupPassword').value;
@@ -101,12 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
       showError(resolvedSignup.error);
       return;
     }
-
-    console.log('Attempting signup with:', {
-      authEmail: resolvedSignup.authEmail,
-      username: resolvedSignup.username
-    });
-
     if (!firebaseReady) {
       showError('Cloud sign-up is unavailable right now. Try again later or use Guest mode.');
       return;
@@ -115,13 +107,11 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       showLoading(signupForm);
       const userCredential = await auth.createUserWithEmailAndPassword(resolvedSignup.authEmail, password);
-      console.log('User created:', userCredential.user.uid);
       
       const displayName = resolvedSignup.username || 'User';
       await userCredential.user.updateProfile({
         displayName
       });
-      console.log('Profile updated with display name');
       
       // Create user document in Firestore
       await ensureUserDocument(userCredential.user, {
@@ -132,9 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         usesSyntheticEmail: resolvedSignup.usesSyntheticEmail,
         isAnonymous: false
       });
-      console.log('User document created in Firestore');
       
-      console.log('Signup successful, redirecting...');
       window.AncestrioHeaderAuthCache?.setFromUser?.(userCredential.user || auth.currentUser || null);
       localStorage.removeItem('guestMode');
       redirectAfterAuth();
@@ -148,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Google Sign In
   googleSignInBtn.addEventListener('click', async () => {
-    console.log('Google sign-in clicked');
     if (!firebaseReady) {
       showError('Google sign-in is unavailable right now. Try again later or use Guest mode.');
       return;
@@ -156,7 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const provider = new firebase.auth.GoogleAuthProvider();
       const result = await auth.signInWithPopup(provider);
-      console.log('Google sign-in successful:', result.user.email);
       
       await ensureUserDocument(result.user, {
         name: result.user.displayName || 'Google User',
@@ -183,6 +169,23 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('guestMode', 'true');
       window.location.href = 'dashboard.html?guest=1';
     });
+  }
+
+  if (resetToggleBtn && resetPanel) {
+    resetToggleBtn.addEventListener('click', () => {
+      const isOpen = resetPanel.classList.contains('is-visible');
+      setResetPanelVisible(!isOpen);
+    });
+  }
+
+  if (resetBackBtn) {
+    resetBackBtn.addEventListener('click', () => {
+      setResetPanelVisible(false);
+    });
+  }
+
+  if (resetSubmitBtn) {
+    resetSubmitBtn.addEventListener('click', handlePasswordResetSubmit);
   }
 
   // Helper functions
@@ -261,6 +264,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const button = form.querySelector('button[type="submit"]');
     button.disabled = false;
     button.textContent = form.id === 'loginForm' ? 'Login' : 'Create Account';
+  }
+
+  function setResetPanelVisible(visible) {
+    if (!resetPanel || !resetToggleBtn) return;
+    resetPanel.classList.toggle('is-visible', visible);
+    resetPanel.setAttribute('aria-hidden', visible ? 'false' : 'true');
+    resetToggleBtn.setAttribute('aria-expanded', visible ? 'true' : 'false');
+    if (visible) {
+      hideError();
+    }
+    if (!visible && resetEmailInput) {
+      resetEmailInput.value = '';
+    }
+    syncAuthFormHeights();
+  }
+
+  async function handlePasswordResetSubmit() {
+    if (!resetEmailInput) return;
+    hideError();
+    const email = String(resetEmailInput.value || '').trim();
+    if (!email || !email.includes('@')) {
+      showError('Enter the email address linked to your account. Usernames cannot receive reset links.');
+      return;
+    }
+    if (!firebaseReady) {
+      showError('Cloud sign-in is unavailable right now. Try again later.');
+      return;
+    }
+
+    if (resetSubmitBtn) {
+      resetSubmitBtn.disabled = true;
+      resetSubmitBtn.textContent = 'Sending...';
+    }
+
+    try {
+      await auth.sendPasswordResetEmail(email);
+      window.AncestrioRuntime?.notify?.('Password reset email sent. Check your inbox.', 'success');
+      setResetPanelVisible(false);
+    } catch (error) {
+      console.error('Password reset error:', error);
+      showError(getErrorMessage(error.code));
+    } finally {
+      if (resetSubmitBtn) {
+        resetSubmitBtn.disabled = false;
+        resetSubmitBtn.textContent = 'Send Reset Link';
+      }
+    }
   }
 
   function syncAuthFormHeights() {
@@ -481,5 +531,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  console.log('All event listeners attached successfully');
 });

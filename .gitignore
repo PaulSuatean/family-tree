@@ -5,9 +5,8 @@ firebase-debug.log
 
 # Dependencies
 node_modules/
-playwright-report/
-test-results/
-visual-audit/
+tmp/
+wizard-audit/
 tmp-*.png
 
 # IDE

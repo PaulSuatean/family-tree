@@ -11,7 +11,7 @@
   padding: clamp(22px, 4vw, 34px);
   border-radius: calc(var(--radius-xl) + 8px);
   border: 1px solid var(--shell-panel-border-strong);
-  background: var(--shell-panel-bg-accented-strong);
+  background: var(--shell-surface-accented-strong);
   box-shadow: var(--shadow-md);
 }
 
@@ -41,21 +41,19 @@
   gap: clamp(18px, 4vw, 28px);
   padding: clamp(22px, 4vw, 34px);
   border-radius: calc(var(--radius-xl) + 8px);
-  background:
-    linear-gradient(145deg, rgba(35, 52, 58, 0.96) 0%, rgba(25, 36, 47, 0.98) 100%);
+  background: var(--shell-contrast-bg);
 }
 
 .contact-story.surface-card {
-  border: 1px solid rgba(32, 53, 58, 0.2);
-  background:
-    linear-gradient(145deg, rgba(35, 52, 58, 0.96) 0%, rgba(25, 36, 47, 0.98) 100%);
-  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--shell-contrast-border);
+  background: var(--shell-contrast-bg);
+  box-shadow: var(--shadow-md);
 }
 
 .contact-story-label,
 .contact-panel-kicker {
   margin: 0 0 8px;
-  color: color-mix(in srgb, var(--accent-soft) 76%, var(--text) 24%);
+  color: color-mix(in srgb, var(--accent-3) 66%, var(--text) 34%);
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.13em;
@@ -63,7 +61,7 @@
 }
 
 .contact-story h2 {
-  color: #ffffff;
+  color: var(--shell-contrast-text);
   max-width: 11ch;
 }
 
@@ -74,16 +72,16 @@
 
 .contact-story-body p {
   margin: 0;
-  color: rgba(237, 228, 215, 0.82);
+  color: var(--shell-contrast-muted);
   line-height: 1.75;
 }
 
 .contact-story.surface-card .contact-story-label {
-  color: rgba(223, 235, 229, 0.82);
+  color: color-mix(in srgb, var(--accent-3) 54%, var(--shell-contrast-text) 46%);
 }
 
 .contact-story.surface-card .contact-story-body p {
-  color: rgba(243, 236, 226, 0.92);
+  color: var(--shell-contrast-muted);
 }
 
 .contact-grid {
@@ -99,7 +97,7 @@
   padding: 22px;
   border-radius: var(--radius-xl);
   border: 1px solid var(--shell-panel-border);
-  background: var(--shell-panel-bg-accented);
+  background: var(--shell-surface-base);
 }
 
 .contact-panel h2 {
@@ -166,7 +164,7 @@
   padding: 14px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--shell-panel-border);
-  background: var(--shell-row-bg-accented);
+  background: var(--shell-row-bg);
 }
 
 .contact-card-icon {
@@ -196,8 +194,8 @@
   align-items: center;
   padding: clamp(22px, 4vw, 34px);
   border-radius: calc(var(--radius-xl) + 8px);
-  border: 1px solid var(--shell-panel-border);
-  background: var(--shell-panel-bg-accented-strong);
+  border: 1px solid var(--shell-panel-border-strong);
+  background: var(--shell-surface-accented-strong);
 }
 
 .support-strip h2 {
@@ -224,27 +222,6 @@
 
 .coffee-btn-icon {
   font-size: 1.1rem;
-}
-
-body.theme-dark .contact-panel {
-  background: var(--shell-panel-bg-accented);
-}
-
-body.theme-dark .contact-hero,
-body.theme-dark .support-strip {
-  background: var(--shell-panel-bg-accented-strong);
-}
-
-body.theme-dark .contact-card {
-  background: var(--shell-row-bg-accented);
-}
-
-body.theme-dark .contact-story.surface-card {
-  border-color: rgba(148, 163, 184, 0.22);
-  background:
-    radial-gradient(circle at 16% 14%, rgba(108, 179, 172, 0.14), transparent 30%),
-    radial-gradient(circle at 84% 18%, rgba(195, 138, 99, 0.12), transparent 32%),
-    linear-gradient(145deg, rgba(24, 35, 50, 0.94) 0%, rgba(16, 24, 35, 0.96) 100%);
 }
 
 @media (max-width: 1080px) {

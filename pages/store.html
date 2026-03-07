@@ -5,6 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ancestrio Store</title>
   <meta name="description" content="Order printed paper family trees built from your family workspace." />
+  <link rel="icon" type="image/svg+xml" href="../images/other/favicon.svg" />
+  <link rel="manifest" href="../site.webmanifest" />
+  <link rel="canonical" href="https://paulsuatean.github.io/pages/store.html" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Ancestrio" />
+  <meta property="og:title" content="Ancestrio Store" />
+  <meta property="og:description" content="Order printed paper family trees built from your family workspace." />
+  <meta property="og:url" content="https://paulsuatean.github.io/pages/store.html" />
+  <meta property="og:image" content="https://paulsuatean.github.io/images/landing/app-preview-tree.png" />
+  <meta property="og:image:alt" content="Ancestrio family tree workspace preview" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Ancestrio Store" />
+  <meta name="twitter:description" content="Order printed paper family trees built from your family workspace." />
+  <meta name="twitter:image" content="https://paulsuatean.github.io/images/landing/app-preview-tree.png" />
+  <meta name="twitter:image:alt" content="Ancestrio family tree workspace preview" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -16,6 +32,36 @@
   <link rel="stylesheet" href="../styles/page-common.css" />
   <link rel="stylesheet" href="../styles/pages/store.css?v=2" />
   <link rel="stylesheet" href="../styles/shell.css?v=7" />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Printed Paper Family Tree",
+      "description": "Printed paper family tree built from your Ancestrio workspace with style, paper finish, and size selection.",
+      "brand": {
+        "@type": "Brand",
+        "name": "Ancestrio"
+      },
+      "sku": "paper-print",
+      "image": [
+        "https://paulsuatean.github.io/images/landing/print-01.webp",
+        "https://paulsuatean.github.io/images/landing/print-02.webp",
+        "https://paulsuatean.github.io/images/landing/print-04.webp"
+      ],
+      "offers": {
+        "@type": "Offer",
+        "url": "https://paulsuatean.github.io/pages/store.html",
+        "priceCurrency": "EUR",
+        "price": "69",
+        "availability": "https://schema.org/InStock",
+        "seller": {
+          "@type": "Organization",
+          "name": "Ancestrio",
+          "url": "https://paulsuatean.github.io/"
+        }
+      }
+    }
+  </script>
 </head>
 <body class="store-page site-shell site-public">
   <header class="site-header">
@@ -34,8 +80,8 @@
       <nav class="site-header__nav" id="siteNav" aria-label="Primary">
         <a href="../index.html">Home</a>
         <a href="demo-tree.html">Demo</a>
-        <a href="store.html?product=paper-print&source=site-header&view=tree" aria-current="page">Store</a>
-        <a href="contact.html">Contact</a>
+        <a href="store.html?product=paper-print&source=store&view=tree" aria-current="page">Store</a>
+        <a href="contact.html">About &amp; Contact</a>
       </nav>
       <div class="site-header__actions">
         <a href="auth.html" class="site-btn site-btn--secondary">Sign In</a>
@@ -55,6 +101,8 @@
         <p class="store-subtitle page-subtitle">
           Review the style, paper finish, and size, then submit your order request in one flow. This page captures interest and delivery details in v1. It does not process online payment.
         </p>
+        <p class="store-price-note">Starting at &euro;69. Requests are confirmed by email.</p>
+        <p class="store-balance-note">Create and share digitally, or print a gift when you want something on the wall.</p>
         <div class="store-hero-actions">
           <a id="storeBackBtn" class="site-btn site-btn--secondary" href="dashboard.html">Back</a>
           <a href="contact.html" class="site-btn site-btn--primary">Ask About A Custom Order</a>
@@ -117,6 +165,32 @@
       </ul>
     </section>
 
+    <section class="store-expectations surface-card" aria-labelledby="storeExpectationsTitle">
+      <div class="store-expectations-copy">
+        <p class="store-kicker page-kicker">What Happens Next</p>
+        <h2 id="storeExpectationsTitle">Clear order expectations before you submit.</h2>
+        <p>The store stays explicit about what this version does: it captures the request, keeps pricing visible, and moves proof and delivery details into direct follow-up.</p>
+      </div>
+      <div class="store-expectations-grid">
+        <article class="store-expectation-card">
+          <h3>Request only</h3>
+          <p>Submitting the form starts the order conversation. It is not a completed checkout or purchase.</p>
+        </article>
+        <article class="store-expectation-card">
+          <h3>Pricing starts in EUR</h3>
+          <p>Printed paper trees begin at &euro;69, and the final request details are confirmed by email before production.</p>
+        </article>
+        <article class="store-expectation-card">
+          <h3>Proof and delivery by email</h3>
+          <p>You review the proof, timeline, and delivery region directly before anything is printed.</p>
+        </article>
+        <article class="store-expectation-card">
+          <h3>Custom orders stay possible</h3>
+          <p>Need a different format or special request? Use the About &amp; Contact page and we can confirm the details there.</p>
+        </article>
+      </div>
+    </section>
+
     <div class="store-layout">
       <section class="store-products surface-card" aria-labelledby="productsHeading">
         <div class="store-products-intro">
@@ -168,9 +242,9 @@
     <div class="site-footer__inner">
       <p>&copy; <span data-site-footer-year></span> Ancestrio</p>
       <div class="site-footer__links">
-        <a href="store.html?product=paper-print&source=store-footer&view=tree" aria-current="page">Store</a>
+        <a href="store.html?product=paper-print&source=store&view=tree" aria-current="page">Store</a>
         <a href="demo-tree.html">Demo</a>
-        <a href="contact.html">Contact</a>
+        <a href="contact.html">About &amp; Contact</a>
         <a href="privacy.html">Privacy</a>
         <a href="terms.html">Terms</a>
         <a href="cookies.html">Cookies</a>
@@ -294,6 +368,7 @@
 
                   <section class="order-form-section order-form-section--wide">
                     <h3>Shipping</h3>
+                    <p class="form-hint">We use this to confirm delivery region and timeline before printing.</p>
                     <div class="form-group form-group-wide">
                       <label class="form-label" for="shippingAddress1">Address Line 1</label>
                       <input class="form-input" id="shippingAddress1" type="text" maxlength="160" required placeholder="Street and number" />
@@ -349,7 +424,7 @@
                     </div>
                   </div>
 
-                  <p class="store-order-trust">Lead capture only in v1. No online payment is processed on this page.</p>
+                  <p class="store-order-trust">No online payment is processed here. We confirm proof and delivery by email.</p>
                   <button type="submit" class="btn-primary order-submit-btn" id="submitOrderBtn">Submit Order</button>
                 </div>
               </div>

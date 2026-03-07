@@ -1,4 +1,4 @@
-/*
+﻿/*
   Empty-state birthday popup controller for tree viewer pages.
   Keeps first-visit popup logic out of main.js.
 */
@@ -31,6 +31,11 @@
     const tomorrowLabel = labels.tomorrow || 'Tomorrow';
     const inDaysTemplate = labels.inDays || 'In {n} days';
     const windowDays = Number.isFinite(opts.windowDays) ? opts.windowDays : 7;
+    const emptyStateTitleSingular = labels.emptyStateTitleSingular || `Birthday in the next ${windowDays} days`;
+    const emptyStateTitlePlural = labels.emptyStateTitlePlural || `Birthdays in the next ${windowDays} days`;
+    const emptyStateIntro = labels.emptyStateIntro || `Here is who is celebrating in the next ${windowDays} days:`;
+    const emptyStateHint = labels.emptyStateHint || 'Open the calendar to review every birthday in the tree.';
+    const emptyStateDismiss = labels.emptyStateDismiss || 'Continue';
     const visitedStorageKey = opts.visitedStorageKey || 'tree-visited';
     const doc = opts.document || document;
     const storage = opts.storage || localStorage;
@@ -44,8 +49,8 @@
       if (!upcoming.length) return;
 
       const heading = upcoming.length === 1
-        ? `Zi de naștere în următoarele ${windowDays} zile`
-        : `Zile de naștere în următoarele ${windowDays} zile`;
+        ? emptyStateTitleSingular
+        : emptyStateTitlePlural;
 
       const listItems = upcoming.map((person) => {
         const parsed = parseBirthday(person.birthday);
@@ -62,10 +67,10 @@
       overlay.innerHTML = `
       <div class="empty-state-content">
         <h2>${heading}</h2>
-        <p>Iată cine își sărbătorește ziua în următoarele ${windowDays} zile:</p>
+        <p>${emptyStateIntro}</p>
         <ul>${listItems}</ul>
-        <p>Deschide calendarul pentru toate zilele de naștere.</p>
-        <button id="dismissEmptyState">Am înțeles!</button>
+        <p>${emptyStateHint}</p>
+        <button id="dismissEmptyState">${emptyStateDismiss}</button>
       </div>
     `;
 
@@ -79,7 +84,7 @@
             if (doc.body.contains(overlay)) {
               doc.body.removeChild(overlay);
             }
-          }, 300);
+          }, 220);
           storage.setItem(visitedStorageKey, 'true');
         });
       }

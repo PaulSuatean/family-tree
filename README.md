@@ -53,3 +53,16 @@ Use only the root files:
   - For classic form POST endpoints, use `https://formsubmit.co/<YOUR_EMAIL_OR_RANDOM_STRING>`.
   - First submissions may require FormSubmit activation via email before delivery begins.
 - If a user is signed in, the order is also written to Firestore collection: `storeOrders`.
+
+## UI style ownership
+
+- `styles/shell.css` is the canonical source for shared shell primitives:
+  - global spacing/control tokens
+  - shared button geometry
+  - shared surface/card tokens
+  - site/app container and header shells
+- `styles/pages/*.css` owns page composition and intentional page variants only.
+- `styles/base.css` and `styles/components.css` contain legacy/feature styles and should not redefine shell primitives for `body.site-shell`.
+- Keep these class/selector contracts stable because they are used by scripts:
+  - IDs and classes in `pages/*.html` for controls, modals, and forms
+  - button classes such as `.btn-primary`, `.btn-secondary`, `.btn-danger`, `.tool-btn`, `.dashboard-fab`, `.product-cta`

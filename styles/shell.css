@@ -1,11 +1,28 @@
 :root {
-  --shell-max-width: 1240px;
-  --shell-inline-gap: 24px;
+  --shell-space-1: 4px;
+  --shell-space-2: 8px;
+  --shell-space-3: 12px;
+  --shell-space-4: 16px;
+  --shell-space-5: 20px;
+  --shell-space-6: 24px;
+  --shell-space-7: 32px;
+  --shell-space-8: 40px;
+  --shell-space-9: 48px;
+  --shell-max-width: 1536px;
+  --shell-inline-gap: clamp(12px, 1vw, 20px);
   --shell-width: min(var(--shell-max-width), calc(100vw - (var(--shell-inline-gap) * 2)));
   --shell-page-gap: 30px;
   --shell-section-gap: 22px;
-  --shell-control-height: 48px;
-  --shell-control-radius: 16px;
+  --shell-stack-gap: var(--shell-space-6);
+  --shell-card-padding: var(--shell-space-6);
+  --shell-control-gap: var(--shell-space-2);
+  --shell-control-height-compact: 44px;
+  --shell-control-height-default: 48px;
+  --shell-control-height-icon: 48px;
+  --shell-control-height: var(--shell-control-height-default);
+  --shell-control-radius-standard: 16px;
+  --shell-control-radius-pill: 999px;
+  --shell-control-radius: var(--shell-control-radius-standard);
   --shell-modal-width: 760px;
   --site-header-button-gap: 8px;
   --site-header-height: 76px;
@@ -16,7 +33,7 @@
 
 @media (max-width: 1120px) {
   :root {
-    --shell-inline-gap: 18px;
+    --shell-inline-gap: 16px;
     --site-header-height: 126px;
     --app-toolbar-height: 150px;
   }
@@ -27,7 +44,9 @@
     --shell-inline-gap: 12px;
     --shell-page-gap: 22px;
     --shell-section-gap: 18px;
-    --shell-control-height: 46px;
+    --shell-control-height-default: 46px;
+    --shell-control-height: var(--shell-control-height-default);
+    --shell-control-height-icon: 44px;
     --site-header-height: 124px;
     --app-toolbar-height: 146px;
   }
@@ -38,71 +57,77 @@ body.site-shell {
   min-height: 100dvh;
   position: relative;
   isolation: isolate;
-  --shell-page-bg:
-    radial-gradient(circle at 10% 8%, rgba(36, 92, 90, 0.18), transparent 36%),
-    radial-gradient(circle at 88% 10%, rgba(160, 97, 58, 0.2), transparent 38%),
-    linear-gradient(180deg, rgba(255, 252, 246, 0.92) 0%, rgba(243, 232, 218, 0.76) 100%);
-  --shell-panel-border: color-mix(in srgb, var(--line) 82%, var(--accent) 18%);
-  --shell-panel-border-strong: color-mix(in srgb, var(--line) 78%, var(--accent) 22%);
-  --shell-panel-border-soft: color-mix(in srgb, var(--line) 88%, transparent);
-  --shell-panel-bg: linear-gradient(145deg, rgba(255, 251, 246, 0.94) 0%, rgba(244, 233, 220, 0.88) 100%);
-  --shell-panel-bg-strong: linear-gradient(145deg, rgba(255, 252, 248, 0.98) 0%, rgba(244, 233, 220, 0.96) 100%);
-  --shell-panel-bg-soft: rgba(255, 251, 246, 0.8);
-  --shell-panel-bg-muted: rgba(255, 252, 247, 0.74);
-  --shell-field-bg: rgba(255, 253, 249, 0.9);
-  --shell-field-bg-soft: rgba(255, 252, 247, 0.82);
-  --shell-chip-bg: rgba(36, 92, 90, 0.1);
-  --shell-row-bg: rgba(255, 252, 247, 0.76);
-  --shell-overlay-bg: rgba(31, 36, 48, 0.42);
+  --shell-page-bg: var(--page-bg-gradient);
+  --shell-panel-border: color-mix(in srgb, var(--border) 88%, var(--accent) 12%);
+  --shell-panel-border-strong: color-mix(in srgb, var(--border) 72%, var(--accent) 28%);
+  --shell-panel-border-soft: color-mix(in srgb, var(--border) 74%, transparent);
+  --shell-panel-bg: color-mix(in srgb, var(--surface) 96%, transparent);
+  --shell-panel-bg-strong: color-mix(in srgb, var(--panel) 98%, white 2%);
+  --shell-panel-bg-soft: color-mix(in srgb, var(--surface-2) 84%, transparent);
+  --shell-panel-bg-muted: color-mix(in srgb, var(--panel-2) 74%, transparent);
+  --shell-field-bg: color-mix(in srgb, var(--panel) 94%, var(--page-bg) 6%);
+  --shell-field-bg-soft: color-mix(in srgb, var(--surface-2) 88%, transparent);
+  --shell-chip-bg: color-mix(in srgb, var(--accent) 12%, transparent);
+  --shell-row-bg: color-mix(in srgb, var(--panel) 92%, transparent);
+  --shell-overlay-bg: rgba(18, 39, 65, 0.3);
   --shell-panel-bg-accented:
-    radial-gradient(circle at 88% 18%, rgba(36, 92, 90, 0.14), transparent 36%),
-    radial-gradient(circle at 18% 82%, rgba(160, 97, 58, 0.12), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0) 18%),
     var(--shell-panel-bg);
   --shell-panel-bg-accented-strong:
-    radial-gradient(circle at 88% 18%, rgba(36, 92, 90, 0.18), transparent 38%),
-    radial-gradient(circle at 18% 82%, rgba(160, 97, 58, 0.16), transparent 40%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.54) 0%, rgba(255, 255, 255, 0) 20%),
     var(--shell-panel-bg-strong);
   --shell-row-bg-accented:
-    radial-gradient(circle at 84% 18%, rgba(36, 92, 90, 0.1), transparent 32%),
-    radial-gradient(circle at 16% 82%, rgba(160, 97, 58, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 22%),
     var(--shell-row-bg);
-  --shell-page-glow-left: radial-gradient(circle, rgba(36, 92, 90, 0.28) 0%, rgba(36, 92, 90, 0.14) 34%, transparent 72%);
-  --shell-page-glow-right: radial-gradient(circle, rgba(160, 97, 58, 0.24) 0%, rgba(160, 97, 58, 0.12) 32%, transparent 72%);
+  --shell-surface-base: var(--shell-panel-bg);
+  --shell-surface-soft: var(--shell-panel-bg-soft);
+  --shell-surface-accented: var(--shell-panel-bg-accented);
+  --shell-surface-accented-strong: var(--shell-panel-bg-accented-strong);
+  --shell-contrast-bg: linear-gradient(180deg, #214976 0%, #102540 100%);
+  --shell-contrast-border: rgba(235, 244, 255, 0.16);
+  --shell-contrast-text: #f6fbff;
+  --shell-contrast-muted: rgba(236, 245, 255, 0.76);
+  --shell-contrast-chip-bg: rgba(125, 185, 255, 0.14);
+  --shell-page-glow-left: radial-gradient(circle, rgba(125, 185, 255, 0.22) 0%, rgba(125, 185, 255, 0.07) 32%, transparent 74%);
+  --shell-page-glow-right: radial-gradient(circle, rgba(239, 181, 95, 0.18) 0%, rgba(239, 181, 95, 0.06) 32%, transparent 74%);
   background: var(--shell-page-bg);
   background-attachment: fixed;
 }
 
 body.theme-dark.site-shell {
-  --shell-page-bg:
-    radial-gradient(circle at 12% 8%, rgba(108, 179, 172, 0.22), transparent 36%),
-    radial-gradient(circle at 88% 10%, rgba(195, 138, 99, 0.22), transparent 38%),
-    linear-gradient(180deg, rgba(15, 24, 35, 0.96) 0%, rgba(21, 33, 46, 0.96) 100%);
-  --shell-panel-border: color-mix(in srgb, var(--border) 74%, var(--accent) 26%);
-  --shell-panel-border-strong: color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
+  --shell-page-bg: var(--page-bg-gradient);
+  --shell-panel-border: color-mix(in srgb, var(--border) 82%, var(--accent) 18%);
+  --shell-panel-border-strong: color-mix(in srgb, var(--border) 64%, var(--accent) 36%);
   --shell-panel-border-soft: color-mix(in srgb, var(--border) 90%, transparent);
-  --shell-panel-bg: linear-gradient(145deg, rgba(24, 35, 50, 0.94) 0%, rgba(16, 24, 35, 0.96) 100%);
-  --shell-panel-bg-strong: linear-gradient(145deg, rgba(26, 39, 57, 0.98) 0%, rgba(16, 24, 35, 0.98) 100%);
-  --shell-panel-bg-soft: rgba(18, 28, 42, 0.86);
-  --shell-panel-bg-muted: rgba(14, 22, 32, 0.72);
-  --shell-field-bg: rgba(14, 22, 32, 0.92);
-  --shell-field-bg-soft: rgba(11, 18, 28, 0.72);
-  --shell-chip-bg: rgba(108, 179, 172, 0.12);
-  --shell-row-bg: rgba(16, 25, 37, 0.92);
-  --shell-overlay-bg: rgba(7, 12, 18, 0.58);
+  --shell-panel-bg: color-mix(in srgb, var(--surface) 96%, transparent);
+  --shell-panel-bg-strong: color-mix(in srgb, var(--panel-2) 24%, var(--surface) 76%);
+  --shell-panel-bg-soft: color-mix(in srgb, var(--surface-2) 78%, transparent);
+  --shell-panel-bg-muted: color-mix(in srgb, var(--panel-2) 68%, transparent);
+  --shell-field-bg: color-mix(in srgb, var(--panel-2) 54%, var(--bg) 46%);
+  --shell-field-bg-soft: color-mix(in srgb, var(--surface-2) 72%, transparent);
+  --shell-chip-bg: color-mix(in srgb, var(--accent) 16%, transparent);
+  --shell-row-bg: color-mix(in srgb, var(--panel) 94%, transparent);
+  --shell-overlay-bg: rgba(3, 9, 18, 0.62);
   --shell-panel-bg-accented:
-    radial-gradient(circle at 88% 18%, rgba(108, 179, 172, 0.18), transparent 36%),
-    radial-gradient(circle at 18% 82%, rgba(195, 138, 99, 0.14), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 18%),
     var(--shell-panel-bg);
   --shell-panel-bg-accented-strong:
-    radial-gradient(circle at 88% 18%, rgba(108, 179, 172, 0.22), transparent 38%),
-    radial-gradient(circle at 18% 82%, rgba(195, 138, 99, 0.18), transparent 40%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 20%),
     var(--shell-panel-bg-strong);
   --shell-row-bg-accented:
-    radial-gradient(circle at 84% 18%, rgba(108, 179, 172, 0.14), transparent 32%),
-    radial-gradient(circle at 16% 82%, rgba(195, 138, 99, 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 22%),
     var(--shell-row-bg);
-  --shell-page-glow-left: radial-gradient(circle, rgba(108, 179, 172, 0.38) 0%, rgba(108, 179, 172, 0.18) 34%, transparent 74%);
-  --shell-page-glow-right: radial-gradient(circle, rgba(195, 138, 99, 0.32) 0%, rgba(195, 138, 99, 0.16) 32%, transparent 74%);
+  --shell-surface-base: var(--shell-panel-bg);
+  --shell-surface-soft: var(--shell-panel-bg-soft);
+  --shell-surface-accented: var(--shell-panel-bg-accented);
+  --shell-surface-accented-strong: var(--shell-panel-bg-accented-strong);
+  --shell-contrast-bg: linear-gradient(180deg, #0d1b33 0%, #050c18 100%);
+  --shell-contrast-border: rgba(235, 244, 255, 0.14);
+  --shell-contrast-text: #f6fbff;
+  --shell-contrast-muted: rgba(236, 245, 255, 0.7);
+  --shell-contrast-chip-bg: rgba(125, 185, 255, 0.16);
+  --shell-page-glow-left: radial-gradient(circle, rgba(125, 185, 255, 0.16) 0%, rgba(125, 185, 255, 0.06) 32%, transparent 76%);
+  --shell-page-glow-right: radial-gradient(circle, rgba(241, 195, 111, 0.12) 0%, rgba(241, 195, 111, 0.04) 32%, transparent 76%);
 }
 
 body.site-shell::before,
@@ -115,8 +140,8 @@ body.site-shell::after {
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.9;
-  filter: blur(18px);
+  opacity: 0.72;
+  filter: blur(28px);
   transform: translateZ(0);
 }
 
@@ -168,19 +193,11 @@ body.site-shell:not(.has-app-toolbar) {
   align-items: center;
   gap: 18px;
   padding: var(--site-header-button-gap) 18px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--shell-panel-border-strong);
   border-radius: 999px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 58%),
-    var(--shell-panel-bg-accented);
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(18px);
-}
-
-body.theme-dark .site-header__inner {
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 58%),
-    var(--shell-panel-bg-accented);
+  background: var(--shell-panel-bg-strong);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(16px);
 }
 
 .site-header__inner > * {
@@ -217,11 +234,16 @@ body.theme-dark .site-header__inner {
   transition: color var(--transition-base) ease, background var(--transition-base) ease;
 }
 
-.site-header__nav a:hover,
+.site-header__nav a:hover {
+  color: var(--text);
+  background: var(--shell-chip-bg);
+}
+
 .site-header__nav a:focus-visible {
   color: var(--text);
-  background: rgba(36, 92, 90, 0.1);
-  outline: none;
+  background: var(--shell-chip-bg);
+  outline: 3px solid var(--ring-strong);
+  outline-offset: 3px;
 }
 
 .site-header__nav a[aria-current="page"] {
@@ -265,20 +287,24 @@ body.theme-dark .site-header__inner {
   box-shadow: var(--shadow-sm);
 }
 
-.site-btn:hover,
+.site-btn:hover {
+  box-shadow: var(--shadow-md);
+}
+
 .site-btn:focus-visible {
   box-shadow: var(--shadow-md);
-  outline: none;
+  outline: 3px solid var(--ring-strong);
+  outline-offset: 3px;
 }
 
 .site-btn--primary {
   background: var(--gradient-primary);
-  border-color: rgba(36, 92, 90, 0.18);
-  color: #fffdf9;
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--shell-panel-border) 66%);
+  color: #fff8f1;
 }
 
 .site-btn--secondary {
-  background: var(--shell-field-bg-soft);
+  background: var(--shell-field-bg);
   border-color: var(--shell-panel-border);
   color: var(--text);
 }
@@ -294,8 +320,8 @@ body.theme-dark .site-btn--secondary {
 .site-header #themeBtn,
 .site-menu-btn {
   appearance: none;
-  width: var(--shell-control-height);
-  min-width: var(--shell-control-height);
+  width: var(--shell-control-height-icon);
+  min-width: var(--shell-control-height-icon);
   padding: 0;
   border: 1px solid var(--shell-panel-border);
   background: var(--shell-field-bg-soft);
@@ -313,12 +339,17 @@ body.theme-dark .site-menu-btn {
 }
 
 .site-header #themeBtn:hover,
-.site-header #themeBtn:focus-visible,
-.site-menu-btn:hover,
-.site-menu-btn:focus-visible {
-  border-color: rgba(36, 92, 90, 0.35);
+.site-menu-btn:hover {
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--shell-panel-border) 58%);
   box-shadow: var(--shadow-md);
-  outline: none;
+}
+
+.site-header #themeBtn:focus-visible,
+.site-menu-btn:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--shell-panel-border) 58%);
+  box-shadow: var(--shadow-md);
+  outline: 3px solid var(--ring-strong);
+  outline-offset: 3px;
 }
 
 .site-header #themeBtn .material-symbols-outlined,
@@ -334,7 +365,7 @@ body.theme-dark .site-menu-btn {
 .page-container {
   width: var(--shell-width);
   margin: 0 auto;
-  padding: var(--shell-section-gap) 0 48px;
+  padding: var(--shell-section-gap) 0 var(--shell-space-9);
 }
 
 body.site-public .page-container {
@@ -343,15 +374,11 @@ body.site-public .page-container {
 
 .page-hero {
   margin-bottom: var(--shell-section-gap);
-  padding: clamp(24px, 4vw, 38px);
-  border: 1px solid var(--shell-panel-border);
+  padding: clamp(var(--shell-space-6), 4vw, 38px);
+  border: 1px solid var(--shell-panel-border-strong);
   border-radius: 30px;
-  background: var(--shell-panel-bg-accented-strong);
-  box-shadow: var(--shadow-md);
-}
-
-body.theme-dark .page-hero {
-  background: var(--shell-panel-bg-accented-strong);
+  background: var(--shell-surface-accented-strong);
+  box-shadow: var(--shadow-sm);
 }
 
 .page-kicker,
@@ -397,12 +424,24 @@ body.theme-dark .page-hero {
 .surface-card {
   border: 1px solid var(--shell-panel-border);
   border-radius: 26px;
-  background: var(--shell-panel-bg-accented);
-  box-shadow: var(--shadow-md);
+  background: var(--shell-surface-accented);
+  box-shadow: var(--shadow-sm);
 }
 
-body.theme-dark .surface-card {
-  background: var(--shell-panel-bg-accented);
+.surface-card--base {
+  background: var(--shell-surface-base);
+}
+
+.surface-card--soft {
+  background: var(--shell-surface-soft);
+}
+
+.surface-card--accented {
+  background: var(--shell-surface-accented);
+}
+
+.surface-card--accented-strong {
+  background: var(--shell-surface-accented-strong);
 }
 
 .site-footer {
@@ -410,12 +449,8 @@ body.theme-dark .surface-card {
   margin: 16px auto 24px;
   border: 1px solid var(--shell-panel-border);
   border-radius: 24px;
-  background: var(--shell-panel-bg-accented);
+  background: var(--shell-panel-bg);
   box-shadow: var(--shadow-sm);
-}
-
-body.theme-dark .site-footer {
-  background: var(--shell-panel-bg-accented);
 }
 
 .site-footer__inner {
@@ -459,18 +494,23 @@ body.site-shell :is(
   .btn-danger,
   .form-button,
   .google-button,
+  .landing-btn,
   .product-cta,
   .dashboard-fab,
   .create-tree-btn-secondary,
   .tool-btn,
   .store-continue-btn,
+  .store-order-back-btn,
+  .store-orders-login-link,
   .order-submit-btn,
+  .store-order-open-btn,
   .login-order-btn,
+  .wizard-nav-btn,
   .coffee-btn
 ) {
   min-height: var(--shell-control-height);
   padding: 0 16px;
-  border-radius: var(--shell-control-radius);
+  border-radius: var(--shell-control-radius-standard);
   border: 1px solid transparent;
   font-size: 0.92rem;
   font-weight: 800;
@@ -491,6 +531,7 @@ body.site-shell :is(
 body.site-shell :is(
   .btn-primary,
   .form-button,
+  .landing-btn-primary,
   .product-cta,
   .dashboard-fab,
   .order-submit-btn,
@@ -498,18 +539,21 @@ body.site-shell :is(
   .login-order-btn
 ) {
   background: var(--gradient-primary);
-  border-color: rgba(36, 92, 90, 0.14);
-  color: #fffdf9;
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--shell-panel-border) 66%);
+  color: #fff8f1;
 }
 
 body.site-shell :is(
   .btn-secondary,
   .google-button,
+  .landing-btn-secondary,
   .tool-btn,
   .store-continue-btn,
+  .store-order-back-btn,
+  .store-orders-login-link,
   .create-tree-btn-secondary
 ) {
-  background: var(--shell-field-bg-soft);
+  background: var(--shell-field-bg);
   border-color: var(--shell-panel-border);
   color: var(--text);
 }
@@ -517,8 +561,11 @@ body.site-shell :is(
 body.theme-dark.site-shell :is(
   .btn-secondary,
   .google-button,
+  .landing-btn-secondary,
   .tool-btn,
   .store-continue-btn,
+  .store-order-back-btn,
+  .store-orders-login-link,
   .create-tree-btn-secondary
 ) {
   background: var(--shell-field-bg-soft);
@@ -542,13 +589,18 @@ body.site-shell :is(
   .btn-danger,
   .form-button,
   .google-button,
+  .landing-btn,
   .product-cta,
   .dashboard-fab,
   .create-tree-btn-secondary,
   .tool-btn,
   .store-continue-btn,
+  .store-order-back-btn,
+  .store-orders-login-link,
   .order-submit-btn,
+  .store-order-open-btn,
   .login-order-btn,
+  .wizard-nav-btn,
   .coffee-btn
 ):hover,
 body.site-shell :is(
@@ -557,16 +609,21 @@ body.site-shell :is(
   .btn-danger,
   .form-button,
   .google-button,
+  .landing-btn,
   .product-cta,
   .dashboard-fab,
   .create-tree-btn-secondary,
   .tool-btn,
   .store-continue-btn,
+  .store-order-back-btn,
+  .store-orders-login-link,
   .order-submit-btn,
+  .store-order-open-btn,
   .login-order-btn,
+  .wizard-nav-btn,
   .coffee-btn
 ):focus-visible {
-  border-color: rgba(36, 92, 90, 0.28);
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--shell-panel-border) 62%);
   box-shadow: var(--shadow-md);
   outline: none;
 }
@@ -577,12 +634,17 @@ body.site-shell :is(
   .btn-danger,
   .form-button,
   .google-button,
+  .landing-btn,
   .product-cta,
   .dashboard-fab,
   .create-tree-btn-secondary,
   .tool-btn,
   .store-continue-btn,
+  .store-order-back-btn,
+  .store-orders-login-link,
   .order-submit-btn,
+  .store-order-open-btn,
+  .wizard-nav-btn,
   .login-order-btn
 ):disabled {
   opacity: 0.56;
@@ -595,7 +657,7 @@ body.site-shell .field-input {
   width: 100%;
   min-height: 48px;
   padding: 12px 14px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--shell-panel-border);
   border-radius: 16px;
   background: var(--shell-field-bg);
   color: var(--text);
@@ -607,7 +669,7 @@ body.site-shell .field-input {
 
 body.theme-dark.site-shell .form-input,
 body.theme-dark.site-shell .field-input {
-  background: var(--shell-field-bg-soft);
+  background: var(--shell-field-bg);
 }
 
 body.site-shell .form-input::placeholder,
@@ -618,7 +680,7 @@ body.site-shell .field-input::placeholder {
 body.site-shell .form-input:focus,
 body.site-shell .field-input:focus {
   outline: none;
-  border-color: rgba(36, 92, 90, 0.4);
+  border-color: color-mix(in srgb, var(--accent) 56%, var(--shell-panel-border) 44%);
   box-shadow: 0 0 0 4px var(--ring);
 }
 
@@ -634,19 +696,10 @@ body.site-shell .modal-dialog,
 body.site-shell .help-modal-dialog,
 body.site-shell .add-member-card,
 body.site-shell .store-modal-dialog {
-  border: 1px solid var(--shell-panel-border);
+  border: 1px solid var(--shell-panel-border-strong);
   border-radius: 28px;
   background: var(--shell-panel-bg-strong);
-  box-shadow: var(--shadow-xl);
-}
-
-body.theme-dark.site-shell :is(
-  .modal-dialog,
-  .help-modal-dialog,
-  .add-member-card,
-  .store-modal-dialog
-) {
-  background: var(--shell-panel-bg-strong);
+  box-shadow: var(--shadow-lg);
 }
 
 body.site-shell .modal-dialog,
@@ -713,7 +766,7 @@ body.site-shell .store-modal-close:hover,
 body.site-shell .store-modal-close:focus-visible,
 body.site-shell .add-member-header .modal-close:hover,
 body.site-shell .add-member-header .modal-close:focus-visible {
-  border-color: rgba(36, 92, 90, 0.35);
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--shell-panel-border) 62%);
   box-shadow: var(--shadow-md);
   outline: none;
 }
@@ -841,8 +894,8 @@ body.has-app-toolbar:not(.focus-mode) .app-header .controls .user-info > button:
 
 body.has-app-toolbar:not(.focus-mode) .app-header .controls .icon-btn,
 body.has-app-toolbar:not(.focus-mode) .app-header #backBtn {
-  width: 46px;
-  min-width: 46px;
+  width: var(--shell-control-height-icon);
+  min-width: var(--shell-control-height-icon);
   padding: 0;
 }
 
@@ -932,11 +985,12 @@ body.dashboard-page.site-shell .dashboard-main {
     display: none;
     flex-direction: column;
     align-items: stretch;
-    padding-top: 6px;
+    gap: 10px;
+    padding-top: 8px;
   }
 
   .site-header__nav a {
-    background: rgba(36, 92, 90, 0.08);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
   }
 
   .site-header.menu-open .site-header__nav {
@@ -1040,8 +1094,10 @@ body.dashboard-page.site-shell .dashboard-main {
 
   body.has-app-toolbar:not(.focus-mode) .app-header .controls .icon-btn,
   body.has-app-toolbar:not(.focus-mode) .app-header #backBtn {
-    width: 44px;
-    min-width: 44px;
+    width: var(--shell-control-height-compact);
+    min-width: var(--shell-control-height-compact);
     padding: 0;
   }
 }
+
+

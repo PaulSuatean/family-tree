@@ -37,6 +37,13 @@
         ? opts.thumbPath
         : function thumbPathFallback(image) { return image || ''; };
     const placeholderDataUrl = opts.placeholderDataUrl || '';
+    const heraldicFrameAsset = opts.heraldicFrameAsset || '../images/other/heraldic-circle-frame.webp';
+    const heraldicFrameLayout = Object.assign({
+      width: 222,
+      height: 154,
+      x: -111,
+      y: -75
+    }, opts.heraldicFrameLayout || {});
     const openModal =
       typeof opts.openModal === 'function'
         ? opts.openModal
@@ -57,6 +64,22 @@
       typeof opts.getTreeDefaultPadding === 'function'
         ? opts.getTreeDefaultPadding
         : function getTreeDefaultPaddingFallback() { return 36; };
+    let personCardClipPath = '';
+    if (defs && typeof defs.select === 'function') {
+      let cardClip = defs.select('#viewerPersonCardClip');
+      if (cardClip.empty()) {
+        cardClip = defs.append('clipPath').attr('id', 'viewerPersonCardClip');
+        cardClip.append('rect');
+      }
+      cardClip.select('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', person.width)
+        .attr('height', person.height)
+        .attr('rx', 12)
+        .attr('ry', 12);
+      personCardClipPath = 'url(#viewerPersonCardClip)';
+    }
 
     function asHierarchy(data) {
       return d3.hierarchy(data, (d) => d.children || []);
@@ -203,6 +226,16 @@
         this.setAttribute('href', fallback);
         this.setAttributeNS('http://www.w3.org/1999/xlink', 'href', fallback);
       });
+
+      gAvatar.append('image')
+        .attr('class', 'bubble-frame bubble-frame-heraldic')
+        .attr('href', heraldicFrameAsset)
+        .attr('xlink:href', heraldicFrameAsset)
+        .attr('x', heraldicFrameLayout.x)
+        .attr('y', heraldicFrameLayout.y)
+        .attr('width', heraldicFrameLayout.width)
+        .attr('height', heraldicFrameLayout.height)
+        .attr('preserveAspectRatio', 'xMidYMid meet');
 
       gPerson.append('text')
         .attr('class', 'name')

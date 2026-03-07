@@ -19,6 +19,7 @@
 
   const DEFAULT_BUBBLE_PRESETS = [
     { id: 'bubble-classic', label: 'Classic' },
+    { id: 'bubble-heraldic', label: 'Heraldic' },
     { id: 'bubble-ink', label: 'Ink' },
     { id: 'bubble-soft', label: 'Soft' }
   ];
@@ -154,6 +155,7 @@
     const onChange = typeof opts.onChange === 'function' ? opts.onChange : null;
     const storage = opts.storage || global.localStorage;
     const locationObj = opts.location || global.location;
+    const shouldPersist = opts.persist !== false;
 
     const backgroundPresets = normalizeBackgroundPresets(opts.backgroundPresets);
     const bubblePresets = normalizeBubblePresets(opts.bubblePresets);
@@ -191,6 +193,7 @@
     }
 
     function persistState() {
+      if (!shouldPersist) return;
       const payload = {
         v: STORAGE_VERSION,
         background: state.background,
@@ -300,11 +303,16 @@
     bindOptionGroup(backgroundContainer, backgroundPresets, setBackground);
     bindOptionGroup(bubbleContainer, bubblePresets, setBubble);
 
-    const storedState = parseStoredState(readStorage(storage, storageKey));
-    if (storedState && typeof storedState === 'object') {
+    const initialState = opts.initialState && typeof opts.initialState === 'object'
+      ? opts.initialState
+      : null;
+    const storedState = shouldPersist ? parseStoredState(readStorage(storage, storageKey)) : null;
+    const bootState = initialState || storedState;
+
+    if (bootState && typeof bootState === 'object') {
       setState({
-        background: storedState.background,
-        bubble: storedState.bubble
+        background: bootState.background,
+        bubble: bootState.bubble
       }, { persist: false, emit: false });
     } else {
       setState(state, { persist: false, emit: false });

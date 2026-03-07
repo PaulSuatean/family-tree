@@ -29,7 +29,6 @@
     return;
   }
 
-  console.log('Initializing family tree renderer...');
   const g = svg.append('g').attr('class', 'viewport');
   const defs = svg.append('defs');
   const personGradient = defs.append('linearGradient')
@@ -69,23 +68,13 @@
   const birthdayMonthsEl = document.getElementById('birthdayMonths');
   const calendarSection = document.getElementById('birthdaySection');
   const topbar = document.querySelector('.topbar');
-  const monthPrevBtn = document.getElementById('monthPrev');
-  const monthNextBtn = document.getElementById('monthNext');
-  const carouselControls = document.querySelector('.carousel-controls');
-  const calendarSidePrev = document.getElementById('calendarSidePrev');
-  const calendarSideNext = document.getElementById('calendarSideNext');
-  const calendarSideNav = document.querySelector('.calendar-side-nav');
   const pageEl = document.querySelector('.page');
   const globeView = document.getElementById('globeView');
   const globeLegendEl = document.querySelector('.globe-legend');
   const globeSvgEl = document.getElementById('globeSvg');
   const globeTooltip = document.getElementById('globeTooltip');
-  const viewToggleButtons = document.querySelectorAll('.view-toggle-btn');
   const viewToggleInputs = document.querySelectorAll('.tw-toggle input[name="view-toggle"]');
-  const viewToggle = document.querySelector('.view-toggle') || document.querySelector('.tw-toggle');
-  const viewStylePanel = document.getElementById('viewStylePanel');
-  const viewBackgroundOptions = document.getElementById('viewBackgroundOptions');
-  const viewBubbleOptions = document.getElementById('viewBubbleOptions');
+  const viewToggle = document.querySelector('.tw-toggle');
   let calendarOpen = false;
   const birthdayTooltip = document.getElementById('birthdayTooltip');
   const searchBar = document.getElementById('searchBar');
@@ -94,6 +83,15 @@
   const searchBtn = document.getElementById('searchBtn');
   const searchClearBtn = document.getElementById('searchClearBtn');
   const helpBtn = document.getElementById('helpBtn');
+  const shareTreeBtn = document.getElementById('shareTreeBtn');
+  const shareTreeModal = document.getElementById('shareTreeModal');
+  const shareModalLinkInput = document.getElementById('shareModalLinkInput');
+  const shareCopyBtn = document.getElementById('shareCopyBtn');
+  const shareModalHint = document.getElementById('shareModalHint');
+  const shareModalClose = document.getElementById('closeShareModal');
+  const shareConfirmBtn = document.getElementById('confirmShareBtn');
+  const shareTreeNameEl = document.getElementById('shareTreeName');
+  const orderPrintBtn = document.getElementById('orderPrintBtn');
   const statsKidsEl = document.getElementById('statsKids');
   const statsGrandkidsEl = document.getElementById('statsGrandkids');
   const statsGreatGrandkidsEl = document.getElementById('statsGreatGrandkids');
@@ -106,14 +104,9 @@
   const personHierarchy = new Map(); // Store hierarchical info
   let activeTooltipCell = null;
   let familyTreeData = null; // Store the full data
-  let viewStyleController = null;
-  let mobileMonthIndex = 0;
   const mobileQuery = window.matchMedia('(max-width: 640px)');
   let mobileShowAll = false;
-  let touchStartX = null;
   let applyMobileState = null;
-  let upcomingBirthdaysList = [];
-  let upcomingCurrentIndex = 0;
   let externalUpcomingController = null;
   let externalEmptyStateController = null;
 
@@ -134,7 +127,7 @@
   };
   const baseCoupleWidth = person.width * 2 + person.hGap;
   const avatar = { r: 36, top: 10 };
-  // i18n support - default to Romanian, can be extended
+  // i18n support - default to English, can be extended
   const i18n = {
     ro: {
       months: [
@@ -188,11 +181,34 @@
     }
   };
 
-  // Use Romanian by default (can be made dynamic with language selector)
-  const currentLang = localStorage.getItem('tree-lang') || 'ro';
-  const t = i18n[currentLang] || i18n.ro;
+  const storedTreeLang = localStorage.getItem("tree-lang");
+  const documentLang = (document.documentElement.lang || "").toLowerCase();
+  const preferredTreeLang = storedTreeLang || (documentLang.startsWith("ro") ? "ro" : "en");
+  const currentLang = Object.prototype.hasOwnProperty.call(i18n, preferredTreeLang) ? preferredTreeLang : "en";
+  const t = i18n[currentLang] || i18n.en;
   const monthsMeta = t.months;
-
+  const isRomanianUi = currentLang === "ro";
+  const viewerUiText = isRomanianUi
+    ? {
+      lineageButton: "Genealogie",
+      lineageTitleInactive: "Arată liniile de genealogie",
+      lineageTitleActive: "Ascunde liniile de genealogie",
+      emptyStateTitleSingular: (days) => `Zi de naștere în următoarele ${days} zile`,
+      emptyStateTitlePlural: (days) => `Zile de naștere în următoarele ${days} zile`,
+      emptyStateIntro: (days) => `Iată cine își sărbătorește ziua în următoarele ${days} zile:`,
+      emptyStateHint: () => "Deschide calendarul pentru toate zilele de naștere.",
+      emptyStateDismiss: () => "Am înțeles!"
+    }
+    : {
+      lineageButton: "Lineage",
+      lineageTitleInactive: "Show lineage lines",
+      lineageTitleActive: "Hide lineage lines",
+      emptyStateTitleSingular: (days) => `Birthday in the next ${days} days`,
+      emptyStateTitlePlural: (days) => `Birthdays in the next ${days} days`,
+      emptyStateIntro: (days) => `Here is who is celebrating in the next ${days} days:`,
+      emptyStateHint: () => "Open the calendar to review every birthday in the tree.",
+      emptyStateDismiss: () => "Continue"
+    };
   const dnaHighlightNames = new Set(['ioan suatean', 'ana suatean']);
   const dnaSuppressNames = new Set(['f ioan suatean', 'ioan pintilie']);
   const calendarExcludeNames = new Set([
@@ -244,6 +260,64 @@
     Liviu: ['Ungaria'],
     Victoria: ['Austria', 'Ungaria', 'Grecia']
   };
+
+  function requireFunction(candidate, label) {
+    if (typeof candidate === 'function') {
+      return candidate;
+    }
+    return function missingRequiredFunction() {
+      throw new Error(`${label} is unavailable.`);
+    };
+  }
+
+  const loadTreeData = requireFunction(
+    typeof window !== 'undefined' ? window.AncestrioDataLoader?.loadTreeData : null,
+    'AncestrioDataLoader.loadTreeData'
+  );
+  const normalizeData = requireFunction(
+    typeof window !== 'undefined' ? window.AncestrioDataTransform?.normalizeData : null,
+    'AncestrioDataTransform.normalizeData'
+  );
+  const thumbPath = requireFunction(
+    typeof window !== 'undefined' ? window.AncestrioDataTransform?.thumbPath : null,
+    'AncestrioDataTransform.thumbPath'
+  );
+  const parseBirthday = requireFunction(
+    typeof window !== 'undefined' ? window.AncestrioMainUtils?.parseBirthday : null,
+    'AncestrioMainUtils.parseBirthday'
+  );
+  const safe = requireFunction(
+    typeof window !== 'undefined' ? window.AncestrioMainUtils?.safe : null,
+    'AncestrioMainUtils.safe'
+  );
+  const normalizeName = requireFunction(
+    typeof window !== 'undefined' ? window.AncestrioMainUtils?.normalizeName : null,
+    'AncestrioMainUtils.normalizeName'
+  );
+  const readTags = requireFunction(
+    typeof window !== 'undefined' ? window.AncestrioMainUtils?.readTags : null,
+    'AncestrioMainUtils.readTags'
+  );
+  const formatCalendarCount = requireFunction(
+    typeof window !== 'undefined' ? window.AncestrioCalendarUtils?.formatCount : null,
+    'AncestrioCalendarUtils.formatCount'
+  );
+  const shouldExcludeCalendarEntry = requireFunction(
+    typeof window !== 'undefined' ? window.AncestrioCalendarUtils?.shouldExcludeFromCalendar : null,
+    'AncestrioCalendarUtils.shouldExcludeFromCalendar'
+  );
+  const getCalendarDaysInMonth = requireFunction(
+    typeof window !== 'undefined' ? window.AncestrioCalendarUtils?.getDaysInMonth : null,
+    'AncestrioCalendarUtils.getDaysInMonth'
+  );
+  const getCalendarFirstDayOffset = requireFunction(
+    typeof window !== 'undefined' ? window.AncestrioCalendarUtils?.getFirstDayOffset : null,
+    'AncestrioCalendarUtils.getFirstDayOffset'
+  );
+  const escapeHtml = requireFunction(
+    typeof window !== 'undefined' ? window.AncestrioCalendarUtils?.escapeHtml : null,
+    'AncestrioCalendarUtils.escapeHtml'
+  );
 
   const globeVisits = {};
   function buildGlobeVisits(peopleMap, options = {}) {
@@ -467,10 +541,11 @@
   }
   function updateDNAButtonText() {
     if (!dnaBtn) return;
-    const text = 'Genealogie';
-    dnaBtn.textContent = text;
+    dnaBtn.textContent = viewerUiText.lineageButton;
     dnaBtn.setAttribute('aria-pressed', dnaOn ? 'true' : 'false');
-    dnaBtn.setAttribute('title', 'Genealogie');
+    const title = dnaOn ? viewerUiText.lineageTitleActive : viewerUiText.lineageTitleInactive;
+    dnaBtn.setAttribute('aria-label', title);
+    dnaBtn.setAttribute('title', title);
   }
   const themeBtn = document.getElementById('themeBtn');
   window.AncestrioTheme?.initThemeToggle({
@@ -543,47 +618,18 @@
   if (upcomingPrev) {
     upcomingPrev.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (externalUpcomingController && typeof externalUpcomingController.previous === 'function') {
-        externalUpcomingController.previous();
-        return;
-      }
-      if (upcomingBirthdaysList.length > 0) {
-        upcomingCurrentIndex = (upcomingCurrentIndex - 1 + upcomingBirthdaysList.length) % upcomingBirthdaysList.length;
-        renderUpcomingBirthdayButton();
-      }
+      externalUpcomingController?.previous?.();
     });
   }
   if (upcomingNext) {
     upcomingNext.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (externalUpcomingController && typeof externalUpcomingController.next === 'function') {
-        externalUpcomingController.next();
-        return;
-      }
-      if (upcomingBirthdaysList.length > 0) {
-        upcomingCurrentIndex = (upcomingCurrentIndex + 1) % upcomingBirthdaysList.length;
-        renderUpcomingBirthdayButton();
-      }
+      externalUpcomingController?.next?.();
     });
   }
   if (upcomingBtn) {
     upcomingBtn.addEventListener('click', () => {
-      if (externalUpcomingController && typeof externalUpcomingController.openCurrent === 'function') {
-        externalUpcomingController.openCurrent();
-        return;
-      }
-      if (upcomingBirthdaysList.length > 0) {
-        const birthday = upcomingBirthdaysList[upcomingCurrentIndex];
-        const info = personLookup.get(birthday.name);
-        if (info) {
-          openModal({
-            name: info.name,
-            image: info.image || placeholderDataUrl,
-            birthday: info.birthday,
-            metadata: info.metadata
-          });
-        }
-      }
+      externalUpcomingController?.openCurrent?.();
     });
   }
 
@@ -703,6 +749,195 @@
     return `store.html?${params.toString()}`;
   }
 
+  function setShareButtonVisibility(visible) {
+    if (!shareTreeBtn) return;
+    shareTreeBtn.hidden = !visible;
+    shareTreeBtn.setAttribute('aria-hidden', visible ? 'false' : 'true');
+    if (visible) {
+      shareTreeBtn.removeAttribute('tabindex');
+    } else {
+      shareTreeBtn.setAttribute('tabindex', '-1');
+    }
+  }
+
+  function isShareOwner() {
+    const currentId = typeof window !== 'undefined' ? window.FIREBASE_CURRENT_USER_ID : '';
+    const ownerId = typeof window !== 'undefined' ? window.FIREBASE_TREE_OWNER_ID : '';
+    return !!(currentId && ownerId && currentId === ownerId);
+  }
+
+  function buildViewerShareUrl() {
+    const shareTreeId = getTreeIdFromUrl();
+    if (!shareTreeId) return '';
+    if (window.AncestrioShareUtils && typeof window.AncestrioShareUtils.buildTreeShareUrl === 'function') {
+      return window.AncestrioShareUtils.buildTreeShareUrl(shareTreeId, 'tree.html');
+    }
+    return `tree.html?id=${encodeURIComponent(shareTreeId)}`;
+  }
+
+  async function copyViewerShareLink(url) {
+    if (!url) {
+      notifyUser('Share link is not available.', 'warning');
+      return false;
+    }
+    if (window.AncestrioShareUtils && typeof window.AncestrioShareUtils.copyToClipboard === 'function') {
+      const copied = await window.AncestrioShareUtils.copyToClipboard(url);
+      if (copied) {
+        window.AncestrioShareUtils.notifyShare?.('Share link copied.', 'success');
+        return true;
+      }
+    }
+    notifyUser('Unable to copy link. Please copy it manually.', 'warning');
+    return false;
+  }
+
+  async function makeTreePublicForShare(treeId) {
+    if (!treeId || typeof firebase === 'undefined' || !firebase.firestore) {
+      notifyUser('Sharing is not available right now.', 'warning');
+      return false;
+    }
+
+    try {
+      await firebase.firestore().collection('trees').doc(treeId).update({
+        privacy: 'public',
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      window.FIREBASE_TREE_PRIVACY = 'public';
+      return true;
+    } catch (error) {
+      console.error('Failed to update privacy for sharing:', error);
+      notifyUser('Failed to update privacy. Please try again.', 'error');
+      return false;
+    }
+  }
+
+  function refreshShareButtonVisibility() {
+    const canShare = isShareOwner() && !!getTreeIdFromUrl();
+    setShareButtonVisibility(canShare);
+  }
+
+  function buildSocialShareUrl(platform, shareUrl, title) {
+    const encodedUrl = encodeURIComponent(shareUrl || '');
+    const encodedTitle = encodeURIComponent(title || 'Family tree');
+    switch (platform) {
+      case 'facebook':
+        return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+      case 'x':
+        return `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
+      case 'whatsapp':
+        return `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`;
+      case 'telegram':
+        return `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`;
+      case 'linkedin':
+        return `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+      default:
+        return '';
+    }
+  }
+
+  function updateShareModalSocialLinks(shareUrl, treeName, isPublic) {
+    const socialLinks = document.querySelectorAll('[data-share-platform]');
+    socialLinks.forEach((link) => {
+      const platform = link.dataset.sharePlatform;
+      if (!isPublic || !shareUrl) {
+        link.removeAttribute('href');
+        link.setAttribute('aria-disabled', 'true');
+        link.tabIndex = -1;
+        link.classList.add('is-disabled');
+        return;
+      }
+      const platformUrl = buildSocialShareUrl(platform, shareUrl, treeName);
+      if (platformUrl) {
+        link.href = platformUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+      }
+      link.removeAttribute('aria-disabled');
+      link.tabIndex = 0;
+      link.classList.remove('is-disabled');
+    });
+  }
+
+  function getShareTreeName() {
+    const nameFromFirebase = typeof window !== 'undefined' ? window.FIREBASE_TREE_NAME : '';
+    if (nameFromFirebase && String(nameFromFirebase).trim()) return String(nameFromFirebase).trim();
+    const nameEl = document.getElementById('treeName');
+    if (nameEl && nameEl.textContent) return nameEl.textContent.trim();
+    return 'this tree';
+  }
+
+  function updateShareModalUI() {
+    if (!shareTreeModal) return;
+    const shareUrl = buildViewerShareUrl();
+    const isPublic = (typeof window !== 'undefined' ? window.FIREBASE_TREE_PRIVACY : 'private') === 'public';
+    const treeName = getShareTreeName();
+
+    if (shareTreeNameEl) shareTreeNameEl.textContent = treeName;
+    if (shareModalLinkInput) {
+      shareModalLinkInput.value = isPublic ? shareUrl : '';
+      shareModalLinkInput.placeholder = isPublic ? '' : 'Make public to enable sharing';
+    }
+    if (shareCopyBtn) {
+      shareCopyBtn.disabled = !isPublic || !shareUrl;
+      shareCopyBtn.setAttribute('aria-disabled', (!isPublic || !shareUrl) ? 'true' : 'false');
+    }
+    if (shareConfirmBtn) {
+      shareConfirmBtn.style.display = isPublic ? 'none' : 'inline-flex';
+    }
+    if (shareModalHint) {
+      shareModalHint.textContent = isPublic
+        ? 'Anyone with the link can view it. It is not listed.'
+        : 'Make public to enable sharing. It is not listed.';
+    }
+    updateShareModalSocialLinks(shareUrl, treeName, isPublic);
+  }
+
+  function showShareModal() {
+    if (!shareTreeModal) return;
+    updateShareModalUI();
+    shareTreeModal.classList.add('open');
+    shareTreeModal.style.display = 'flex';
+    shareTreeModal.setAttribute('aria-hidden', 'false');
+  }
+
+  function hideShareModal() {
+    if (!shareTreeModal) return;
+    shareTreeModal.classList.remove('open');
+    shareTreeModal.style.display = 'none';
+    shareTreeModal.setAttribute('aria-hidden', 'true');
+  }
+
+  async function handleShareCopy() {
+    const shareUrl = buildViewerShareUrl();
+    const isPublic = (typeof window !== 'undefined' ? window.FIREBASE_TREE_PRIVACY : 'private') === 'public';
+    if (!isPublic) {
+      notifyUser('Make this tree public to share.', 'warning');
+      return;
+    }
+    await copyViewerShareLink(shareUrl);
+  }
+
+  async function handleShareConfirm() {
+    const shareTreeId = getTreeIdFromUrl();
+    if (!shareTreeId) {
+      notifyUser('Save your tree to share a link.', 'warning');
+      return;
+    }
+    if (shareConfirmBtn) {
+      shareConfirmBtn.disabled = true;
+      shareConfirmBtn.textContent = 'Sharing...';
+    }
+    const updated = await makeTreePublicForShare(shareTreeId);
+    if (updated) {
+      updateShareModalUI();
+      await copyViewerShareLink(buildViewerShareUrl());
+    }
+    if (shareConfirmBtn) {
+      shareConfirmBtn.disabled = false;
+      shareConfirmBtn.textContent = 'Make Public & Copy Link';
+    }
+  }
+
   const DEFAULT_VIEW_BACKGROUND = 'theme-default';
   const DEFAULT_VIEW_BUBBLE = 'bubble-classic';
   const VIEW_BACKGROUND_IDS = new Set([
@@ -804,43 +1039,6 @@
       body.setAttribute('data-view-bg', settings.viewBackground);
       body.setAttribute('data-view-bubble', settings.viewBubble);
     }
-
-    if (viewStyleController && typeof viewStyleController.setState === 'function') {
-      viewStyleController.setState({
-        background: settings.viewBackground,
-        bubble: settings.viewBubble
-      }, { persist: false, emit: false });
-    }
-  }
-
-  function initViewStylePanel() {
-    if (
-      typeof window === 'undefined' ||
-      !window.AncestrioViewStyleUI ||
-      typeof window.AncestrioViewStyleUI.createViewStyleController !== 'function'
-    ) {
-      return;
-    }
-
-    viewStyleController = window.AncestrioViewStyleUI.createViewStyleController({
-      panelEl: viewStylePanel,
-      backgroundContainer: viewBackgroundOptions,
-      bubbleContainer: viewBubbleOptions,
-      backgroundPresets: Array.isArray(window.AncestrioViewerBackgroundPresets)
-        ? window.AncestrioViewerBackgroundPresets
-        : undefined,
-      bubblePresets: Array.isArray(window.AncestrioViewerBubblePresets)
-        ? window.AncestrioViewerBubblePresets
-        : undefined,
-      onChange: () => {
-        requestAnimationFrame(() => {
-          updateViewToggleOffset();
-          if (currentView === 'tree') {
-            fitTreeWhenVisible(getTreeDefaultPadding(), 50);
-          }
-        });
-      }
-    });
   }
 
   let externalGlobeController = null;
@@ -935,19 +1133,11 @@
   }
 
   function updateViewToggleUI() {
-    // Handle new 3-way toggle
     if (viewToggleInputs && viewToggleInputs.length) {
       viewToggleInputs.forEach((input) => {
         input.checked = input.value === currentView;
       });
     }
-    // Handle legacy toggle buttons
-    if (!viewToggleButtons || !viewToggleButtons.length) return;
-    viewToggleButtons.forEach((btn) => {
-      const isActive = btn.dataset.view === currentView;
-      btn.classList.toggle('is-active', isActive);
-      btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-    });
   }
 
   function setView(view) {
@@ -998,21 +1188,14 @@
     }
   }
 
-  // Handle new 3-way toggle
   if (viewToggleInputs && viewToggleInputs.length) {
     viewToggleInputs.forEach((input) => {
       input.addEventListener('change', () => setView(input.value));
     });
   }
-  // Handle legacy toggle buttons
-  if (viewToggleButtons && viewToggleButtons.length) {
-    viewToggleButtons.forEach((btn) => {
-      btn.addEventListener('click', () => setView(btn.dataset.view));
-    });
-  }
   applyTreeViewSettings(typeof window !== 'undefined' ? window.FIREBASE_TREE_SETTINGS : null);
   refreshStoreContext();
-  initViewStylePanel();
+  refreshShareButtonVisibility();
   applyTreeViewStyle(typeof window !== 'undefined' ? window.FIREBASE_TREE_SETTINGS : null);
   setView(currentView);
 
@@ -1105,7 +1288,6 @@
     if (searchBar && searchBar.classList.contains('show')) {
       addVerticalInsetFromOverlay(searchBar);
     }
-    addHorizontalInsetFromOverlay(viewStylePanel);
 
     return insets;
   }
@@ -1215,6 +1397,38 @@
   }
   if (helpClose) helpClose.addEventListener('click', closeHelpModal);
   if (helpBtn) helpBtn.addEventListener('click', openHelpModal);
+  if (shareTreeBtn) {
+    shareTreeBtn.addEventListener('click', () => {
+      if (!isShareOwner()) {
+        notifyUser('Only the owner can share this tree.', 'warning');
+        return;
+      }
+      const shareTreeId = getTreeIdFromUrl();
+      if (!shareTreeId) {
+        notifyUser('Save your tree to share a link.', 'warning');
+        return;
+      }
+      showShareModal();
+    });
+  }
+  if (shareModalClose) shareModalClose.addEventListener('click', hideShareModal);
+  if (shareTreeModal) {
+    shareTreeModal.addEventListener('click', (event) => {
+      if (event.target === shareTreeModal) hideShareModal();
+    });
+  }
+  if (shareCopyBtn) shareCopyBtn.addEventListener('click', handleShareCopy);
+  if (shareConfirmBtn) shareConfirmBtn.addEventListener('click', handleShareConfirm);
+  if (orderPrintBtn) {
+    orderPrintBtn.addEventListener('click', () => {
+      if (isDemoTreePage()) {
+        window.location.href = 'auth.html';
+        return;
+      }
+      refreshStoreContext();
+      window.location.href = buildViewerStoreUrl();
+    });
+  }
 
   // Global Keyboard Shortcuts
   window.addEventListener('keydown', (e) => {
@@ -1233,6 +1447,8 @@
           focusBtn.click();
         } else if (modalEl && modalEl.classList.contains('open')) {
           closeModal();
+        } else if (shareTreeModal && shareTreeModal.classList.contains('open')) {
+          hideShareModal();
         } else if (helpModal && helpModal.classList.contains('open')) {
           closeHelpModal();
         } else if (searchBar && searchBar.classList.contains('show')) {
@@ -1301,80 +1517,15 @@
       : null;
 
   function toggleSearch(show) {
-    if (externalSearchController && typeof externalSearchController.toggleSearch === 'function') {
-      externalSearchController.toggleSearch(show);
-      return;
-    }
-    if (!searchBar) return;
-    if (show) {
-      positionSearchBar();
-      searchBar.classList.add('show');
-      if (searchInput) searchInput.focus();
-    } else {
-      searchBar.classList.remove('show');
-      searchBar.classList.remove('mobile-positioned');
-      searchBar.style.removeProperty('--searchbar-top');
-      if (searchInput) searchInput.value = '';
-      if (searchResults) searchResults.innerHTML = '';
-    }
+    externalSearchController?.toggleSearch?.(show);
   }
 
   function positionSearchBar() {
-    if (externalSearchController && typeof externalSearchController.positionSearchBar === 'function') {
-      externalSearchController.positionSearchBar();
-      return;
-    }
-    if (!searchBar) return;
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    if (!isMobile) {
-      searchBar.classList.remove('mobile-positioned');
-      searchBar.style.removeProperty('--searchbar-top');
-      return;
-    }
-    const topbar = document.querySelector('.topbar');
-    const top = topbar ? topbar.getBoundingClientRect().bottom + 8 : 140;
-    searchBar.style.setProperty('--searchbar-top', `${Math.round(top)}px`);
-    searchBar.classList.add('mobile-positioned');
+    externalSearchController?.positionSearchBar?.();
   }
 
   function performSearch(query) {
-    if (externalSearchController && typeof externalSearchController.performSearch === 'function') {
-      externalSearchController.performSearch(query);
-      return;
-    }
-    if (!query || !searchResults) return;
-    const q = query.toLowerCase().trim();
-    const results = [];
-    personLookup.forEach((person) => {
-      if (person.name.toLowerCase().includes(q)) {
-        results.push(person);
-      }
-    });
-    if (results.length === 0) {
-      searchResults.innerHTML = '<div class="search-result-item">No results found</div>';
-    } else {
-      searchResults.innerHTML = results.map(p => `
-        <div class="search-result-item" data-name="${escapeHtml(p.name)}">
-          <div class="name">${escapeHtml(p.name)}</div>
-          ${p.birthday ? `<div class="birthday">Birthday: ${escapeHtml(p.birthday)}</div>` : ''}
-        </div>
-      `).join('');
-      searchResults.querySelectorAll('.search-result-item').forEach(item => {
-        item.addEventListener('click', () => {
-          const name = item.dataset.name;
-          const person = personLookup.get(name);
-          if (person) {
-            openModal({
-              name: person.name,
-              image: person.image || placeholderDataUrl,
-              birthday: person.birthday,
-              metadata: person.metadata
-            });
-            toggleSearch(false);
-          }
-        });
-      });
-    }
+    externalSearchController?.performSearch?.(query);
   }
 
   if (searchBtn) {
@@ -1413,54 +1564,9 @@
   });
 
   // Load data from Firebase (if available) or rfamily.json.
-  // Prefer extracted module to keep main.js focused on rendering/UI.
-  const externalTreeDataLoader =
-    (typeof window !== 'undefined' &&
-      window.AncestrioDataLoader &&
-      typeof window.AncestrioDataLoader.loadTreeData === 'function')
-      ? window.AncestrioDataLoader.loadTreeData
-      : null;
-
-  const loadTreeData = externalTreeDataLoader || (async function loadTreeDataFallback() {
-    if (typeof window !== 'undefined' && window.FIREBASE_TREE_READY) {
-      console.log('Waiting for Firebase tree data to load...');
-      try {
-        await window.FIREBASE_TREE_READY;
-        console.log('Firebase tree data ready');
-      } catch (err) {
-        console.warn('Firebase tree data loading failed:', err);
-      }
-    }
-
-    if (typeof window !== 'undefined' && window.FIREBASE_TREE_DATA) {
-      console.log('Loading data from Firebase:', window.FIREBASE_TREE_DATA);
-      return Promise.resolve(window.FIREBASE_TREE_DATA);
-    }
-
-    const paths = ['../data/rfamily.json', '/data/rfamily.json'];
-    for (let i = 0; i < paths.length; i += 1) {
-      const url = paths[i];
-      console.log(`Trying to load from: ${url}`);
-      try {
-        const response = await fetch(url);
-        console.log(`Response from ${url}: ${response.status} ${response.statusText}`);
-        if (!response.ok) {
-          throw new Error('HTTP ' + response.status + ' at ' + paths[i]);
-        }
-        const data = await response.json();
-        console.log(`Successfully loaded data from: ${url}`);
-        return data;
-      } catch (err) {
-        console.warn(`Failed to load from ${url}:`, err.message);
-      }
-    }
-
-    throw new Error('No data file found at any path: ' + paths.join(', '));
-  });
-  
-  loadTreeData()
+  Promise.resolve()
+    .then(() => loadTreeData())
     .then((data) => {
-      console.log('Data loaded successfully:', data);
       if (!data) {
         throw new Error('Data is null or undefined');
       }
@@ -1469,20 +1575,19 @@
 
       if (typeof window !== 'undefined') {
         refreshStoreContext();
+        refreshShareButtonVisibility();
         applyTreeViewSettings(window.FIREBASE_TREE_SETTINGS || null);
         applyTreeViewStyle(window.FIREBASE_TREE_SETTINGS || null);
         setView(currentView);
       }
       familyTreeData = data;
       const normalized = normalizeData(data);
-      console.log('Data normalized:', normalized);
       renderBirthdayStrip(normalized);
       renderUpcomingBanner(normalized);
       updateStats(normalized);
       setupCarouselControls();
       render(normalized);
       showEmptyStateIfNeeded(normalized);
-      console.log('Rendering complete');
     })
     .catch((err) => {
       console.error('Failed to load data:', err);
@@ -1496,32 +1601,6 @@
         .attr('fill', '#e66')
         .text('Error: ' + (err.message || 'Failed to load data'));
     });
-
-  const externalDataTransform =
-    (typeof window !== 'undefined' && window.AncestrioDataTransform)
-      ? window.AncestrioDataTransform
-      : {};
-
-  const normalizeData = (typeof externalDataTransform.normalizeData === 'function')
-    ? externalDataTransform.normalizeData
-    : function normalizeDataFallback(input) {
-      return input;
-    };
-
-  const thumbPath = (typeof externalDataTransform.thumbPath === 'function')
-    ? externalDataTransform.thumbPath
-    : function thumbPathFallback(image) {
-      const s = safe(image).trim();
-      if (!s || s.startsWith('data:')) return '';
-      if (s.startsWith('images/thumbs/')) return s;
-      if (s.startsWith('images/')) return `images/thumbs/${s.slice('images/'.length)}`;
-      return s;
-    };
-
-  const externalCalendarUtils =
-    (typeof window !== 'undefined' && window.AncestrioCalendarUtils)
-      ? window.AncestrioCalendarUtils
-      : {};
 
   function updateStats(data) {
     if (!statsKidsEl || !statsGrandkidsEl || !statsGreatGrandkidsEl) return;
@@ -1759,18 +1838,11 @@
   }
 
   function formatCount(total) {
-    if (typeof externalCalendarUtils.formatCount === 'function') {
-      return externalCalendarUtils.formatCount(total, t.birthday, t.birthdays);
-    }
-    const word = total === 1 ? t.birthday : t.birthdays;
-    return `${total} ${word}`;
+    return formatCalendarCount(total, t.birthday, t.birthdays);
   }
 
   function shouldExcludeFromCalendar(name) {
-    if (typeof externalCalendarUtils.shouldExcludeFromCalendar === 'function') {
-      return externalCalendarUtils.shouldExcludeFromCalendar(name, calendarExcludeNames);
-    }
-    return calendarExcludeNames.has(String(name || '').toLowerCase());
+    return shouldExcludeCalendarEntry(name, calendarExcludeNames);
   }
 
   function normalizeCountryName(name) {
@@ -1807,40 +1879,10 @@
   }
 
   function getUpcomingBirthdays(data, windowDays = UPCOMING_WINDOW_DAYS) {
-    if (externalUpcomingController && typeof externalUpcomingController.getUpcomingBirthdays === 'function') {
-      return externalUpcomingController.getUpcomingBirthdays(data, windowDays);
+    if (!externalUpcomingController || typeof externalUpcomingController.getUpcomingBirthdays !== 'function') {
+      return [];
     }
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const msPerDay = 24 * 60 * 60 * 1000;
-    const people = [];
-
-    function addPerson(name, birthday, image) {
-      const parsed = parseBirthday(birthday);
-      if (!parsed) return;
-      const next = new Date(today.getFullYear(), parsed.month - 1, parsed.day);
-      if (next < today) next.setFullYear(next.getFullYear() + 1);
-      const daysAway = Math.round((next - today) / msPerDay);
-      if (daysAway < 0 || daysAway > windowDays) return;
-      people.push({
-        name: safe(name),
-        birthday: birthday || '',
-        image: image || '',
-        daysAway,
-        label: `${String(parsed.day).padStart(2, '0')} ${monthsMeta[parsed.month - 1].short}`
-      });
-    }
-
-    traverseTree(data, addPerson);
-    // Deduplicate by name keeping closest
-    const byName = new Map();
-    people.forEach((p) => {
-      if (!p.name) return;
-      if (!byName.has(p.name) || p.daysAway < byName.get(p.name).daysAway) {
-        byName.set(p.name, p);
-      }
-    });
-    return Array.from(byName.values()).sort((a, b) => a.daysAway - b.daysAway || a.name.localeCompare(b.name));
+    return externalUpcomingController.getUpcomingBirthdays(data, windowDays);
   }
 
   function updateViewToggleOffset() {
@@ -1861,62 +1903,19 @@
   }
 
   function renderUpcomingBanner(data) {
-    if (externalUpcomingController && typeof externalUpcomingController.renderUpcomingBanner === 'function') {
-      externalUpcomingController.renderUpcomingBanner(data);
-      return;
-    }
-    if (!upcomingContainer) return;
-    upcomingBirthdaysList = getUpcomingBirthdays(data);
-    upcomingCurrentIndex = 0;
-    
-    if (!upcomingBirthdaysList.length) {
-      upcomingContainer.style.display = 'none';
-      return;
-    }
-    
-    upcomingContainer.style.display = 'flex';
-    renderUpcomingBirthdayButton();
+    externalUpcomingController?.renderUpcomingBanner?.(data);
   }
 
   function renderUpcomingBirthdayButton() {
-    if (externalUpcomingController && typeof externalUpcomingController.renderUpcomingBirthdayButton === 'function') {
-      externalUpcomingController.renderUpcomingBirthdayButton();
-      return;
-    }
-    if (!upcomingBirthdaysList.length || !upcomingName) return;
-    
-    const birthday = upcomingBirthdaysList[upcomingCurrentIndex];
-    const whenLabel = birthday.daysAway === 0 ? t.today : (birthday.daysAway === 1 ? t.tomorrow : t.inDays.replace('{n}', birthday.daysAway));
-    
-    // Parse the birthday to get month and day
-    const parsed = parseBirthday(birthday.birthday);
-    const dateStr = parsed ? `${monthsMeta[parsed.month - 1].short} ${parsed.day}` : '';
-    
-    // Format: "Name - Month Day (Days away)"
-    const displayText = dateStr ? `${birthday.name} - ${dateStr} (${whenLabel})` : `${birthday.name} (${whenLabel})`;
-    upcomingName.textContent = displayText;
-    upcomingBtn.title = displayText;
-    
-    // Show arrows only when there are multiple birthdays
-    const showArrows = upcomingBirthdaysList.length > 1;
-    if (upcomingPrev) upcomingPrev.style.display = showArrows ? '' : 'none';
-    if (upcomingNext) upcomingNext.style.display = showArrows ? '' : 'none';
+    externalUpcomingController?.renderUpcomingBirthdayButton?.();
   }
 
   function getDaysInMonth(year, monthIdx) {
-    if (typeof externalCalendarUtils.getDaysInMonth === 'function') {
-      return externalCalendarUtils.getDaysInMonth(year, monthIdx);
-    }
-    return new Date(year, monthIdx + 1, 0).getDate();
+    return getCalendarDaysInMonth(year, monthIdx);
   }
 
   function getFirstDayOffset(year, monthIdx) {
-    if (typeof externalCalendarUtils.getFirstDayOffset === 'function') {
-      return externalCalendarUtils.getFirstDayOffset(year, monthIdx);
-    }
-    // JS getDay: 0 Sun, 1 Mon ... -> shift so Monday is 0
-    const jsDay = new Date(year, monthIdx, 1).getDay();
-    return (jsDay + 6) % 7;
+    return getCalendarFirstDayOffset(year, monthIdx);
   }
 
   function showBirthdayTooltip(cell) {
@@ -1950,18 +1949,6 @@
     activeTooltipCell = null;
     birthdayTooltip.classList.remove('show');
     birthdayTooltip.hidden = true;
-  }
-
-  function escapeHtml(str) {
-    if (typeof externalCalendarUtils.escapeHtml === 'function') {
-      return externalCalendarUtils.escapeHtml(str);
-    }
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
   }
 
   function setCalendarOpen(open) {
@@ -1998,61 +1985,16 @@
   function setupCarouselControls() {
     if (!birthdayMonthsEl) return;
     applyMobileState = () => {
-      const mobileContext = mobileQuery.matches;
-      mobileShowAll = mobileContext;
+      mobileShowAll = mobileQuery.matches;
       birthdayMonthsEl.classList.toggle('mobile-show-all', mobileShowAll);
       birthdayMonthsEl.classList.remove('mobile-carousel');
       if (calendarSection) calendarSection.classList.toggle('calendar-full', mobileShowAll);
-      // show all months
       birthdayMonthsEl.querySelectorAll('.month-card').forEach((card) => card.classList.remove('active'));
       updateExpandedMonthPlacement();
-      detachSwipe();
-      if (carouselControls) carouselControls.style.display = 'none';
-      if (calendarSideNav) calendarSideNav.style.display = 'none';
+      hideBirthdayTooltip();
     };
     mobileQuery.addEventListener('change', () => applyMobileState && applyMobileState());
     if (applyMobileState) applyMobileState();
-
-    [monthPrevBtn, calendarSidePrev].forEach(btn => btn && btn.addEventListener('click', () => shiftMonth(-1)));
-    [monthNextBtn, calendarSideNext].forEach(btn => btn && btn.addEventListener('click', () => shiftMonth(1)));
-  }
-
-  function shiftMonth(delta) {
-    const cards = Array.from(birthdayMonthsEl ? birthdayMonthsEl.querySelectorAll('.month-card') : []);
-    if (!cards.length) return;
-    mobileMonthIndex = (mobileMonthIndex + delta + cards.length) % cards.length;
-    updateActiveMonthDisplay();
-  }
-
-  function updateActiveMonthDisplay() {
-    if (!birthdayMonthsEl || mobileShowAll) return;
-    const cards = Array.from(birthdayMonthsEl.querySelectorAll('.month-card'));
-    cards.forEach((card, i) => {
-      card.classList.toggle('active', i === mobileMonthIndex);
-    });
-    hideBirthdayTooltip();
-  }
-
-  function detachSwipe() {
-    if (!birthdayMonthsEl) return;
-    birthdayMonthsEl.removeEventListener('touchstart', onTouchStart);
-    birthdayMonthsEl.removeEventListener('touchend', onTouchEnd);
-  }
-  function onTouchStart(e) {
-    if (!mobileQuery.matches) return;
-    const t = e.touches && e.touches[0];
-    touchStartX = t ? t.clientX : null;
-  }
-  function onTouchEnd(e) {
-    if (!mobileQuery.matches) return;
-    if (touchStartX == null) return;
-    const t = e.changedTouches && e.changedTouches[0];
-    if (!t) return;
-    const dx = t.clientX - touchStartX;
-    touchStartX = null;
-    const threshold = 40;
-    if (Math.abs(dx) < threshold) return;
-    shiftMonth(dx < 0 ? 1 : -1);
   }
 
   function collectBirthdays(data) {
@@ -2190,148 +2132,8 @@
 
   // Empty state overlay
   function showEmptyStateIfNeeded(data) {
-    if (externalEmptyStateController && typeof externalEmptyStateController.showIfNeeded === 'function') {
-      externalEmptyStateController.showIfNeeded(data);
-      return;
-    }
-    const hasVisited = localStorage.getItem('tree-visited');
-    if (hasVisited) return;
-    if (!data) return;
-
-    const upcoming = getUpcomingBirthdays(data, BIRTHDAY_POPUP_WINDOW_DAYS);
-    if (!upcoming.length) return;
-
-    const heading = upcoming.length === 1
-      ? `Zi de naștere în următoarele ${BIRTHDAY_POPUP_WINDOW_DAYS} zile`
-      : `Zile de naștere în următoarele ${BIRTHDAY_POPUP_WINDOW_DAYS} zile`;
-    const listItems = upcoming.map((person) => {
-      const parsed = parseBirthday(person.birthday);
-      const dateStr = parsed ? `${monthsMeta[parsed.month - 1].short} ${String(parsed.day).padStart(2, '0')}` : '';
-      const whenLabel = person.daysAway === 0
-        ? t.today
-        : (person.daysAway === 1 ? t.tomorrow : t.inDays.replace('{n}', person.daysAway));
-      const label = dateStr ? `${dateStr} (${whenLabel})` : whenLabel;
-      return `<li><strong>${escapeHtml(person.name)}</strong> - ${escapeHtml(label)}</li>`;
-    }).join('');
-
-    const overlay = document.createElement('div');
-    overlay.className = 'empty-state-overlay';
-    overlay.innerHTML = `
-      <div class="empty-state-content">
-        <h2>${heading}</h2>
-        <p>Iată cine își sărbătorește ziua în următoarele ${BIRTHDAY_POPUP_WINDOW_DAYS} zile:</p>
-        <ul>${listItems}</ul>
-        <p>Deschide calendarul pentru toate zilele de naștere.</p>
-        <button id="dismissEmptyState">Am înțeles!</button>
-      </div>
-    `;
-
-    document.body.appendChild(overlay);
-
-    const dismissBtn = overlay.querySelector('#dismissEmptyState');
-    if (dismissBtn) {
-      dismissBtn.addEventListener('click', () => {
-        overlay.style.opacity = '0';
-        setTimeout(() => {
-          document.body.removeChild(overlay);
-        }, 300);
-        localStorage.setItem('tree-visited', 'true');
-      });
-    }
-
-    // Auto-dismiss after 10 seconds
-    setTimeout(() => {
-      if (document.body.contains(overlay)) {
-        dismissBtn.click();
-      }
-    }, 10000);
+    externalEmptyStateController?.showIfNeeded?.(data);
   }
-
-  const externalMainUtils =
-    (typeof window !== 'undefined' && window.AncestrioMainUtils)
-      ? window.AncestrioMainUtils
-      : {};
-
-  const parseBirthday = (typeof externalMainUtils.parseBirthday === 'function')
-    ? externalMainUtils.parseBirthday
-    : (function () {
-      const birthdayCache = new Map();
-      return function parseBirthdayFallback(raw) {
-        if (!raw) return null;
-
-        const cacheKey = String(raw).trim();
-        if (birthdayCache.has(cacheKey)) {
-          return birthdayCache.get(cacheKey);
-        }
-
-        const str = cacheKey;
-        const ro = str.match(/^(\d{1,2})[.\-/\s](\d{1,2})[.\-/\s](\d{4}|[xX]{4})$/);
-        const iso = !ro && str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        let day;
-        let month;
-        let year;
-        if (ro) {
-          day = Number(ro[1]);
-          month = Number(ro[2]);
-          year = ro[3].toLowerCase() === 'xxxx' ? 2000 : Number(ro[3]);
-        } else if (iso) {
-          year = Number(iso[1]);
-          month = Number(iso[2]);
-          day = Number(iso[3]);
-        } else {
-          birthdayCache.set(cacheKey, null);
-          return null;
-        }
-
-        const isLeap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
-        const daysInMonth = [31, isLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-        if (month < 1 || month > 12) {
-          birthdayCache.set(cacheKey, null);
-          return null;
-        }
-        if (day < 1 || day > daysInMonth[month - 1]) {
-          birthdayCache.set(cacheKey, null);
-          return null;
-        }
-
-        const result = { month, day };
-        birthdayCache.set(cacheKey, result);
-        return result;
-      };
-    })();
-
-  const safe = (typeof externalMainUtils.safe === 'function')
-    ? externalMainUtils.safe
-    : function safeFallback(v) {
-      return v == null ? '' : String(v);
-    };
-
-  const normalizeName = (typeof externalMainUtils.normalizeName === 'function')
-    ? externalMainUtils.normalizeName
-    : function normalizeNameFallback(value) {
-      return String(value || '')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-zA-Z0-9]+/g, ' ')
-        .trim()
-        .toLowerCase();
-    };
-
-  const readTags = (typeof externalMainUtils.readTags === 'function')
-    ? externalMainUtils.readTags
-    : function readTagsFallback(value) {
-      if (!value) return [];
-      if (typeof value === 'string') return [value.trim()].filter(Boolean);
-      if (Array.isArray(value)) {
-        return value
-          .map((tag) => (tag == null ? '' : String(tag).trim()))
-          .filter((tag) => tag.length > 0);
-      }
-      if (typeof value === 'object' && value.tag) {
-        return readTagsFallback(value.tag);
-      }
-      return [];
-    };
 
   if (
     typeof window !== 'undefined' &&
@@ -2373,7 +2175,12 @@
       labels: {
         today: t.today,
         tomorrow: t.tomorrow,
-        inDays: t.inDays
+        inDays: t.inDays,
+        emptyStateTitleSingular: viewerUiText.emptyStateTitleSingular(BIRTHDAY_POPUP_WINDOW_DAYS),
+        emptyStateTitlePlural: viewerUiText.emptyStateTitlePlural(BIRTHDAY_POPUP_WINDOW_DAYS),
+        emptyStateIntro: viewerUiText.emptyStateIntro(BIRTHDAY_POPUP_WINDOW_DAYS),
+        emptyStateHint: viewerUiText.emptyStateHint(),
+        emptyStateDismiss: viewerUiText.emptyStateDismiss()
       },
       windowDays: BIRTHDAY_POPUP_WINDOW_DAYS,
       visitedStorageKey: 'tree-visited',
@@ -2417,6 +2224,12 @@
   }
 
 })();
+
+
+
+
+
+
 
 
 
