@@ -287,19 +287,12 @@
   }
 
   function normalizeData(input) {
-    console.log('normalizeData called with:', input);
     if (looksLikeRFamilySchema(input)) {
-      console.log('Detected rfamily schema');
       const transformed = transformRFamily(input);
-      console.log('Transformed data:', transformed);
       const result = attachThumbs(transformed);
-      console.log('After attachThumbs:', result);
       return result;
     }
-    console.log('Using data as-is (couple schema)');
-    const result = attachThumbs(input);
-    console.log('After attachThumbs:', result);
-    return result;
+    return attachThumbs(input);
   }
 
   window.AncestrioDataTransform = window.AncestrioDataTransform || {};

@@ -6,14 +6,12 @@ const firebaseConfig = {
   apiKey: "AIzaSyDrWuTxMHuoGQvt9DWxelDl-3lDn0Sf20g",
   authDomain: "ancestrio.firebaseapp.com",
   projectId: "ancestrio",
-  storageBucket: "ancestrio.firebasestorage.app",
   messagingSenderId: "1029073457660",
   appId: "1:1029073457660:web:6c2a2ad532e96ba4bee279"
 };
 
 // Initialize Firebase (will be used by other scripts)
-let app, auth, db, storage;
-const HEADER_AUTH_CACHE_KEY = 'ancestrio:header-auth-state:v1';
+let app, auth, db;
 
 // Check if running locally
 const LOCAL_LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
@@ -58,7 +56,6 @@ function probeAuthEmulator(url) {
     signal: controller ? controller.signal : undefined
   }).then(() => {
     window.AncestrioFirebase.authEmulatorReachable = true;
-    console.log(`Auth emulator is reachable at ${url}`);
   }).catch((error) => {
     window.AncestrioFirebase.authEmulatorReachable = false;
     const detail = error && error.message ? error.message : String(error || 'unknown error');
@@ -81,13 +78,6 @@ function initializeFirebase() {
   }
 
   try {
-    console.log('Environment:', isDevelopment ? 'LOCAL EMULATOR' : 'PRODUCTION');
-    console.log('Initializing Firebase with config:', {
-      projectId: firebaseConfig.projectId,
-      authDomain: firebaseConfig.authDomain,
-      environment: isDevelopment ? 'emulator' : 'production'
-    });
-
     if (firebase.apps && firebase.apps.length) {
       app = firebase.app();
     } else {
@@ -99,15 +89,12 @@ function initializeFirebase() {
 
     // Connect to emulators if running locally
     if (isDevelopment) {
-      console.log('Connecting to Firebase Emulators...');
-
       // Disable SSL error bypass for emulator
       auth.settings.appVerificationDisabledForTesting = true;
 
       try {
         // Configure Auth Emulator endpoint.
         auth.useEmulator(authEmulatorUrl);
-        console.log(`Auth emulator configured at ${authEmulatorUrl}`);
         probeAuthEmulator(authEmulatorUrl);
       } catch (e) {
         console.error('Auth emulator connection failed:', e.message);
@@ -116,34 +103,13 @@ function initializeFirebase() {
       try {
         // Configure Firestore Emulator endpoint.
         db.useEmulator(emulatorHost, 8080);
-        console.log(`Firestore emulator configured at ${emulatorHost}:8080`);
       } catch (e) {
         console.error('Firestore emulator connection failed:', e.message);
       }
-
-      try {
-        // Configure Storage Emulator endpoint.
-        if (firebase.storage) {
-          firebase.storage().useEmulator(emulatorHost, 5001);
-          console.log(`Storage emulator configured at ${emulatorHost}:5001`);
-        }
-      } catch (e) {
-        console.warn('Storage emulator connection:', e.message);
-      }
-
-      console.log('All emulator endpoints configured');
     }
-
-    // Only initialize storage if the SDK is loaded
-    if (firebase.storage) {
-      storage = firebase.storage();
-    }
-    console.log('Firebase initialized successfully');
-    console.log('Auth:', auth);
-    console.log('Firestore:', db);
     try {
       document.dispatchEvent(new CustomEvent('ancestrio:firebase-ready', {
-        detail: { auth, db, storage, app }
+        detail: { auth, db, app }
       }));
     } catch (_) {
       // Ignore event dispatch failures in older browsers.
@@ -154,32 +120,4 @@ function initializeFirebase() {
     notifyUser('Firebase initialization failed: ' + error.message, 'error', { duration: 7000 });
     return false;
   }
-}
-
-function cacheHeaderAuthState(user) {
-  try {
-    const payload = user && !user.isAnonymous ? {
-      authenticated: true,
-      isAnonymous: false,
-      displayName: typeof user.displayName === 'string' ? user.displayName : '',
-      email: typeof user.email === 'string' ? user.email : '',
-      updatedAt: Date.now()
-    } : {
-      authenticated: false,
-      isAnonymous: Boolean(user && user.isAnonymous),
-      displayName: '',
-      email: '',
-      updatedAt: Date.now()
-    };
-    localStorage.setItem(HEADER_AUTH_CACHE_KEY, JSON.stringify(payload));
-  } catch (_) {
-    // Ignore storage failures.
-  }
-}
-
-if (typeof window !== 'undefined') {
-  window.AncestrioHeaderAuthCache = {
-    key: HEADER_AUTH_CACHE_KEY,
-    setFromUser: cacheHeaderAuthState
-  };
 }

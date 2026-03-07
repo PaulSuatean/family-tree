@@ -1,51 +1,54 @@
 :root {
   color-scheme: light;
-  --bg: #fbf7f0;
-  --panel: #fffaf4;
-  --panel-2: #f4ebdf;
+  --bg: #f4f9ff;
+  --panel: #ffffff;
+  --panel-2: #edf5ff;
   --font-body: "Manrope", "Segoe UI", sans-serif;
   --font-display: "Fraunces", Georgia, serif;
-  --text: #1f2430;
-  --muted: #665d54;
-  --line: #d7cbbb;
-  --accent: #245c5a;
-  --accent-2: #1d4a48;
-  --accent-3: #a0613a;
-  --page-bg: #fbf7f0;
-  --page-bg-2: #efe3d1;
+  --text: #17314f;
+  --muted: #607592;
+  --line: #d4e3f1;
+  --accent: #3c80b5;
+  --accent-soft: #a8cdeb;
+  --accent-strong: #275a83;
+  --accent-2: #2f6d99;
+  --accent-3: #efb55f;
+  --page-bg: #f4f9ff;
+  --page-bg-2: #e7f2ff;
   --page-bg-gradient:
-    radial-gradient(circle at 12% 14%, rgba(160, 97, 58, 0.14), transparent 34%),
-    radial-gradient(circle at 88% 10%, rgba(36, 92, 90, 0.12), transparent 36%),
-    radial-gradient(circle at 50% 100%, rgba(160, 97, 58, 0.08), transparent 46%),
-    linear-gradient(180deg, #fdfaf5 0%, #f3e9dd 52%, #fbf7f0 100%);
-  --surface: rgba(255, 250, 244, 0.9);
-  --surface-2: #f4ebdf;
-  --surface-3: #ebdece;
-  --border: rgba(97, 82, 67, 0.18);
-  --ring: rgba(36, 92, 90, 0.24);
-  --gradient-primary: linear-gradient(135deg, #245c5a 0%, #2f746f 48%, #915e3d 100%);
-  --gradient-secondary: linear-gradient(135deg, #1d4a48 0%, #245c5a 100%);
-  --gradient-soft: linear-gradient(135deg, rgba(36, 92, 90, 0.14) 0%, rgba(160, 97, 58, 0.12) 100%);
+    radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.94), transparent 30%),
+    radial-gradient(circle at 84% 10%, rgba(141, 193, 245, 0.24), transparent 34%),
+    radial-gradient(circle at 50% 118%, rgba(245, 191, 103, 0.18), transparent 42%),
+    linear-gradient(180deg, #d4eaff 0%, #edf7ff 44%, #fff8ea 100%);
+  --surface: rgba(255, 255, 255, 0.94);
+  --surface-2: #f3f8ff;
+  --surface-3: #e7eff8;
+  --border: rgba(23, 49, 79, 0.12);
+  --ring-strong: rgba(60, 128, 181, 0.42);
+  --ring: rgba(60, 128, 181, 0.2);
+  --gradient-primary: linear-gradient(135deg, #4f95c8 0%, #2c6892 100%);
+  --gradient-secondary: linear-gradient(135deg, #355d8a 0%, #193452 100%);
+  --gradient-soft: linear-gradient(135deg, rgba(60, 128, 181, 0.14) 0%, rgba(239, 181, 95, 0.14) 100%);
   --calendar-panel-max: 36vh;
   --calendar-panel-max-mobile: 55vh;
   --calendar-toggle-clearance: 56px;
-  --calendar-day-bg: #f8efe3;
-  --calendar-day-border: rgba(43, 34, 24, 0.08);
-  --calendar-day-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
-  --calendar-bday-bg: linear-gradient(135deg, #f0dfbb 0%, #ddbe83 100%);
-  --calendar-bday-border: #9b7344;
-  --calendar-bday-shadow: inset 0 0 0 1.5px rgba(155, 115, 68, 0.9);
-  --calendar-today-bg: #efe3d1;
-  --calendar-today-shadow: inset 0 0 0 1.5px rgba(31, 36, 48, 0.12), 0 8px 18px rgba(31, 36, 48, 0.12);
-  --calendar-today-text: #1f2430;
+  --calendar-day-bg: #f1f7ff;
+  --calendar-day-border: rgba(23, 49, 79, 0.08);
+  --calendar-day-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.52);
+  --calendar-bday-bg: linear-gradient(135deg, #ffd58f 0%, #efb55f 100%);
+  --calendar-bday-border: #bb8137;
+  --calendar-bday-shadow: inset 0 0 0 1.5px rgba(187, 129, 55, 0.6);
+  --calendar-today-bg: #e4f0ff;
+  --calendar-today-shadow: inset 0 0 0 1.5px rgba(23, 49, 79, 0.08), 0 10px 22px rgba(43, 77, 114, 0.12);
+  --calendar-today-text: #17314f;
   --feature-banner-height: 0px;
   --view-toggle-top: calc(env(safe-area-inset-top) + 76px + var(--feature-banner-height));
   --view-toggle-bottom: calc(env(safe-area-inset-bottom) + 16px);
   --month-card-height: 220px;
-  --shadow-sm: 0 10px 24px rgba(58, 44, 29, 0.08);
-  --shadow-md: 0 18px 40px rgba(58, 44, 29, 0.12);
-  --shadow-lg: 0 28px 60px rgba(46, 36, 25, 0.16);
-  --shadow-xl: 0 38px 72px rgba(32, 26, 18, 0.2);
+  --shadow-sm: 0 8px 22px rgba(48, 79, 113, 0.08);
+  --shadow-md: 0 20px 42px rgba(40, 68, 102, 0.12);
+  --shadow-lg: 0 30px 60px rgba(31, 56, 88, 0.16);
+  --shadow-xl: 0 40px 82px rgba(20, 41, 67, 0.22);
   --radius-sm: 10px;
   --radius-control: 16px;
   --radius-md: 18px;
@@ -54,10 +57,12 @@
   --transition-fast: 150ms;
   --transition-base: 220ms;
   --transition-slow: 340ms;
+  --theme-icon-sun: #efb55f;
+  --theme-icon-moon: #5e97c8;
   --button-hover-overlay-opacity: 0.06;
-  --node-fill: rgba(255, 249, 239, 0.96);
-  --node-stroke: rgba(79, 65, 52, 0.18);
-  --node-shadow: drop-shadow(0 12px 26px rgba(67, 49, 29, 0.16));
+  --node-fill: rgba(249, 252, 255, 0.96);
+  --node-stroke: rgba(23, 49, 79, 0.16);
+  --node-shadow: drop-shadow(0 12px 26px rgba(48, 79, 113, 0.14));
 }
 
 @supports (height: 100svh) {
@@ -167,7 +172,7 @@ header,
 }
 
 body.theme-dark .night-sky {
-  opacity: 0.72;
+  opacity: 0.88;
 }
 
 .night-sky__layer {
@@ -185,7 +190,7 @@ body.theme-dark .night-sky {
   overflow: hidden;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.8;
+  opacity: 0.56;
   transition: opacity var(--transition-slow) ease;
 }
 
@@ -208,7 +213,7 @@ body.theme-dark .day-clouds {
   width: 100%;
   height: auto;
   display: block;
-  fill: #d9d0c4;
+  fill: #d8e8f8;
 }
 
 .day-cloud.cloud-foreground {
@@ -216,7 +221,7 @@ body.theme-dark .day-clouds {
 }
 
 .day-cloud.cloud-foreground svg {
-  fill: #e7ddd0;
+  fill: #f8fbff;
 }
 
 .day-cloud.cloud-background {
@@ -224,7 +229,7 @@ body.theme-dark .day-clouds {
 }
 
 .day-cloud.cloud-background svg {
-  fill: #efe6dc;
+  fill: #ecf5ff;
 }
 
 @keyframes cloudFloat {
@@ -239,42 +244,47 @@ body.theme-dark .day-clouds {
 
 body.theme-dark {
   color-scheme: dark;
-  --bg: #101823;
-  --panel: #182232;
-  --panel-2: #223044;
-  --text: #f3ebdd;
-  --muted: #c4b8a9;
-  --line: rgba(243, 235, 221, 0.18);
-  --accent: #6cb3ac;
-  --accent-2: #569691;
-  --accent-3: #c38a63;
-  --page-bg: #101823;
-  --page-bg-2: #1b2636;
+  --bg: #081426;
+  --panel: #102441;
+  --panel-2: #183557;
+  --text: #ebf4ff;
+  --muted: #aec4de;
+  --line: rgba(235, 244, 255, 0.16);
+  --accent: #4f95c8;
+  --accent-soft: #82b8e2;
+  --accent-strong: #c3e3ff;
+  --ring-strong: rgba(79, 149, 200, 0.46);
+  --accent-2: #377bad;
+  --accent-3: #f1c36f;
+  --page-bg: #081426;
+  --page-bg-2: #122540;
   --page-bg-gradient:
-    radial-gradient(circle at 16% 16%, rgba(195, 138, 99, 0.14), transparent 32%),
-    radial-gradient(circle at 84% 10%, rgba(108, 179, 172, 0.12), transparent 36%),
-    linear-gradient(180deg, #101823 0%, #182232 54%, #101823 100%);
-  --surface: rgba(24, 34, 50, 0.92);
-  --surface-2: #223044;
-  --surface-3: #2a3a50;
-  --border: rgba(243, 235, 221, 0.14);
-  --ring: rgba(108, 179, 172, 0.28);
-  --gradient-primary: linear-gradient(135deg, #6cb3ac 0%, #4d8d88 52%, #9f6d49 100%);
-  --gradient-secondary: linear-gradient(135deg, #223b4d 0%, #335e70 100%);
-  --gradient-soft: linear-gradient(135deg, rgba(108, 179, 172, 0.18) 0%, rgba(195, 138, 99, 0.14) 100%);
-  --calendar-day-bg: #223044;
-  --calendar-day-border: rgba(243, 235, 221, 0.1);
+    radial-gradient(circle at 16% 14%, rgba(79, 149, 200, 0.34), transparent 24%),
+    radial-gradient(circle at 80% 12%, rgba(60, 128, 181, 0.22), transparent 24%),
+    radial-gradient(circle at 46% 56%, rgba(79, 149, 200, 0.22), transparent 32%),
+    radial-gradient(circle at 50% 118%, rgba(241, 195, 111, 0.14), transparent 38%),
+    linear-gradient(180deg, #06101f 0%, #0d1c35 28%, #153254 62%, #1d4167 100%);
+  --surface: rgba(15, 34, 62, 0.9);
+  --surface-2: #163150;
+  --surface-3: #214267;
+  --border: rgba(214, 230, 255, 0.14);
+  --ring: rgba(79, 149, 200, 0.24);
+  --gradient-primary: linear-gradient(135deg, #4f95c8 0%, #2c6892 100%);
+  --gradient-secondary: linear-gradient(135deg, #214976 0%, #102540 100%);
+  --gradient-soft: linear-gradient(135deg, rgba(79, 149, 200, 0.2) 0%, rgba(241, 195, 111, 0.12) 100%);
+  --calendar-day-bg: #132746;
+  --calendar-day-border: rgba(235, 244, 255, 0.08);
   --calendar-day-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-  --calendar-bday-bg: linear-gradient(135deg, rgba(195, 138, 99, 0.3) 0%, rgba(220, 186, 134, 0.5) 100%);
-  --calendar-bday-border: rgba(220, 186, 134, 0.88);
-  --calendar-bday-shadow: inset 0 0 0 1.5px rgba(220, 186, 134, 0.74);
-  --calendar-today-bg: #2a3a50;
-  --calendar-today-shadow: inset 0 0 0 1.5px rgba(243, 235, 221, 0.14), 0 4px 12px rgba(0, 0, 0, 0.28);
-  --calendar-today-text: #f3ebdd;
-  --node-fill: rgba(26, 39, 57, 0.94);
-  --node-stroke: rgba(150, 198, 193, 0.28);
-  --node-shadow: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.32));
-  background: #101823;
+  --calendar-bday-bg: linear-gradient(135deg, rgba(241, 195, 111, 0.32) 0%, rgba(255, 223, 166, 0.48) 100%);
+  --calendar-bday-border: rgba(255, 216, 150, 0.76);
+  --calendar-bday-shadow: inset 0 0 0 1.5px rgba(255, 216, 150, 0.54);
+  --calendar-today-bg: #214976;
+  --calendar-today-shadow: inset 0 0 0 1.5px rgba(235, 244, 255, 0.1), 0 6px 16px rgba(0, 0, 0, 0.32);
+  --calendar-today-text: #ebf4ff;
+  --node-fill: rgba(16, 34, 59, 0.96);
+  --node-stroke: rgba(173, 214, 255, 0.3);
+  --node-shadow: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.34));
+  background: #07111f;
 }
 
 @media (prefers-reduced-motion: reduce) {

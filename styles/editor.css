@@ -85,9 +85,9 @@ body.theme-dark .editor-main {
 
 body.editor-page {
   --editor-scrollbar-size: 10px;
-  --editor-scrollbar-track: rgba(37, 65, 102, 0.28);
-  --editor-scrollbar-thumb: rgba(96, 165, 250, 0.5);
-  --editor-scrollbar-thumb-hover: rgba(125, 189, 255, 0.72);
+  --editor-scrollbar-track: color-mix(in srgb, var(--accent) 18%, transparent);
+  --editor-scrollbar-thumb: rgba(60, 128, 181, 0.42);
+  --editor-scrollbar-thumb-hover: rgba(60, 128, 181, 0.62);
   --editor-header-action-width: 140px;
   --editor-panel-bg: var(--shell-panel-bg-accented);
   --editor-panel-bg-strong: var(--shell-panel-bg-accented-strong);
@@ -100,32 +100,48 @@ body.editor-page {
   --editor-border-subtle: color-mix(in srgb, var(--editor-border-soft) 78%, transparent);
   --editor-shadow: var(--shadow-md);
   --editor-shadow-strong: var(--shadow-lg);
+  --editor-accent-fill: color-mix(in srgb, var(--accent) 14%, transparent);
+  --editor-accent-fill-strong: color-mix(in srgb, var(--accent) 10%, transparent);
+  --editor-accent-grid: color-mix(in srgb, var(--accent) 8%, transparent);
+  --editor-accent-grid-strong: color-mix(in srgb, var(--accent) 5%, transparent);
+  --editor-accent-shadow: rgba(60, 128, 181, 0.2);
   --editor-canvas-bg:
-    linear-gradient(rgba(120, 98, 68, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(120, 98, 68, 0.08) 1px, transparent 1px),
-    radial-gradient(circle at 14% 12%, rgba(36, 92, 90, 0.08), transparent 28%),
-    linear-gradient(145deg, rgba(251, 246, 238, 0.98) 0%, rgba(240, 229, 212, 0.96) 100%);
+    linear-gradient(var(--editor-accent-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--editor-accent-grid) 1px, transparent 1px),
+    radial-gradient(circle at 14% 12%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 28%),
+    linear-gradient(145deg, rgba(249, 252, 255, 0.98) 0%, rgba(231, 243, 252, 0.96) 100%);
   --editor-canvas-bg-size: 28px 28px, 28px 28px, auto, auto;
   --editor-canvas-bg-repeat: repeat, repeat, no-repeat, no-repeat;
   --editor-canvas-bg-position: 0 0, 0 0, center center, center center;
   --editor-overlay-bg: var(--shell-overlay-bg);
+  --editor-person-bubble-fill: var(--surface);
+  --editor-person-bubble-stroke: var(--border);
+  --editor-person-bubble-hover-fill: url(#editorPersonGradient);
+  --editor-person-bubble-hover-stroke: var(--accent);
+  --editor-person-bubble-shadow: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+  --editor-person-bubble-hover-shadow: drop-shadow(0 8px 24px var(--editor-accent-shadow));
+  --editor-person-name-color: var(--text);
+  --editor-person-avatar-bg: var(--surface-2);
+  --editor-person-avatar-stroke: var(--border);
 }
 
 body.theme-dark.editor-page {
   --editor-scrollbar-track: rgba(16, 28, 42, 0.9);
-  --editor-scrollbar-thumb: rgba(108, 179, 172, 0.4);
-  --editor-scrollbar-thumb-hover: rgba(140, 205, 198, 0.62);
+  --editor-scrollbar-thumb: rgba(60, 128, 181, 0.48);
+  --editor-scrollbar-thumb-hover: rgba(96, 165, 224, 0.66);
   --editor-border-subtle: rgba(177, 196, 214, 0.1);
   --editor-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
   --editor-shadow-strong: 0 28px 60px rgba(0, 0, 0, 0.32);
+  --editor-accent-shadow: rgba(60, 128, 181, 0.28);
   --editor-canvas-bg:
-    linear-gradient(rgba(141, 169, 178, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(141, 169, 178, 0.08) 1px, transparent 1px),
-    radial-gradient(circle at 14% 12%, rgba(108, 179, 172, 0.12), transparent 28%),
-    linear-gradient(145deg, rgba(19, 30, 43, 0.98) 0%, rgba(12, 19, 29, 0.98) 100%);
-  --editor-canvas-bg-size: 28px 28px, 28px 28px, auto, auto;
-  --editor-canvas-bg-repeat: repeat, repeat, no-repeat, no-repeat;
-  --editor-canvas-bg-position: 0 0, 0 0, center center, center center;
+    linear-gradient(var(--editor-accent-grid-strong) 1px, transparent 1px),
+    linear-gradient(90deg, var(--editor-accent-grid-strong) 1px, transparent 1px),
+    radial-gradient(circle at 14% 12%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 28%),
+    radial-gradient(circle at 80% 14%, rgba(176, 118, 255, 0.12), transparent 30%),
+    linear-gradient(145deg, rgba(9, 18, 37, 0.98) 0%, rgba(4, 10, 23, 0.98) 100%);
+  --editor-canvas-bg-size: 28px 28px, 28px 28px, auto, auto, auto;
+  --editor-canvas-bg-repeat: repeat, repeat, no-repeat, no-repeat, no-repeat;
+  --editor-canvas-bg-position: 0 0, 0 0, center center, center center, center center;
   --editor-overlay-bg: var(--shell-overlay-bg);
 }
 
@@ -168,6 +184,57 @@ body.editor-page[data-view-bg="parchment-photo"] {
   --editor-canvas-bg-size: auto, cover;
   --editor-canvas-bg-repeat: no-repeat, no-repeat;
   --editor-canvas-bg-position: center center, center center;
+}
+
+body.editor-page[data-view-bubble="bubble-classic"] {
+  --editor-person-bubble-fill: var(--surface);
+  --editor-person-bubble-stroke: var(--border);
+  --editor-person-bubble-hover-fill: url(#editorPersonGradient);
+  --editor-person-bubble-hover-stroke: var(--accent);
+  --editor-person-bubble-shadow: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+  --editor-person-bubble-hover-shadow: drop-shadow(0 8px 24px var(--editor-accent-shadow));
+  --editor-person-name-color: var(--text);
+  --editor-person-avatar-bg: var(--surface-2);
+}
+
+body.editor-page[data-view-bubble="bubble-heraldic"] {
+  --editor-person-bubble-fill: transparent;
+  --editor-person-bubble-stroke: transparent;
+  --editor-person-bubble-hover-fill: transparent;
+  --editor-person-bubble-hover-stroke: transparent;
+  --editor-person-bubble-shadow: none;
+  --editor-person-bubble-hover-shadow: none;
+  --editor-person-name-color: #5a3c1f;
+  --editor-person-avatar-bg: rgba(244, 229, 200, 0.16);
+  --editor-person-avatar-stroke: transparent;
+}
+
+body.theme-dark.editor-page[data-view-bubble="bubble-heraldic"] {
+  --editor-person-name-color: #f3e5c8;
+  --editor-person-avatar-bg: rgba(244, 229, 200, 0.12);
+  --editor-person-avatar-stroke: transparent;
+}
+
+body.editor-page[data-view-bubble="bubble-ink"] {
+  --editor-person-bubble-fill: #efe0c0;
+  --editor-person-bubble-stroke: rgba(88, 62, 21, 0.42);
+  --editor-person-bubble-hover-fill: #e8d5b1;
+  --editor-person-bubble-hover-stroke: #7a5a2a;
+  --editor-person-bubble-shadow: drop-shadow(0 5px 13px rgba(63, 41, 12, 0.19));
+  --editor-person-bubble-hover-shadow: drop-shadow(0 9px 20px rgba(63, 41, 12, 0.32));
+  --editor-person-name-color: #3d2b16;
+  --editor-person-avatar-bg: #f4e7cd;
+}
+
+body.editor-page[data-view-bubble="bubble-soft"] {
+  --editor-person-bubble-fill: #f3ecdd;
+  --editor-person-bubble-stroke: rgba(113, 90, 56, 0.26);
+  --editor-person-bubble-hover-fill: #efe6d2;
+  --editor-person-bubble-hover-stroke: rgba(113, 90, 56, 0.65);
+  --editor-person-bubble-shadow: drop-shadow(0 4px 12px rgba(64, 47, 17, 0.14));
+  --editor-person-bubble-hover-shadow: drop-shadow(0 8px 20px rgba(64, 47, 17, 0.24));
+  --editor-person-name-color: #352a1a;
+  --editor-person-avatar-bg: #f7f0e2;
 }
 
 body.editor-page:not(.focus-mode) .app-header .controls.controls-editor > button,
@@ -254,6 +321,39 @@ select.form-input {
   flex: 1;
 }
 
+.share-settings {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 12px 0;
+}
+
+.share-link-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.share-link-input {
+  min-height: 44px;
+}
+
+.share-link-btn {
+  white-space: nowrap;
+}
+
+.share-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.share-make-public-btn {
+  align-self: flex-start;
+}
+
 .setting-toggle {
   position: relative;
   display: inline-flex;
@@ -305,12 +405,12 @@ select.form-input {
 }
 
 .setting-toggle input:focus-visible + .setting-toggle-track {
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 0 3px var(--ring);
 }
 
 .setting-toggle input:checked + .setting-toggle-track {
   border-color: var(--accent);
-  background: rgba(59, 130, 246, 0.14);
+  background: var(--editor-accent-fill);
 }
 
 .setting-toggle input:checked + .setting-toggle-track::before {
@@ -494,7 +594,7 @@ body.theme-dark .sidebar-section {
 .json-editor::-webkit-scrollbar-thumb,
 .add-member-card::-webkit-scrollbar-thumb,
 .modal-dialog::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--editor-scrollbar-thumb), rgba(59, 130, 246, 0.46));
+  background: linear-gradient(180deg, var(--editor-scrollbar-thumb), rgba(60, 128, 181, 0.46));
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
@@ -505,7 +605,7 @@ body.theme-dark .sidebar-section {
 .json-editor::-webkit-scrollbar-thumb:hover,
 .add-member-card::-webkit-scrollbar-thumb:hover,
 .modal-dialog::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--editor-scrollbar-thumb-hover), rgba(59, 130, 246, 0.7));
+  background: linear-gradient(180deg, var(--editor-scrollbar-thumb-hover), rgba(60, 128, 181, 0.7));
 }
 
 .guest-mode-notice {
@@ -680,9 +780,9 @@ body.theme-dark .visual-toolbar {
   border: 1px solid var(--border);
   background-color: var(--surface-2);
   background-image:
-    linear-gradient(0deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.08)),
-    linear-gradient(90deg, rgba(15, 23, 42, 0.08) 1px, transparent 1px),
-    linear-gradient(0deg, rgba(15, 23, 42, 0.08) 1px, transparent 1px);
+    linear-gradient(0deg, var(--editor-accent-fill-strong), var(--editor-accent-fill-strong)),
+    linear-gradient(90deg, var(--editor-accent-grid-strong) 1px, transparent 1px),
+    linear-gradient(0deg, var(--editor-accent-grid-strong) 1px, transparent 1px);
   background-size: auto, 40px 40px, 40px 40px;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
@@ -704,9 +804,9 @@ body.theme-dark .visual-toolbar {
 body.theme-dark .visual-canvas {
   background-color: transparent;
   background-image:
-    linear-gradient(0deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.08)),
-    linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-    linear-gradient(0deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+    linear-gradient(0deg, var(--editor-accent-fill-strong), var(--editor-accent-fill-strong)),
+    linear-gradient(90deg, var(--editor-accent-grid-strong) 1px, transparent 1px),
+    linear-gradient(0deg, var(--editor-accent-grid-strong) 1px, transparent 1px);
   backdrop-filter: none;
 }
 
@@ -733,24 +833,58 @@ body.theme-dark .visual-canvas {
 }
 
 #visualTree .person rect {
-  fill: var(--person-bubble-bg, var(--surface));
-  stroke: var(--border);
+  fill: var(--editor-person-bubble-fill, var(--person-bubble-bg, var(--surface)));
+  stroke: var(--editor-person-bubble-stroke, var(--border));
   stroke-width: 2px;
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+  filter: var(--editor-person-bubble-shadow, drop-shadow(0 4px 12px rgba(0,0,0,0.15)));
 }
 
 #visualTree .person:hover rect {
-  fill: url(#editorPersonGradient);
-  stroke: var(--accent);
+  fill: var(--editor-person-bubble-hover-fill, url(#editorPersonGradient));
+  stroke: var(--editor-person-bubble-hover-stroke, var(--accent));
   stroke-width: 2.5px;
-  filter: drop-shadow(0 8px 24px rgba(59, 130, 246, 0.2));
+  filter: var(--editor-person-bubble-hover-shadow, drop-shadow(0 8px 24px rgba(60, 128, 181, 0.2)));
 }
 
 #visualTree .person .name {
   font-size: 14px;
   font-weight: 700;
-  fill: var(--text);
+  fill: var(--editor-person-name-color, var(--text));
   letter-spacing: -0.01em;
+}
+
+#visualTree .person .bubble-frame {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#visualTree .avatar-group > circle {
+  fill: var(--editor-person-avatar-bg, var(--surface-2));
+  stroke: var(--editor-person-avatar-stroke, var(--editor-person-bubble-stroke, var(--border)));
+}
+
+body.editor-page[data-view-bubble="bubble-heraldic"] #visualTree .person rect {
+  display: none;
+  fill: transparent;
+  stroke: transparent;
+  filter: none;
+}
+
+body.editor-page[data-view-bubble="bubble-heraldic"] #visualTree .person:hover rect {
+  display: none;
+  fill: transparent;
+  stroke: transparent;
+  filter: none;
+}
+
+body.editor-page[data-view-bubble="bubble-heraldic"] #visualTree .person .bubble-frame {
+  display: inline;
+  opacity: 0.96;
+}
+
+body.editor-page[data-view-bubble="bubble-heraldic"] #visualTree .person:hover .bubble-frame {
+  opacity: 1;
 }
 
 #visualTree .link {
@@ -1012,7 +1146,7 @@ body.theme-dark .add-member-card {
 
 .photo-upload-preview:hover {
   border-color: var(--accent);
-  background: rgba(59, 130, 246, 0.1);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 .photo-upload-preview img {
@@ -1183,7 +1317,8 @@ body.theme-dark .add-member-card {
 .add-member-footer .btn-secondary {
   width: 100%;
   min-width: 0;
-  padding: 12px 24px;
+  min-height: var(--shell-control-height-default);
+  padding: 0 16px;
   font-size: 14px;
 }
 
@@ -1334,7 +1469,7 @@ body.theme-dark .add-member-card {
   padding: 24px;
 }
 
-.btn-primary, .btn-secondary {
+body:not(.site-shell) .btn-primary, body:not(.site-shell) .btn-secondary {
   padding: 10px 20px;
   border-radius: var(--radius-md);
   font-weight: 600;
@@ -1342,18 +1477,18 @@ body.theme-dark .add-member-card {
   transition: all var(--transition-base);
 }
 
-.btn-secondary {
+body:not(.site-shell) .btn-secondary {
   background: var(--surface);
   color: var(--text);
   border: 2px solid var(--border);
 }
 
-.btn-secondary:hover {
+body:not(.site-shell) .btn-secondary:hover {
   border-color: var(--accent);
   transform: translateY(-1px);
 }
 
-.btn-danger {
+body:not(.site-shell) .btn-danger {
   background: #ef4444;
   color: white;
   padding: 10px 20px;
@@ -1365,7 +1500,7 @@ body.theme-dark .add-member-card {
   box-shadow: var(--shadow-md);
 }
 
-.btn-danger:hover {
+body:not(.site-shell) .btn-danger:hover {
   background: #dc2626;
   transform: translateY(-1px);
   box-shadow: var(--shadow-lg);
@@ -1744,6 +1879,13 @@ body.editor-page .visual-toolbar-group .tool-btn {
   padding-inline: 10px;
 }
 
+body.editor-page .tool-btn-style-toggle[aria-pressed="true"] {
+  background: var(--gradient-primary);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
 body.editor-page .visual-toolbar-hint,
 body.editor-page .json-status {
   color: var(--muted);
@@ -1775,6 +1917,152 @@ body.editor-page .visual-canvas {
   background-repeat: var(--editor-canvas-bg-repeat);
   background-position: var(--editor-canvas-bg-position);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+body.editor-page .editor-style-panel {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 4;
+  width: min(252px, calc(100% - 36px));
+  max-height: calc(100% - 36px);
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 24px;
+  border: 1px solid var(--editor-border-soft);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, rgba(255, 255, 255, 0.1) 70%, transparent) 0%, transparent 48%),
+    color-mix(in srgb, var(--editor-panel-bg-strong) 88%, transparent);
+  box-shadow: var(--editor-shadow-strong);
+  backdrop-filter: blur(18px);
+  overflow: auto;
+}
+
+body.editor-page .editor-style-panel[hidden] {
+  display: none;
+}
+
+body.editor-page .editor-style-group {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 18px;
+  border: 1px solid var(--editor-border-subtle);
+  background: color-mix(in srgb, var(--editor-field-bg-soft) 84%, transparent);
+}
+
+body.editor-page .editor-style-group-title {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body.editor-page .editor-style-options {
+  display: grid;
+  gap: 8px;
+}
+
+body.editor-page .editor-style-panel .view-style-option {
+  width: 100%;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  border: 1px solid var(--editor-border-soft);
+  background: var(--editor-field-bg);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  font-weight: 700;
+  transition:
+    background var(--transition-base) ease,
+    border-color var(--transition-base) ease,
+    box-shadow var(--transition-base) ease,
+    color var(--transition-base) ease;
+}
+
+body.editor-page .editor-style-panel .view-style-option:hover,
+body.editor-page .editor-style-panel .view-style-option:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 58%, var(--editor-border-soft));
+  background: var(--editor-field-bg-soft);
+  box-shadow: var(--shadow-sm);
+}
+
+body.editor-page .editor-style-panel .view-style-option:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+body.editor-page .editor-style-panel .view-style-option.is-active {
+  border-color: transparent;
+  background: var(--gradient-primary);
+  color: #ffffff;
+  box-shadow: 0 12px 24px var(--editor-accent-shadow);
+}
+
+body.editor-page .editor-style-panel .view-style-swatch {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--editor-border-color) 78%, #000000 22%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+body.editor-page .editor-style-panel .view-style-option.is-active .view-style-swatch {
+  border-color: rgba(255, 255, 255, 0.76);
+}
+
+body.editor-page .editor-style-panel .view-style-option-label {
+  min-width: 0;
+  line-height: 1.2;
+}
+
+body.editor-page .editor-style-panel .swatch-theme-default {
+  background: linear-gradient(155deg, #223149 0%, #0f1b2b 100%);
+}
+
+body.editor-page .editor-style-panel .swatch-parchment-classic {
+  background: linear-gradient(165deg, #f2e5c7 0%, #e3d0aa 100%);
+}
+
+body.editor-page .editor-style-panel .swatch-parchment-vintage {
+  background: linear-gradient(165deg, #d8c29a 0%, #b89c75 100%);
+}
+
+body.editor-page .editor-style-panel .swatch-parchment-minimal {
+  background: linear-gradient(165deg, #f5ecd7 0%, #e9dcc0 100%);
+}
+
+body.editor-page .editor-style-panel .swatch-parchment-photo {
+  background-image: url("../images/store/parchment.webp");
+  background-size: cover;
+  background-position: center;
+}
+
+body.editor-page .editor-style-panel .swatch-bubble-classic {
+  background: linear-gradient(155deg, #f4f7fb 0%, #dbe5f0 100%);
+}
+
+body.editor-page .editor-style-panel .swatch-bubble-heraldic {
+  background:
+    linear-gradient(180deg, rgba(120, 76, 38, 0.18) 0 22%, transparent 22% 78%, rgba(120, 76, 38, 0.22) 78% 100%),
+    linear-gradient(155deg, #f2e2bf 0%, #dec18d 100%);
+}
+
+body.editor-page .editor-style-panel .swatch-bubble-ink {
+  background: linear-gradient(155deg, #f8ecd4 0%, #edd7ae 100%);
+}
+
+body.editor-page .editor-style-panel .swatch-bubble-soft {
+  background: linear-gradient(155deg, #f5f1e6 0%, #ece3cf 100%);
 }
 
 body.editor-page .json-editor {
@@ -1849,8 +2137,8 @@ body.editor-page .photo-upload-preview {
   border-radius: 26px;
   border: 1px dashed color-mix(in srgb, var(--line) 74%, var(--accent) 26%);
   background:
-    radial-gradient(circle at 22% 22%, rgba(36, 92, 90, 0.08), transparent 30%),
-    linear-gradient(145deg, rgba(255, 251, 246, 0.84) 0%, rgba(243, 232, 218, 0.8) 100%);
+    radial-gradient(circle at 22% 22%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 30%),
+    linear-gradient(145deg, rgba(249, 252, 255, 0.88) 0%, rgba(231, 243, 252, 0.82) 100%);
 }
 
 body.editor-page .photo-upload-preview img {
@@ -1891,8 +2179,8 @@ body.editor-page .countries-section .btn-remove-person,
 body.editor-page .countries-section .btn-add-person,
 body.editor-page .add-member-footer .btn-primary,
 body.editor-page .add-member-footer .btn-secondary {
-  min-height: 44px;
-  border-radius: 14px;
+  min-height: var(--shell-control-height-default);
+  border-radius: var(--shell-control-radius-standard);
   font-weight: 800;
 }
 
@@ -2115,12 +2403,38 @@ body.editor-page.has-app-toolbar:not(.focus-mode) .app-header .controls.controls
   body.editor-page .json-editor {
     min-height: 460px;
   }
+
+  body.editor-page .editor-style-panel {
+    top: 14px;
+    left: 14px;
+    width: min(232px, calc(100% - 28px));
+    max-height: calc(100% - 28px);
+    padding: 12px;
+  }
 }
 
 @media (max-width: 560px) {
   body.editor-page .visual-canvas,
   body.editor-page .json-editor {
     min-height: 360px;
+  }
+
+  body.editor-page .editor-style-panel {
+    top: 10px;
+    left: 10px;
+    width: calc(100% - 20px);
+    max-height: calc(100% - 20px);
+    padding: 10px;
+  }
+
+  body.editor-page .editor-style-panel .view-style-option {
+    min-height: 38px;
+    padding: 8px 9px;
+  }
+
+  body.editor-page .editor-style-panel .view-style-swatch {
+    width: 16px;
+    height: 16px;
   }
 }
 

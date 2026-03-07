@@ -14,7 +14,7 @@
   margin: 0;
 }
 
-.modal-close {
+body:not(.site-shell) .modal-close {
   width: 32px;
   height: 32px;
   border: none;
@@ -29,7 +29,7 @@
   transition: all var(--transition-base);
 }
 
-.modal-close:hover {
+body:not(.site-shell) .modal-close:hover {
   background: var(--surface-2);
   color: var(--text);
 }
@@ -55,14 +55,14 @@ textarea.form-input {
   justify-content: flex-end;
 }
 
-.btn-primary {
+body:not(.site-shell) .btn-primary {
   border: none;
   background: var(--gradient-primary);
   color: white;
   box-shadow: var(--shadow-md);
 }
 
-.btn-primary:hover {
+body:not(.site-shell) .btn-primary:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-lg);
 }

@@ -1,4 +1,4 @@
-/* Ensure all critical elements are opaque in dark mode to prevent stars showing through */
+﻿/* Ensure all critical elements are opaque in dark mode to prevent stars showing through */
 [hidden] {
   display: none !important;
 }
@@ -18,9 +18,9 @@ body.theme-dark #tree {
 }
 
 body.theme-dark .topbar { background: var(--surface); color: var(--text); border-bottom-color: var(--border); box-shadow: 0 2px 10px rgba(6, 12, 22, 0.35); }
-body.theme-dark .controls > button { background: var(--surface-2); border-color: var(--border); color: var(--text); }
-body.theme-dark .controls > button:hover { background: var(--surface-3); border-color: var(--accent-2); }
-body.theme-dark .modal-close { color: var(--text); }
+body.theme-dark:not(.site-shell) .controls > button { background: var(--surface-2); border-color: var(--border); color: var(--text); }
+body.theme-dark:not(.site-shell) .controls > button:hover { background: var(--surface-3); border-color: var(--accent-2); }
+body.theme-dark:not(.site-shell) .modal-close { color: var(--text); }
 body.theme-dark .upcoming-banner {
   background: var(--surface);
   border-color: var(--border);
@@ -389,8 +389,8 @@ body.theme-dark .upcoming-birthday-display:hover {
   font-size: 1rem;
   text-align: center;
 }
-.carousel-controls { display: none; gap: 8px; align-items: center; justify-content: center; flex: 1 0 100%; }
-.carousel-btn {
+body:not(.site-shell) .carousel-controls { display: none; gap: 8px; align-items: center; justify-content: center; flex: 1 0 100%; }
+body:not(.site-shell) .carousel-btn {
   border: 1px solid #c9d7ea;
   background: #ffffff;
   color: #0d2138;
@@ -401,8 +401,8 @@ body.theme-dark .upcoming-birthday-display:hover {
   letter-spacing: 0.2px;
   box-shadow: 0 6px 16px rgba(0,0,0,0.12);
 }
-.carousel-btn:hover { background: #eef5ff; }
-.carousel-btn:active { transform: translateY(1px); }
+body:not(.site-shell) .carousel-btn:hover { background: #eef5ff; }
+body:not(.site-shell) .carousel-btn:active { transform: translateY(1px); }
 .birthday-legend { display: none; }
 .birthday-months {
   display: grid;
@@ -735,7 +735,7 @@ body.theme-dark .upcoming-birthday-display:hover {
   .birthday-months { grid-template-columns: 1fr; width: 100%; max-width: 100%; margin: 0; --month-cols: 1; }
   .birthday-months.mobile-carousel .month-card { display: none; }
   .birthday-months.mobile-carousel .month-card.active { display: flex; }
-  .carousel-controls { display: none; }
+  body:not(.site-shell) .carousel-controls { display: none; }
   .calendar-side-nav { display: flex; }
 }
 .birthday-months.mobile-show-all {
@@ -854,14 +854,14 @@ body.theme-dark .birthday-tooltip {
   box-shadow: 0 10px 28px rgba(0,0,0,0.35);
 }
 body.theme-dark .birthday-tooltip .tooltip-list { color: #eaf2ff; }
-body.theme-dark .carousel-btn,
+body.theme-dark:not(.site-shell) .carousel-btn,
 body.theme-dark .month-nav-btn,
 body.theme-dark .mobile-full-cal-btn {
   background: #0f2a52;
   border-color: #1a3c72;
   color: #eaf2ff;
 }
-body.theme-dark .carousel-btn:hover,
+body.theme-dark:not(.site-shell) .carousel-btn:hover,
 body.theme-dark .month-nav-btn:hover,
 body.theme-dark .mobile-full-cal-btn:hover {
   background: #153463;
@@ -870,7 +870,7 @@ body.theme-dark .mobile-full-cal-btn:hover {
 /* Light/print theme */
 /* removed theme-light variant per user request */
 
-.topbar {
+body:not(.site-shell) .topbar {
   position: sticky;
   top: var(--feature-banner-height);
   z-index: 2;
@@ -885,14 +885,14 @@ body.theme-dark .mobile-full-cal-btn:hover {
   box-shadow: var(--shadow-md);
   transition: all var(--transition-base) ease;
 }
-.brand {
+body:not(.site-shell) .brand {
   font-weight: 800;
   letter-spacing: -0.025em;
   font-size: 1.125rem;
   color: var(--accent);
 }
-.controls { display: flex; gap: 10px; }
-.controls > button {
+body:not(.site-shell) .controls { display: flex; gap: 10px; }
+body:not(.site-shell) .controls > button {
   appearance: none;
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: #ffffff;
@@ -906,7 +906,7 @@ body.theme-dark .mobile-full-cal-btn:hover {
   position: relative;
   overflow: hidden;
 }
-.controls > button::before {
+body:not(.site-shell) .controls > button::before {
   content: '';
   position: absolute;
   top: 0;
@@ -918,22 +918,22 @@ body.theme-dark .mobile-full-cal-btn:hover {
   transition: opacity var(--transition-base) ease;
   z-index: -1;
 }
-.controls > button:hover::before {
+body:not(.site-shell) .controls > button:hover::before {
   opacity: 0.08;
 }
-.controls > button:focus-visible {
+body:not(.site-shell) .controls > button:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
-.controls > button:hover {
+body:not(.site-shell) .controls > button:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
   border-color: var(--accent);
 }
 
 body.focus-mode { overflow: hidden; }
-body.focus-mode .topbar {
+body.focus-mode:not(.site-shell) .topbar {
   position: fixed;
   top: 12px;
   left: 50%;
@@ -948,7 +948,7 @@ body.focus-mode .topbar {
   border-bottom: none;
   z-index: 5;
 }
-body.theme-dark.focus-mode .topbar {
+body.theme-dark.focus-mode:not(.site-shell) .topbar {
   background: rgba(22, 35, 55, 0.92);
   border-bottom: none;
   color: var(--text);
@@ -1114,7 +1114,7 @@ body.focus-mode #tree {
   }
   .birthday-months.mobile-carousel .month-card { display: none; }
   .birthday-months.mobile-carousel .month-card.active { display: flex; }
-  .carousel-controls { display: none; }
+  body:not(.site-shell) .carousel-controls { display: none; }
   .calendar-side-nav { display: flex; }
   .calendar-side-nav {
     width: 100vw;
@@ -1129,7 +1129,7 @@ body.focus-mode #tree {
 }
 
 @media (max-width: 640px) {
-  body.focus-mode .topbar {
+  body.focus-mode:not(.site-shell) .topbar {
     top: 8px;
     max-width: none;
     border-radius: 14px;
@@ -1364,7 +1364,7 @@ body.is-zooming #tree.dna-active .blood-link { animation: none; }
   font-size: 14px;
   font-weight: 500;
 }
-.modal-close {
+body:not(.site-shell) .modal-close {
   position: absolute;
   top: 12px;
   right: 12px;
@@ -1378,7 +1378,7 @@ body.is-zooming #tree.dna-active .blood-link { animation: none; }
   border-radius: var(--radius-md);
   transition: all var(--transition-base) ease;
 }
-.modal-close:hover {
+body:not(.site-shell) .modal-close:hover {
   background: rgba(0, 0, 0, 0.1);
   transform: scale(1.1);
 }
@@ -1527,18 +1527,96 @@ body.theme-dark .export-btn { background: #0f2a52; border-color: #1a3c72; color:
 body.theme-dark .export-btn:hover { background: #153463; }
 
 /* Empty State Overlay */
-.empty-state-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 12; display: flex; align-items: center; justify-content: center; animation: fadeIn 400ms ease; }
-.empty-state-content { background: #ffffff; color: #0d2138; padding: 32px; border-radius: 16px; max-width: 500px; width: 90vw; box-shadow: 0 10px 40px rgba(0,0,0,0.25); text-align: center; }
-.empty-state-content h2 { margin-top: 0; font-size: 1.8rem; }
-.empty-state-content p { margin: 16px 0; line-height: 1.6; }
-.empty-state-content ul { text-align: left; margin: 20px auto; max-width: 400px; }
-.empty-state-content li { margin: 10px 0; }
-.empty-state-content button { background: #5aa9ff; color: #ffffff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 16px; }
-.empty-state-content button:hover { background: #3d8fe6; }
-body.theme-dark .empty-state-content { background: #0f2a52; color: #eaf2ff; }
+.empty-state-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: color-mix(in srgb, var(--shell-overlay-bg, rgba(31, 36, 48, 0.58)) 92%, transparent);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 220ms ease;
+}
+
+.empty-state-content {
+  width: min(540px, 100%);
+  padding: 28px;
+  border-radius: calc(var(--radius-lg) + 2px);
+  border: 1px solid var(--shell-panel-border, rgba(97, 82, 67, 0.18));
+  background: var(--shell-panel-bg-strong, #ffffff);
+  color: var(--text, #0d2138);
+  box-shadow: var(--shadow-lg, 0 18px 40px rgba(0, 0, 0, 0.25));
+}
+
+.empty-state-content h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  line-height: 1.05;
+  text-align: center;
+}
+
+.empty-state-content p {
+  margin: 14px 0 0;
+  color: var(--muted, #46556a);
+  line-height: 1.65;
+  text-align: center;
+}
+
+.empty-state-content ul {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.empty-state-content li {
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--shell-panel-border-soft, rgba(97, 82, 67, 0.12));
+  background: color-mix(in srgb, var(--shell-row-bg, rgba(255, 255, 255, 0.9)) 78%, transparent);
+  color: var(--text, #0d2138);
+  line-height: 1.5;
+}
+
+.empty-state-content button {
+  min-height: 48px;
+  margin: 18px auto 0;
+  padding: 0 22px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--gradient-primary, linear-gradient(135deg, #245c5a 0%, #2f746f 48%, #915e3d 100%));
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm, 0 10px 24px rgba(58, 44, 29, 0.08));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-content button:hover {
+  box-shadow: var(--shadow-md, 0 18px 40px rgba(58, 44, 29, 0.12));
+}
+
+.empty-state-content button:focus-visible {
+  outline: 3px solid var(--ring-strong, rgba(36, 92, 90, 0.42));
+  outline-offset: 3px;
+}
+
+body.theme-dark .empty-state-content {
+  background: var(--shell-panel-bg-strong, #0f2a52);
+  color: var(--text, #eaf2ff);
+}
+
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* Loading indicator for export */
 .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 15; display: flex; align-items: center; justify-content: center; }
 .loading-spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3); border-top-color: #5aa9ff; border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+

@@ -8,6 +8,32 @@
   const EMAIL_PROVIDER_PLACEHOLDER = 'REPLACE_WITH_YOUR_FORM_ID';
   const FORMSPREE_HOST = 'formspree.io';
   const FORMSUBMIT_HOST = 'formsubmit.co';
+  const LOCAL_SOURCE_VALUES = ['landing', 'contact', 'auth', 'dashboard', 'editor', 'privacy', 'terms', 'cookies', 'store', 'tree', 'demo-tree'];
+  const LOCAL_SOURCE_ALIASES = Object.freeze({
+    'site-header': 'landing',
+    'landing-paths': 'landing',
+    'landing-cta': 'landing',
+    'contact-footer': 'contact',
+    'auth-footer': 'auth',
+    'dashboard-footer': 'dashboard',
+    'privacy-footer': 'privacy',
+    'terms-footer': 'terms',
+    'cookies-footer': 'cookies',
+    'store-footer': 'store'
+  });
+  const LOCAL_SOURCE_META = Object.freeze({
+    landing: Object.freeze({ label: 'Landing', backHref: '../index.html' }),
+    contact: Object.freeze({ label: 'About & Contact', backHref: 'contact.html' }),
+    auth: Object.freeze({ label: 'Sign In', backHref: 'auth.html' }),
+    dashboard: Object.freeze({ label: 'Dashboard', backHref: 'dashboard.html' }),
+    editor: Object.freeze({ label: 'Editor', backHref: 'editor.html' }),
+    privacy: Object.freeze({ label: 'Privacy', backHref: 'privacy.html' }),
+    terms: Object.freeze({ label: 'Terms', backHref: 'terms.html' }),
+    cookies: Object.freeze({ label: 'Cookies', backHref: 'cookies.html' }),
+    store: Object.freeze({ label: 'Store', backHref: 'store.html' }),
+    tree: Object.freeze({ label: 'Tree Viewer', backHref: 'tree.html' }),
+    'demo-tree': Object.freeze({ label: 'Demo Tree', backHref: 'demo-tree.html' })
+  });
 
   const PRODUCT_PRESENTATION = {
     'paper-print': {
@@ -92,9 +118,22 @@
     if (typeof storeUtils.sanitizeSource === 'function') {
       return storeUtils.sanitizeSource(value, fallback);
     }
-    const allowed = ['landing', 'dashboard', 'tree', 'demo-tree'];
     const normalized = String(value || '').trim().toLowerCase();
-    return allowed.includes(normalized) ? normalized : fallback;
+    const canonical = LOCAL_SOURCE_ALIASES[normalized] || normalized;
+    return LOCAL_SOURCE_VALUES.includes(canonical) ? canonical : fallback;
+  }
+
+  function getSourceMeta(value, fallback = 'dashboard') {
+    if (typeof storeUtils.getSourceMeta === 'function') {
+      return storeUtils.getSourceMeta(value, fallback);
+    }
+    const source = sanitizeSource(value, fallback);
+    const meta = LOCAL_SOURCE_META[source] || LOCAL_SOURCE_META[fallback] || LOCAL_SOURCE_META.dashboard;
+    return {
+      source,
+      label: meta.label,
+      backHref: meta.backHref
+    };
   }
 
   function sanitizeView(value, fallback = 'tree') {
@@ -335,21 +374,21 @@
   }
 
   function resolveBackHref() {
-    const source = sanitizeSource(currentContext.source, 'dashboard');
-    if (source === 'landing') {
-      return '../index.html';
-    }
-    if (source === 'demo-tree') {
-      return 'demo-tree.html';
-    }
-    if (source === 'tree') {
+    const sourceMeta = getSourceMeta(currentContext.source, 'dashboard');
+    if (sourceMeta.source === 'tree') {
       const treeId = sanitizeTreeId(currentContext.treeId);
       if (treeId) {
         return `tree.html?id=${encodeURIComponent(treeId)}`;
       }
       return 'tree.html';
     }
-    return 'dashboard.html';
+    if (sourceMeta.source === 'editor') {
+      const treeId = sanitizeTreeId(currentContext.treeId);
+      if (treeId) {
+        return `editor.html?id=${encodeURIComponent(treeId)}`;
+      }
+    }
+    return sourceMeta.backHref;
   }
 
   function setCatalogPrices() {
@@ -406,14 +445,8 @@
     if (!refs.orderContextText) return;
     const lines = [];
 
-    const sourceLabelMap = {
-      landing: 'Landing',
-      dashboard: 'Dashboard',
-      tree: 'Tree Viewer',
-      'demo-tree': 'Demo Tree'
-    };
-    const sourceLabel = sourceLabelMap[currentContext.source] || 'Dashboard';
-    lines.push(`Source: ${sourceLabel}`);
+    const sourceMeta = getSourceMeta(currentContext.source, 'dashboard');
+    lines.push(`Source: ${sourceMeta.label}`);
 
     if (currentContext.view) {
       lines.push(`View: ${currentContext.view}`);

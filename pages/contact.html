@@ -6,6 +6,21 @@
   <title>About & Contact - Ancestrio</title>
   <meta name="description" content="Learn why Ancestrio exists, how the project approaches family data, and how to get in touch." />
   <link rel="icon" type="image/svg+xml" href="../images/other/favicon.svg" />
+  <link rel="manifest" href="../site.webmanifest" />
+  <link rel="canonical" href="https://paulsuatean.github.io/pages/contact.html" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Ancestrio" />
+  <meta property="og:title" content="About & Contact - Ancestrio" />
+  <meta property="og:description" content="Learn why Ancestrio exists, how the project approaches family data, and how to get in touch." />
+  <meta property="og:url" content="https://paulsuatean.github.io/pages/contact.html" />
+  <meta property="og:image" content="https://paulsuatean.github.io/images/landing/app-preview-tree.png" />
+  <meta property="og:image:alt" content="Ancestrio family tree workspace preview" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="About & Contact - Ancestrio" />
+  <meta name="twitter:description" content="Learn why Ancestrio exists, how the project approaches family data, and how to get in touch." />
+  <meta name="twitter:image" content="https://paulsuatean.github.io/images/landing/app-preview-tree.png" />
+  <meta name="twitter:image:alt" content="Ancestrio family tree workspace preview" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -34,8 +49,8 @@
       <nav class="site-header__nav" id="siteNav" aria-label="Primary">
         <a href="../index.html">Home</a>
         <a href="demo-tree.html">Demo</a>
-        <a href="store.html?product=paper-print&source=site-header&view=tree">Store</a>
-        <a href="contact.html" aria-current="page">Contact</a>
+        <a href="store.html?product=paper-print&source=contact&view=tree">Store</a>
+        <a href="contact.html" aria-current="page">About &amp; Contact</a>
       </nav>
       <div class="site-header__actions">
         <a href="auth.html" class="site-btn site-btn--secondary">Sign In</a>
@@ -143,9 +158,9 @@
     <div class="site-footer__inner">
       <p>&copy; <span data-site-footer-year></span> Ancestrio</p>
       <div class="site-footer__links">
-        <a href="store.html?product=paper-print&source=contact-footer&view=tree">Store</a>
+        <a href="store.html?product=paper-print&source=contact&view=tree">Store</a>
         <a href="demo-tree.html">Demo</a>
-        <a href="contact.html" aria-current="page">Contact</a>
+        <a href="contact.html" aria-current="page">About &amp; Contact</a>
         <a href="privacy.html">Privacy</a>
         <a href="terms.html">Terms</a>
         <a href="cookies.html">Cookies</a>
@@ -161,16 +176,9 @@
   <script src="../scripts/runtime.js"></script>
   <script src="../scripts/night-sky.js"></script>
   <script src="../scripts/day-clouds.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="../scripts/site-header.js?v=6"></script>
-  <script src="../scripts/firebase-config.js?v=5"></script>
-  <script>
-    initializeFirebase();
-  </script>
   <script src="../scripts/theme-toggle.js"></script>
-  <script src="../scripts/contact.js"></script>
+  <script src="../scripts/static-page.js"></script>
   <script
     type="text/plain"
     data-consent="optional"

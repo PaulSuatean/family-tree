@@ -1,7 +1,28 @@
 window.FIREBASE_TREE_DATA = null;
 window.FIREBASE_TREE_NAME = null;
 window.FIREBASE_TREE_SETTINGS = null;
+window.FIREBASE_TREE_ID = null;
+window.FIREBASE_TREE_PRIVACY = null;
+window.FIREBASE_TREE_OWNER_ID = null;
+window.FIREBASE_CURRENT_USER_ID = null;
+window.FIREBASE_TREE_LOAD_MODE = 'idle';
+window.FIREBASE_TREE_LOAD_ERROR = '';
 window.IS_LOCAL_PREVIEW = false;
+const DEFAULT_TREE_VIEW_BACKGROUND = 'theme-default';
+const DEFAULT_TREE_VIEW_BUBBLE = 'bubble-classic';
+const TREE_VIEW_BACKGROUND_IDS = new Set([
+  'theme-default',
+  'parchment-classic',
+  'parchment-vintage',
+  'parchment-minimal',
+  'parchment-photo'
+]);
+const TREE_VIEW_BUBBLE_IDS = new Set([
+  'bubble-classic',
+  'bubble-heraldic',
+  'bubble-ink',
+  'bubble-soft'
+]);
 
 function parseTreeFeatureFlag(value, fallback = true) {
   if (typeof value === 'boolean') return value;
@@ -14,15 +35,50 @@ function parseTreeFeatureFlag(value, fallback = true) {
   return fallback;
 }
 
+function sanitizeTreeViewStyleValue(value, fallback, allowedValues) {
+  const normalized = String(value == null ? '' : value)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '');
+  return allowedValues.has(normalized) ? normalized : fallback;
+}
+
 function resolveTreeViewerSettings(source) {
   const calendarFlag = (source && Object.prototype.hasOwnProperty.call(source, 'enableCalendarDates'))
     ? source.enableCalendarDates
     : source?.enableBirthdays;
+  const nested = (source && source.viewStyle && typeof source.viewStyle === 'object')
+    ? source.viewStyle
+    : null;
 
   return {
     enableCalendarDates: parseTreeFeatureFlag(calendarFlag, true),
-    enableGlobeCountries: parseTreeFeatureFlag(source?.enableGlobeCountries, true)
+    enableGlobeCountries: parseTreeFeatureFlag(source?.enableGlobeCountries, true),
+    viewBackground: sanitizeTreeViewStyleValue(
+      source?.viewBackground ?? source?.background ?? nested?.background,
+      DEFAULT_TREE_VIEW_BACKGROUND,
+      TREE_VIEW_BACKGROUND_IDS
+    ),
+    viewBubble: sanitizeTreeViewStyleValue(
+      source?.viewBubble ?? source?.bubble ?? nested?.bubble,
+      DEFAULT_TREE_VIEW_BUBBLE,
+      TREE_VIEW_BUBBLE_IDS
+    )
   };
+}
+
+function setTreeName(value) {
+  const treeNameEl = document.getElementById('treeName');
+  if (treeNameEl) {
+    treeNameEl.textContent = value;
+  }
+}
+
+function setTreeLoadFailure(mode, title, message) {
+  window.FIREBASE_TREE_DATA = null;
+  window.FIREBASE_TREE_LOAD_MODE = mode;
+  window.FIREBASE_TREE_LOAD_ERROR = message;
+  setTreeName(title);
 }
 
 window.FIREBASE_TREE_READY = (async function () {
@@ -30,6 +86,8 @@ window.FIREBASE_TREE_READY = (async function () {
   const treeId = urlParams.get('id');
   const previewKey = urlParams.get('previewKey');
   const maxPreviewAgeMs = 6 * 60 * 60 * 1000;
+
+  window.FIREBASE_TREE_ID = treeId || '';
 
   if (previewKey) {
     try {
@@ -45,9 +103,13 @@ window.FIREBASE_TREE_READY = (async function () {
           window.FIREBASE_TREE_DATA = previewData;
           window.FIREBASE_TREE_NAME = previewName;
           window.FIREBASE_TREE_SETTINGS = resolveTreeViewerSettings(preview);
+          window.FIREBASE_TREE_PRIVACY = typeof preview.privacy === 'string' ? preview.privacy : 'private';
+          window.FIREBASE_TREE_OWNER_ID = '';
+          window.FIREBASE_CURRENT_USER_ID = '';
+          window.FIREBASE_TREE_LOAD_MODE = 'preview';
+          window.FIREBASE_TREE_LOAD_ERROR = '';
           window.IS_LOCAL_PREVIEW = true;
-          document.getElementById('treeName').textContent = previewName;
-          console.log('Loaded tree data from local preview draft');
+          setTreeName(previewName);
           return;
         }
       }
@@ -58,12 +120,19 @@ window.FIREBASE_TREE_READY = (async function () {
 
   // If no tree ID, use default name and let main.js load from rfamily.json
   if (!treeId) {
-    document.getElementById('treeName').textContent = 'Family Tree';
-    console.log('No tree ID provided, will load local data');
+    window.FIREBASE_TREE_LOAD_MODE = 'local-default';
+    window.FIREBASE_TREE_LOAD_ERROR = '';
+    setTreeName('Family Tree');
+    window.FIREBASE_TREE_PRIVACY = 'private';
+    window.FIREBASE_TREE_OWNER_ID = '';
+    window.FIREBASE_CURRENT_USER_ID = '';
     return;
   }
 
   try {
+    window.FIREBASE_TREE_LOAD_MODE = 'loading';
+    window.FIREBASE_TREE_LOAD_ERROR = '';
+
     // Initialize Firebase only for non-local previews.
     if (typeof initializeFirebase === 'function') {
       initializeFirebase();
@@ -98,6 +167,7 @@ window.FIREBASE_TREE_READY = (async function () {
     });
 
     const currentUser = await waitForAuthState();
+    window.FIREBASE_CURRENT_USER_ID = currentUser?.uid || '';
     const docRef = firebase.firestore().collection('trees').doc(treeId);
     let doc = null;
 
@@ -109,15 +179,17 @@ window.FIREBASE_TREE_READY = (async function () {
     }
 
     if (!doc.exists) {
-      document.getElementById('treeName').textContent = 'Tree not found';
+      setTreeLoadFailure('missing', 'Tree not found', 'This family tree could not be found.');
       console.warn('Tree not found:', treeId);
       return;
     }
 
     const tree = doc.data();
+    window.FIREBASE_TREE_PRIVACY = tree.privacy || 'private';
+    window.FIREBASE_TREE_OWNER_ID = tree.userId || '';
 
     if (tree.privacy === 'private' && (!currentUser || currentUser.uid !== tree.userId)) {
-      document.getElementById('treeName').textContent = 'Private tree';
+      setTreeLoadFailure('private', 'Private tree', 'This family tree is private.');
       console.warn('Tree is private');
       return;
     }
@@ -125,12 +197,12 @@ window.FIREBASE_TREE_READY = (async function () {
     window.FIREBASE_TREE_DATA = tree.data;
     window.FIREBASE_TREE_NAME = tree.name;
     window.FIREBASE_TREE_SETTINGS = resolveTreeViewerSettings(tree);
-    document.getElementById('treeName').textContent = tree.name;
-    console.log('Firebase tree data loaded successfully');
+    window.FIREBASE_TREE_LOAD_MODE = 'remote';
+    window.FIREBASE_TREE_LOAD_ERROR = '';
+    setTreeName(tree.name);
   } catch (error) {
     console.error('Error loading tree:', error);
-    document.getElementById('treeName').textContent = 'Error loading tree';
-    // Still allow fallback to local data.
+    setTreeLoadFailure('error', 'Error loading tree', 'Unable to load this family tree right now.');
   }
 })();
 

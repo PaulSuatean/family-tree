@@ -13,10 +13,6 @@
   const pendingToasts = [];
   let toastId = 0;
 
-  const originalAlert = typeof window.alert === 'function'
-    ? window.alert.bind(window)
-    : null;
-
   const originalConsole = {
     log: typeof console.log === 'function' ? console.log.bind(console) : function () {},
     info: typeof console.info === 'function' ? console.info.bind(console) : function () {},
@@ -51,22 +47,8 @@
     }
   }
 
-  function applyConsoleGate(debugEnabled) {
-    if (debugEnabled) {
-      console.log = originalConsole.log;
-      console.info = originalConsole.info;
-      console.debug = originalConsole.debug;
-      return;
-    }
-
-    console.log = function () {};
-    console.info = function () {};
-    console.debug = function () {};
-  }
-
   readDebugFromQuery();
   let debugEnabled = loadDebugFlag();
-  applyConsoleGate(debugEnabled);
 
   function ensureToastRegion() {
     if (!document.body) return null;
@@ -183,7 +165,6 @@
     } catch (_) {
       // Ignore storage failures.
     }
-    applyConsoleGate(debugEnabled);
   }
 
   function debug() {
@@ -208,13 +189,6 @@
       log,
       warn: function () { originalConsole.warn.apply(console, arguments); },
       error: function () { originalConsole.error.apply(console, arguments); }
-    }
-  };
-
-  window.alert = function (message) {
-    notify(message, 'error');
-    if (debugEnabled && originalAlert) {
-      originalConsole.warn('Blocked alert message redirected to toast:', message);
     }
   };
 

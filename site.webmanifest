@@ -1,0 +1,18 @@
+{
+  "name": "Ancestrio",
+  "short_name": "Ancestrio",
+  "description": "Private family tree workspace with shareable views and printed keepsake requests.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f1e6",
+  "theme_color": "#0f2943",
+  "icons": [
+    {
+      "src": "/images/other/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

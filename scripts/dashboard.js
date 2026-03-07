@@ -3,12 +3,67 @@
 let currentUser = null;
 let trees = [];
 let treeToDelete = null;
+let treeToShare = null;
+let accountDeletionState = {
+  dataDeleted: false,
+  requiresReauth: false,
+  busy: false
+};
 let wizardCenterNameTouched = false;
 let currentWizardStep = 1;
 let isLocalGuestMode = false;
 const AUTH_STATE_TIMEOUT_MS = 10000;
 const TREE_LOAD_TIMEOUT_MS = 12000;
 const LOCAL_GUEST_TREE_KEY = 'ancestrio:guest-tree:v1';
+const LOCAL_PREVIEW_PREFIX = 'ancestrio-preview:';
+const LOCAL_VIEW_STYLE_PREFIX = 'ancestrio:view-style:';
+const DEFAULT_VIEW_BACKGROUND = 'theme-default';
+const VIEW_BACKGROUND_IDS = new Set([
+  'theme-default',
+  'parchment-classic',
+  'parchment-vintage',
+  'parchment-minimal',
+  'parchment-photo'
+]);
+const VIEW_BACKGROUND_ALIASES = new Map([
+  ['default', 'theme-default'],
+  ['classic', 'parchment-classic'],
+  ['vintage', 'parchment-vintage'],
+  ['minimal', 'parchment-minimal'],
+  ['photo', 'parchment-photo'],
+  ['parchmentclassic', 'parchment-classic'],
+  ['parchmentvintage', 'parchment-vintage'],
+  ['parchmentminimal', 'parchment-minimal'],
+  ['parchmentphoto', 'parchment-photo']
+]);
+
+function sanitizeViewBackground(value) {
+  const normalized = String(value == null ? '' : value)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '');
+  if (VIEW_BACKGROUND_IDS.has(normalized)) return normalized;
+  if (VIEW_BACKGROUND_ALIASES.has(normalized)) return VIEW_BACKGROUND_ALIASES.get(normalized);
+  return DEFAULT_VIEW_BACKGROUND;
+}
+
+function resolveTreeViewBackground(tree) {
+  const nested = (tree?.viewStyle && typeof tree.viewStyle === 'object')
+    ? tree.viewStyle
+    : null;
+  const dataNested = (tree?.data?.viewStyle && typeof tree.data.viewStyle === 'object')
+    ? tree.data.viewStyle
+    : null;
+
+  return sanitizeViewBackground(
+    tree?.viewBackground
+      ?? tree?.data?.viewBackground
+      ?? tree?.data?.setupContext?.viewBackground
+      ?? tree?.background
+      ?? nested?.background
+      ?? dataNested?.background
+  );
+}
 
 function syncDashboardHeaderAuthActions(user = null) {
   const header = document.querySelector('.site-header');
@@ -111,16 +166,13 @@ function getRecommendedStoreProduct(tree) {
   ) {
     return window.AncestrioStoreUtils.deriveRecommendedProduct(settings);
   }
-  if (settings.enableCalendarDates && settings.enableGlobeCountries) return 'bundle';
-  if (settings.enableCalendarDates) return 'calendar';
-  if (settings.enableGlobeCountries) return 'globe';
-  return 'parchment';
+  return 'paper-print';
 }
 
 
 function buildStoreUrlForDashboard(context = {}) {
   const payload = {
-    product: String(context.product || 'bundle').toLowerCase(),
+    product: String(context.product || 'paper-print').toLowerCase(),
     source: 'dashboard',
     view: context.view || 'tree',
     treeId: context.treeId || '',
@@ -147,14 +199,218 @@ function openStoreFromDashboard(context = {}) {
   window.location.href = buildStoreUrlForDashboard(context);
 }
 
+function buildShareUrlForTree(treeId) {
+  const safeId = sanitizeText(treeId, 120);
+  if (!safeId) return '';
+  if (window.AncestrioShareUtils && typeof window.AncestrioShareUtils.buildTreeShareUrl === 'function') {
+    return window.AncestrioShareUtils.buildTreeShareUrl(safeId, 'tree.html');
+  }
+  return `tree.html?id=${encodeURIComponent(safeId)}`;
+}
+
+function buildSocialShareUrl(platform, shareUrl, title) {
+  const encodedUrl = encodeURIComponent(shareUrl || '');
+  const encodedTitle = encodeURIComponent(title || 'Family tree');
+  switch (platform) {
+    case 'facebook':
+      return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+    case 'x':
+      return `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
+    case 'whatsapp':
+      return `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`;
+    case 'telegram':
+      return `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`;
+    case 'linkedin':
+      return `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+    default:
+      return '';
+  }
+}
+
+function updateShareModalSocialLinks(shareUrl, treeName, isPublic) {
+  const socialLinks = document.querySelectorAll('[data-share-platform]');
+  socialLinks.forEach((link) => {
+    const platform = link.dataset.sharePlatform;
+    if (!isPublic || !shareUrl) {
+      link.removeAttribute('href');
+      link.setAttribute('aria-disabled', 'true');
+      link.tabIndex = -1;
+      link.classList.add('is-disabled');
+      return;
+    }
+    const platformUrl = buildSocialShareUrl(platform, shareUrl, treeName);
+    if (platformUrl) {
+      link.href = platformUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    }
+    link.removeAttribute('aria-disabled');
+    link.tabIndex = 0;
+    link.classList.remove('is-disabled');
+  });
+}
+
+function updateShareModalUI(tree) {
+  const linkInput = document.getElementById('shareModalLinkInput');
+  const copyBtn = document.getElementById('shareCopyBtn');
+  const hint = document.getElementById('shareModalHint');
+  const primaryBtn = document.getElementById('confirmShareBtn');
+  const nameEl = document.getElementById('shareTreeName');
+
+  if (!tree) return;
+  const treeName = tree.name || 'this tree';
+  const shareUrl = buildShareUrlForTree(tree.id);
+  const isPublic = tree.privacy === 'public';
+
+  if (nameEl) nameEl.textContent = treeName;
+  if (linkInput) {
+    linkInput.value = isPublic ? shareUrl : '';
+    linkInput.placeholder = isPublic ? '' : 'Make public to enable sharing';
+  }
+  if (copyBtn) {
+    copyBtn.disabled = !isPublic || !shareUrl;
+    copyBtn.setAttribute('aria-disabled', (!isPublic || !shareUrl) ? 'true' : 'false');
+  }
+  if (primaryBtn) {
+    primaryBtn.style.display = isPublic ? 'none' : 'inline-flex';
+  }
+  if (hint) {
+    hint.textContent = isPublic
+      ? 'Anyone with the link can view it. It is not listed.'
+      : 'Make public to enable sharing. It is not listed.';
+  }
+  updateShareModalSocialLinks(shareUrl, treeName, isPublic);
+}
+
+async function copyShareUrl(url) {
+  if (!url) {
+    notifyUser('Share link is not available.', 'warning');
+    return false;
+  }
+  if (window.AncestrioShareUtils && typeof window.AncestrioShareUtils.copyToClipboard === 'function') {
+    const copied = await window.AncestrioShareUtils.copyToClipboard(url);
+    if (copied) {
+      window.AncestrioShareUtils.notifyShare?.('Share link copied.', 'success');
+      return true;
+    }
+  }
+  notifyUser('Unable to copy link. Please copy it manually.', 'warning');
+  return false;
+}
+
+function updateTreeCardPrivacyBadge(treeId, privacy) {
+  const card = document.querySelector(`.tree-card[data-tree-id="${treeId}"]`);
+  if (!card) return;
+  const badge = card.querySelector('.privacy-badge');
+  if (!badge) return;
+  const isPublic = privacy === 'public';
+  badge.textContent = isPublic ? 'Public' : 'Private';
+  badge.classList.toggle('public', isPublic);
+  badge.classList.toggle('private', !isPublic);
+}
+
+function showShareModal(tree) {
+  if (!tree) return;
+  treeToShare = tree;
+  updateShareModalUI(tree);
+  const modal = document.getElementById('shareTreeModal');
+  if (modal) {
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+  }
+  window.AncestrioDomDisplay.show('shareTreeModal', 'flex');
+}
+
+function hideShareModal() {
+  const modal = document.getElementById('shareTreeModal');
+  if (modal) {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+  window.AncestrioDomDisplay.hide('shareTreeModal');
+  treeToShare = null;
+}
+
+async function handleShareCopy() {
+  if (!treeToShare || !treeToShare.id) {
+    notifyUser('Share link is not available.', 'warning');
+    return;
+  }
+  if (treeToShare.privacy !== 'public') {
+    notifyUser('Make this tree public to share.', 'warning');
+    return;
+  }
+  await copyShareUrl(buildShareUrlForTree(treeToShare.id));
+}
+
+async function confirmShare() {
+  if (!treeToShare) return;
+  const confirmBtn = document.getElementById('confirmShareBtn');
+  if (confirmBtn) {
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Sharing...';
+  }
+
+  try {
+    if (treeToShare.privacy !== 'public') {
+      await db.collection('trees').doc(treeToShare.id).update({
+        privacy: 'public',
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      treeToShare.privacy = 'public';
+      updateTreeCardPrivacyBadge(treeToShare.id, 'public');
+    }
+    updateShareModalUI(treeToShare);
+    const shareUrl = buildShareUrlForTree(treeToShare.id);
+    await copyShareUrl(shareUrl);
+  } catch (error) {
+    console.error('Failed to share tree:', error);
+    notifyUser('Failed to share tree. Please try again.', 'error');
+  } finally {
+    if (confirmBtn) {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Make Public & Copy Link';
+    }
+  }
+}
+
+function handleShareTree(tree) {
+  if (!tree || !tree.id) {
+    notifyUser('Share link is not available.', 'warning');
+    return;
+  }
+  showShareModal(tree);
+}
+
+function setupAccountPanelToggle() {
+  const toggle = document.getElementById('accountPanelToggle');
+  const toggleText = document.getElementById('accountPanelToggleText');
+  const body = document.getElementById('accountPanelBody');
+  if (!toggle || !body) return;
+
+  const setExpanded = (expanded) => {
+    toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    body.hidden = !expanded;
+    if (toggleText) {
+      toggleText.textContent = expanded ? 'Collapse' : 'Expand';
+    }
+  };
+
+  setExpanded(toggle.getAttribute('aria-expanded') !== 'false');
+  toggle.addEventListener('click', () => {
+    setExpanded(toggle.getAttribute('aria-expanded') !== 'true');
+  });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   // Theme toggle
   window.AncestrioTheme?.initThemeToggle();
+  setupAccountPanelToggle();
 
   // Event listeners
   document.getElementById('storeBtn')?.addEventListener('click', () => {
     openStoreFromDashboard({
-      product: 'bundle',
+      product: 'paper-print',
       source: 'dashboard',
       view: 'tree'
     });
@@ -163,9 +419,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('createTreeBtn').addEventListener('click', showCreateModal);
   document.getElementById('createTreeBtnEmpty')?.addEventListener('click', showCreateModal);
   document.getElementById('closeCreateModal').addEventListener('click', hideCreateModal);
+  document.getElementById('closeShareModal')?.addEventListener('click', hideShareModal);
+  document.getElementById('cancelShareBtn')?.addEventListener('click', hideShareModal);
+  document.getElementById('confirmShareBtn')?.addEventListener('click', confirmShare);
+  document.getElementById('shareCopyBtn')?.addEventListener('click', handleShareCopy);
+  document.getElementById('shareTreeModal')?.addEventListener('click', (event) => {
+    if (event.target && event.target.id === 'shareTreeModal') {
+      hideShareModal();
+    }
+  });
   document.getElementById('closeDeleteModal').addEventListener('click', hideDeleteModal);
   document.getElementById('cancelDeleteBtn').addEventListener('click', hideDeleteModal);
   document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
+  document.getElementById('deleteAccountBtn')?.addEventListener('click', openDeleteAccountModal);
+  document.getElementById('closeDeleteAccountModal')?.addEventListener('click', closeDeleteAccountModal);
+  document.getElementById('cancelDeleteAccountBtn')?.addEventListener('click', closeDeleteAccountModal);
+  document.getElementById('confirmDeleteAccountBtn')?.addEventListener('click', confirmDeleteAccount);
+  document.getElementById('deleteAccountPasswordBtn')?.addEventListener('click', handlePasswordReauth);
+  document.getElementById('deleteAccountGoogleBtn')?.addEventListener('click', handleGoogleReauth);
   
   setupWizardEventListeners();
 
@@ -183,6 +454,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     syncDashboardHeaderAuthActions(currentUser);
     configureGuestDashboardUI();
     updateDashboardTitle(currentUser);
+    updateAccountPanel(currentUser);
     await loadTrees();
     if (!hasStoredGuestTree()) {
       showCreateModal();
@@ -198,6 +470,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore) {
+    try {
+      auth = firebase.auth();
+      db = firebase.firestore();
+    } catch (error) {
+      console.error('Failed to access Firebase Auth/Firestore:', error);
+    }
+  }
+
   // Check authentication
   let authStateResolved = false;
   const authStateTimeoutId = window.setTimeout(() => {
@@ -207,29 +488,58 @@ document.addEventListener('DOMContentLoaded', async () => {
     showDashboardStatus('Authentication check timed out. Refresh this page and sign in again.');
   }, AUTH_STATE_TIMEOUT_MS);
 
-  auth.onAuthStateChanged(
-    async (user) => {
-      authStateResolved = true;
-      window.clearTimeout(authStateTimeoutId);
-      if (user) {
-        currentUser = user;
-        syncDashboardHeaderAuthActions(currentUser);
-        updateDashboardTitle(currentUser);
-        await loadTrees();
-      } else {
-        syncDashboardHeaderAuthActions(null);
-        window.location.href = 'auth.html';
-      }
-    },
-    (error) => {
-      authStateResolved = true;
-      window.clearTimeout(authStateTimeoutId);
-      syncDashboardHeaderAuthActions(null);
-      console.error('Auth state listener error:', error);
+  const authFallbackId = window.setTimeout(async () => {
+    if (authStateResolved) return;
+    if (typeof auth === 'undefined') {
       window.AncestrioDomDisplay.hide('loadingState');
-      showDashboardStatus('Authentication failed. Please sign in again.');
+      showDashboardStatus('Authentication is unavailable. Please refresh and try again.');
+      return;
     }
-  );
+
+    const fallbackUser = auth.currentUser;
+    if (fallbackUser) {
+      authStateResolved = true;
+      window.clearTimeout(authStateTimeoutId);
+      currentUser = fallbackUser;
+      syncDashboardHeaderAuthActions(currentUser);
+      updateDashboardTitle(currentUser);
+      updateAccountPanel(currentUser);
+      await loadTrees();
+    }
+  }, 1500);
+
+  try {
+    auth.onAuthStateChanged(
+      async (user) => {
+        authStateResolved = true;
+        window.clearTimeout(authStateTimeoutId);
+        window.clearTimeout(authFallbackId);
+        if (user) {
+          currentUser = user;
+          syncDashboardHeaderAuthActions(currentUser);
+          updateDashboardTitle(currentUser);
+          updateAccountPanel(currentUser);
+          await loadTrees();
+        } else {
+          syncDashboardHeaderAuthActions(null);
+          window.location.href = 'auth.html';
+        }
+      },
+      (error) => {
+        authStateResolved = true;
+        window.clearTimeout(authStateTimeoutId);
+        window.clearTimeout(authFallbackId);
+        syncDashboardHeaderAuthActions(null);
+        console.error('Auth state listener error:', error);
+        window.AncestrioDomDisplay.hide('loadingState');
+        showDashboardStatus('Authentication failed. Please sign in again.');
+      }
+    );
+  } catch (error) {
+    console.error('Auth listener setup failed:', error);
+    window.AncestrioDomDisplay.hide('loadingState');
+    showDashboardStatus('Authentication failed to initialize. Please refresh and try again.');
+  }
 });
 
 function setupWizardEventListeners() {
@@ -916,15 +1226,20 @@ function setCreateTreeButtonVisibility(visible) {
   window.AncestrioDomDisplay.setDisplay(createTreeActions, 'flex');
 }
 
+function updateTreesGridLayout(treesGrid, treeCount = 0) {
+  if (!treesGrid) return;
+  treesGrid.classList.toggle('trees-grid--fill', treeCount >= 3);
+}
+
 function configureGuestDashboardUI() {
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
-    logoutBtn.setAttribute('title', 'Exit guest mode');
-    logoutBtn.setAttribute('aria-label', 'Exit guest mode');
+    logoutBtn.setAttribute('title', 'Leave guest mode');
+    logoutBtn.setAttribute('aria-label', 'Leave guest mode');
   }
   const logoutText = document.querySelector('#logoutBtn .logout-text');
   if (logoutText) {
-    logoutText.textContent = 'Exit Guest';
+    logoutText.textContent = 'Leave Guest';
   }
 }
 
@@ -994,7 +1309,10 @@ function updateGuestEmptyState(hasTree) {
 }
 
 function renderTreesState(treesGrid, emptyState) {
-  if (treesGrid) treesGrid.innerHTML = '';
+  if (treesGrid) {
+    treesGrid.innerHTML = '';
+    updateTreesGridLayout(treesGrid, trees.length);
+  }
   const hasTrees = trees.length > 0;
   setCreateTreeButtonVisibility(hasTrees);
   if (!hasTrees) {
@@ -1013,7 +1331,10 @@ async function loadTrees() {
   if (isLocalGuestMode) {
     trees = [];
     clearDashboardStatus();
-    if (treesGrid) treesGrid.innerHTML = '';
+    if (treesGrid) {
+      treesGrid.innerHTML = '';
+      updateTreesGridLayout(treesGrid, 0);
+    }
     window.AncestrioDomDisplay.hide(loadingState);
     setCreateTreeButtonVisibility(false);
     updateGuestEmptyState(hasStoredGuestTree());
@@ -1024,7 +1345,10 @@ async function loadTrees() {
   setCreateTreeButtonVisibility(false);
   window.AncestrioDomDisplay.show(loadingState);
   window.AncestrioDomDisplay.hide(emptyState);
-  if (treesGrid) treesGrid.innerHTML = '';
+  if (treesGrid) {
+    treesGrid.innerHTML = '';
+    updateTreesGridLayout(treesGrid, 0);
+  }
   let renderedCachedTrees = false;
 
   try {
@@ -1090,14 +1414,16 @@ function renderTreeCard(tree) {
   const descriptionText = typeof tree.description === 'string' ? tree.description.trim() : '';
   const hasDescription = descriptionText.length > 0;
   const recommendedProduct = getRecommendedStoreProduct(tree);
+  const viewBackground = resolveTreeViewBackground(tree);
 
   const card = document.createElement('div');
   card.className = 'tree-card';
+  card.dataset.treeId = tree.id || '';
   
   // Generate preview HTML
   const previewHtml = tree.thumbnailData 
-    ? `<div class="tree-card-preview"><img src="${tree.thumbnailData}" alt="Tree preview" /></div>`
-    : `<div class="tree-card-preview">
+    ? `<div class="tree-card-preview" data-view-bg="${viewBackground}"><img src="${tree.thumbnailData}" alt="Tree preview" /></div>`
+    : `<div class="tree-card-preview" data-view-bg="${viewBackground}">
          <div class="tree-card-preview-placeholder">
            <span class="material-symbols-outlined">account_tree</span>
            <span>No preview available</span>
@@ -1137,6 +1463,10 @@ function renderTreeCard(tree) {
         <span class="material-symbols-outlined">edit</span>
         Edit
       </button>
+      <button class="btn-share" data-action="share-tree" data-tree-id="${tree.id}">
+        <span class="material-symbols-outlined">share</span>
+        Share
+      </button>
       <button class="btn-store" data-action="open-store" data-tree-id="${tree.id}">
         <span class="material-symbols-outlined">shopping_bag</span>
         Order
@@ -1159,6 +1489,9 @@ function renderTreeCard(tree) {
     if (targetTreeId) {
       editTree(targetTreeId);
     }
+  });
+  card.querySelector('[data-action="share-tree"]')?.addEventListener('click', () => {
+    handleShareTree(tree);
   });
   card.querySelector('[data-action="open-store"]')?.addEventListener('click', () => {
     openStoreFromDashboard({
@@ -1654,6 +1987,255 @@ async function confirmDelete() {
   } finally {
     confirmBtn.disabled = false;
     confirmBtn.textContent = 'Delete';
+  }
+}
+
+function updateAccountPanel(user) {
+  const identityEl = document.getElementById('accountIdentity');
+  const deleteBtn = document.getElementById('deleteAccountBtn');
+  const guestNote = document.getElementById('accountGuestNote');
+
+  const identity = sanitizeText(user?.displayName || user?.email) || (isLocalGuestMode ? 'Guest (Local)' : 'Unknown');
+  if (identityEl) {
+    identityEl.textContent = identity;
+  }
+
+  const deletable = Boolean(user && !user.isAnonymous && !isLocalGuestMode);
+  if (deleteBtn) {
+    deleteBtn.disabled = !deletable;
+    deleteBtn.setAttribute('aria-disabled', deletable ? 'false' : 'true');
+  }
+
+  if (guestNote) {
+    guestNote.hidden = deletable;
+  }
+}
+
+function openDeleteAccountModal() {
+  if (isLocalGuestMode) {
+    notifyUser('Guest mode is local-only. Exit guest mode to delete a cloud account.', 'warning');
+    return;
+  }
+  resetDeleteAccountModal();
+  window.AncestrioDomDisplay.show('deleteAccountModal', 'flex');
+}
+
+function closeDeleteAccountModal() {
+  window.AncestrioDomDisplay.hide('deleteAccountModal');
+}
+
+function resetDeleteAccountModal() {
+  accountDeletionState.dataDeleted = false;
+  accountDeletionState.requiresReauth = false;
+  accountDeletionState.busy = false;
+  setDeleteAccountBusy(false);
+  clearDeleteAccountError();
+  setDeleteAccountReauthVisible(false);
+
+  const confirmInput = document.getElementById('deleteAccountConfirmInput');
+  const passwordInput = document.getElementById('deleteAccountPassword');
+  if (confirmInput) confirmInput.value = '';
+  if (passwordInput) passwordInput.value = '';
+}
+
+function setDeleteAccountBusy(isBusy) {
+  const confirmBtn = document.getElementById('confirmDeleteAccountBtn');
+  const cancelBtn = document.getElementById('cancelDeleteAccountBtn');
+  const closeBtn = document.getElementById('closeDeleteAccountModal');
+  const passwordBtn = document.getElementById('deleteAccountPasswordBtn');
+  const googleBtn = document.getElementById('deleteAccountGoogleBtn');
+
+  [confirmBtn, cancelBtn, closeBtn, passwordBtn, googleBtn].forEach((btn) => {
+    if (!btn) return;
+    btn.disabled = isBusy;
+  });
+
+  if (confirmBtn) {
+    confirmBtn.textContent = isBusy ? 'Deleting...' : 'Delete account';
+  }
+}
+
+function showDeleteAccountError(message) {
+  const errorEl = document.getElementById('deleteAccountError');
+  if (!errorEl) return;
+  errorEl.textContent = message;
+  errorEl.classList.add('is-visible');
+}
+
+function clearDeleteAccountError() {
+  const errorEl = document.getElementById('deleteAccountError');
+  if (!errorEl) return;
+  errorEl.textContent = '';
+  errorEl.classList.remove('is-visible');
+}
+
+function getProviderFlags(user) {
+  const providers = Array.isArray(user?.providerData) ? user.providerData : [];
+  return {
+    hasPassword: providers.some((provider) => provider.providerId === 'password'),
+    hasGoogle: providers.some((provider) => provider.providerId === 'google.com')
+  };
+}
+
+function setDeleteAccountReauthVisible(visible) {
+  const reauthSection = document.getElementById('deleteAccountReauth');
+  if (!reauthSection) return;
+  const passwordGroup = document.getElementById('deleteAccountPasswordGroup');
+  const googleBtn = document.getElementById('deleteAccountGoogleBtn');
+  const reauthCopy = document.getElementById('deleteAccountReauthCopy');
+
+  if (!visible) {
+    window.AncestrioDomDisplay.hide(reauthSection);
+    return;
+  }
+
+  const flags = getProviderFlags(currentUser);
+  const hasPassword = flags.hasPassword;
+  const hasGoogle = flags.hasGoogle;
+
+  if (reauthCopy) {
+    reauthCopy.textContent = (hasPassword || hasGoogle)
+      ? 'For your security, please re-authenticate to finish deletion.'
+      : 'Please sign out and sign in again to finish deleting your account.';
+  }
+
+  if (passwordGroup) {
+    window.AncestrioDomDisplay.setDisplay(passwordGroup, hasPassword ? 'grid' : 'none');
+  }
+
+  if (googleBtn) {
+    window.AncestrioDomDisplay.setDisplay(googleBtn, hasGoogle ? 'inline-flex' : 'none');
+  }
+
+  window.AncestrioDomDisplay.show(reauthSection, 'grid');
+}
+
+async function confirmDeleteAccount() {
+  if (accountDeletionState.busy) return;
+  if (!currentUser || isLocalGuestMode) {
+    showDeleteAccountError('This action is only available for signed-in accounts.');
+    return;
+  }
+
+  const confirmInput = document.getElementById('deleteAccountConfirmInput');
+  const confirmValue = String(confirmInput?.value || '').trim();
+  if (confirmValue !== 'DELETE') {
+    showDeleteAccountError('Type DELETE to confirm account deletion.');
+    return;
+  }
+
+  await deleteAccountFlow();
+}
+
+async function handlePasswordReauth() {
+  if (!currentUser) return;
+  const passwordInput = document.getElementById('deleteAccountPassword');
+  const password = String(passwordInput?.value || '').trim();
+  if (!password) {
+    showDeleteAccountError('Enter your password to continue.');
+    return;
+  }
+
+  try {
+    setDeleteAccountBusy(true);
+    clearDeleteAccountError();
+    const email = currentUser.email;
+    if (!email) {
+      showDeleteAccountError('Account email is missing. Sign out and sign in again.');
+      return;
+    }
+    const credential = firebase.auth.EmailAuthProvider.credential(email, password);
+    await currentUser.reauthenticateWithCredential(credential);
+    accountDeletionState.requiresReauth = false;
+    setDeleteAccountReauthVisible(false);
+    await deleteAccountFlow();
+  } catch (error) {
+    console.error('Re-authentication error:', error);
+    showDeleteAccountError('Re-authentication failed. Please try again.');
+  } finally {
+    setDeleteAccountBusy(false);
+  }
+}
+
+async function handleGoogleReauth() {
+  if (!currentUser) return;
+  try {
+    setDeleteAccountBusy(true);
+    clearDeleteAccountError();
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await currentUser.reauthenticateWithPopup(provider);
+    accountDeletionState.requiresReauth = false;
+    setDeleteAccountReauthVisible(false);
+    await deleteAccountFlow();
+  } catch (error) {
+    console.error('Google re-authentication error:', error);
+    showDeleteAccountError('Google re-authentication failed. Please try again.');
+  } finally {
+    setDeleteAccountBusy(false);
+  }
+}
+
+async function deleteAccountFlow() {
+  if (accountDeletionState.busy) return;
+  accountDeletionState.busy = true;
+  setDeleteAccountBusy(true);
+  clearDeleteAccountError();
+
+  try {
+    if (!accountDeletionState.dataDeleted) {
+      await purgeUserData(currentUser.uid);
+      accountDeletionState.dataDeleted = true;
+    }
+
+    await currentUser.delete();
+    clearAccountLocalState();
+    window.AncestrioHeaderAuthCache?.setFromUser?.(null);
+    notifyUser('Account deleted successfully.', 'success');
+    window.location.href = 'auth.html';
+  } catch (error) {
+    if (error.code === 'auth/requires-recent-login') {
+      accountDeletionState.requiresReauth = true;
+      showDeleteAccountError('For security, please re-authenticate to finish deleting your account.');
+      setDeleteAccountReauthVisible(true);
+    } else {
+      console.error('Account deletion error:', error);
+      showDeleteAccountError('Failed to delete account. Please try again.');
+    }
+  } finally {
+    accountDeletionState.busy = false;
+    setDeleteAccountBusy(false);
+  }
+}
+
+async function purgeUserData(userId) {
+  if (!userId) return;
+  await deleteUserCollectionDocs('trees', userId);
+  await deleteUserCollectionDocs('storeOrders', userId);
+  await db.collection('users').doc(userId).delete();
+}
+
+async function deleteUserCollectionDocs(collectionName, userId) {
+  const snapshot = await db.collection(collectionName).where('userId', '==', userId).get();
+  if (snapshot.empty) return 0;
+  const deletions = snapshot.docs.map((doc) => doc.ref.delete());
+  await Promise.all(deletions);
+  return snapshot.size;
+}
+
+function clearAccountLocalState() {
+  try {
+    localStorage.removeItem('guestMode');
+    localStorage.removeItem(LOCAL_GUEST_TREE_KEY);
+    const headerCacheKey = window.AncestrioHeaderAuthCache?.key || 'ancestrio:header-auth-state:v1';
+    localStorage.removeItem(headerCacheKey);
+
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith(LOCAL_PREVIEW_PREFIX) || key.startsWith(LOCAL_VIEW_STYLE_PREFIX)) {
+        localStorage.removeItem(key);
+      }
+    });
+  } catch (_) {
+    // Ignore storage errors.
   }
 }
 

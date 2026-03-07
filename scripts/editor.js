@@ -8,6 +8,8 @@ let activeSavePromise = null;
 let activeThumbnailEnsurePromise = null;
 let isLocalGuestMode = false;
 let guestPersistTimeout = null;
+let visualStyleController = null;
+let isVisualStylePanelOpen = false;
 let visualState = {
   initialized: false,
   svg: null,
@@ -42,14 +44,33 @@ const THUMBNAIL_MAX_BYTES = 220 * 1024;
 const IMAGE_FIELD_NAMES = new Set(['image', 'spouseImage', 'thumb', 'spouseThumb', 'thumbnailData']);
 const SAVE_BUTTON_DEFAULT_LABEL = 'Save';
 const SAVE_BUTTON_DIRTY_SUFFIX = ' *';
-
-function isVisualTestMode() {
-  try {
-    return window.__ancestrioVisualTest === true || localStorage.getItem('ancestrio-visual-test') === 'true';
-  } catch (error) {
-    return window.__ancestrioVisualTest === true;
-  }
-}
+const DEFAULT_VIEW_BACKGROUND = 'theme-default';
+const DEFAULT_VIEW_BUBBLE = 'bubble-classic';
+const VIEW_BACKGROUND_PRESETS = [
+  { id: 'theme-default', label: 'Default' },
+  { id: 'parchment-classic', label: 'Classic' },
+  { id: 'parchment-vintage', label: 'Vintage' },
+  { id: 'parchment-minimal', label: 'Minimal' },
+  { id: 'parchment-photo', label: 'Photo', imageUrl: '../images/store/parchment.webp' }
+];
+const VIEW_BUBBLE_PRESETS = [
+  { id: 'bubble-classic', label: 'Classic' },
+  { id: 'bubble-heraldic', label: 'Heraldic' },
+  { id: 'bubble-ink', label: 'Ink' },
+  { id: 'bubble-soft', label: 'Soft' }
+];
+const VIEW_BACKGROUND_IDS = new Set(VIEW_BACKGROUND_PRESETS.map((preset) => preset.id));
+const VIEW_BUBBLE_IDS = new Set(VIEW_BUBBLE_PRESETS.map((preset) => preset.id));
+const HERALDIC_FRAME_ASSET = '../images/other/heraldic-circle-frame.webp';
+const HERALDIC_FRAME_LAYOUT = Object.freeze({
+  width: 222,
+  height: 154,
+  x: -111,
+  y: -75
+});
+const THUMBNAIL_PARCHMENT_IMAGE = '../images/store/parchment.webp';
+let cachedThumbnailParchmentImagePromise = null;
+let cachedThumbnailHeraldicFrameDataUrlPromise = null;
 const SAVE_BUTTON_SAVING_LABEL = 'Saving...';
 const SAVE_BUTTON_SAVED_LABEL = 'Saved!';
 
@@ -321,6 +342,120 @@ function getTreeSettingsFromSource(source) {
   };
 }
 
+function sanitizeViewStyleValue(value, fallback, allowedValues) {
+  const normalized = String(value == null ? '' : value)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '');
+  return allowedValues.has(normalized) ? normalized : fallback;
+}
+
+function resolveTreeViewStyle(source) {
+  const nested = (source && source.viewStyle && typeof source.viewStyle === 'object')
+    ? source.viewStyle
+    : null;
+
+  return {
+    background: sanitizeViewStyleValue(
+      source?.viewBackground ?? source?.background ?? nested?.background,
+      DEFAULT_VIEW_BACKGROUND,
+      VIEW_BACKGROUND_IDS
+    ),
+    bubble: sanitizeViewStyleValue(
+      source?.viewBubble ?? source?.bubble ?? nested?.bubble,
+      DEFAULT_VIEW_BUBBLE,
+      VIEW_BUBBLE_IDS
+    )
+  };
+}
+
+function applyTreeViewStyleToBody(styleState) {
+  const nextState = resolveTreeViewStyle(styleState || {});
+  if (document.body) {
+    document.body.setAttribute('data-view-bg', nextState.background);
+    document.body.setAttribute('data-view-bubble', nextState.bubble);
+  }
+  return nextState;
+}
+
+function setVisualStylePanelOpen(nextOpen) {
+  const shouldOpen = !!nextOpen;
+  const panel = document.getElementById('editorStylePanel');
+  const toggleButton = document.getElementById('visualStyleToggle');
+
+  isVisualStylePanelOpen = shouldOpen;
+  if (panel) {
+    panel.hidden = !shouldOpen;
+  }
+  if (toggleButton) {
+    toggleButton.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+    toggleButton.setAttribute('aria-pressed', shouldOpen ? 'true' : 'false');
+  }
+}
+
+function syncTreeViewStyleState(source, options = {}) {
+  const nextState = applyTreeViewStyleToBody(resolveTreeViewStyle(source));
+
+  if (currentTree && typeof currentTree === 'object') {
+    currentTree.viewBackground = nextState.background;
+    currentTree.viewBubble = nextState.bubble;
+  }
+
+  if (visualStyleController && typeof visualStyleController.setState === 'function') {
+    visualStyleController.setState({
+      background: nextState.background,
+      bubble: nextState.bubble
+    }, { persist: false, emit: false });
+  }
+
+  if (options.markChanged === true && currentTree) {
+    markAsChanged();
+  }
+
+  return nextState;
+}
+
+function initVisualStyleControls() {
+  const panelEl = document.getElementById('editorStylePanel');
+  const toggleButton = document.getElementById('visualStyleToggle');
+  const backgroundContainer = document.getElementById('editorViewBackgroundOptions');
+  const bubbleContainer = document.getElementById('editorViewBubbleOptions');
+
+  toggleButton?.addEventListener('click', () => {
+    setVisualStylePanelOpen(!isVisualStylePanelOpen);
+  });
+
+  if (
+    !window.AncestrioViewStyleUI ||
+    typeof window.AncestrioViewStyleUI.createViewStyleController !== 'function'
+  ) {
+    setVisualStylePanelOpen(false);
+    return;
+  }
+
+  visualStyleController = window.AncestrioViewStyleUI.createViewStyleController({
+    body: document.body,
+    panelEl,
+    backgroundContainer,
+    bubbleContainer,
+    backgroundPresets: VIEW_BACKGROUND_PRESETS,
+    bubblePresets: VIEW_BUBBLE_PRESETS,
+    initialState: resolveTreeViewStyle(currentTree),
+    persist: false,
+    onChange: (state) => {
+      applyTreeViewStyleToBody(state);
+      if (currentTree && typeof currentTree === 'object') {
+        currentTree.viewBackground = sanitizeViewStyleValue(state?.background, DEFAULT_VIEW_BACKGROUND, VIEW_BACKGROUND_IDS);
+        currentTree.viewBubble = sanitizeViewStyleValue(state?.bubble, DEFAULT_VIEW_BUBBLE, VIEW_BUBBLE_IDS);
+        markAsChanged();
+      }
+    }
+  });
+
+  syncTreeViewStyleState(currentTree, { markChanged: false });
+  setVisualStylePanelOpen(false);
+}
+
 function syncPrivacyToggleUI(value) {
   const privacy = normalizePrivacyValue(value);
   const isPublic = privacy === 'public';
@@ -333,6 +468,8 @@ function syncPrivacyToggleUI(value) {
   if (publicRadio) {
     publicRadio.checked = isPublic;
   }
+
+  syncShareLinkUI();
 }
 
 function setPrivacyToggleValue(value, emitChange = false) {
@@ -345,6 +482,80 @@ function setPrivacyToggleValue(value, emitChange = false) {
   if (emitChange) {
     privacyInput.dispatchEvent(new Event('change', { bubbles: true }));
   }
+}
+
+function buildEditorShareUrl() {
+  const candidateId = treeId || currentTree?.id;
+  if (!candidateId) return '';
+  if (window.AncestrioShareUtils && typeof window.AncestrioShareUtils.buildTreeShareUrl === 'function') {
+    return window.AncestrioShareUtils.buildTreeShareUrl(candidateId, 'tree.html');
+  }
+  return `tree.html?id=${encodeURIComponent(candidateId)}`;
+}
+
+function syncShareLinkUI() {
+  const shareInput = document.getElementById('shareLinkInput');
+  const copyBtn = document.getElementById('copyShareLinkBtn');
+  const makePublicBtn = document.getElementById('makePublicShareBtn');
+  const hint = document.getElementById('shareHint');
+  const privacy = normalizePrivacyValue(document.getElementById('editTreePrivacy')?.value || currentTree?.privacy);
+  const shareUrl = buildEditorShareUrl();
+  const isPublic = privacy === 'public';
+
+  if (shareInput) {
+    shareInput.value = isPublic ? shareUrl : '';
+    shareInput.placeholder = isPublic ? '' : 'Make public to enable sharing';
+  }
+
+  if (copyBtn) {
+    copyBtn.disabled = !isPublic || !shareUrl;
+  }
+
+  if (makePublicBtn) {
+    makePublicBtn.style.display = isPublic ? 'none' : 'inline-flex';
+  }
+
+  if (hint) {
+    hint.textContent = isPublic
+      ? 'Anyone with the link can view. Not listed.'
+      : 'Make public to share by link. Not listed.';
+  }
+}
+
+async function copyEditorShareLink() {
+  const shareUrl = buildEditorShareUrl();
+  if (!shareUrl) {
+    notifyUser('Share link is not available yet.', 'warning');
+    return false;
+  }
+
+  if (window.AncestrioShareUtils && typeof window.AncestrioShareUtils.copyToClipboard === 'function') {
+    const copied = await window.AncestrioShareUtils.copyToClipboard(shareUrl);
+    if (copied) {
+      window.AncestrioShareUtils.notifyShare?.('Share link copied.', 'success');
+      return true;
+    }
+  }
+
+  notifyUser('Unable to copy link. Please copy it manually.', 'warning');
+  return false;
+}
+
+async function handleMakePublicShare() {
+  const confirmed = window.confirm(
+    'To share, make this tree public. Anyone with the link can view it. It is not listed. Make public and copy the link?'
+  );
+  if (!confirmed) return;
+
+  setPrivacyToggleValue('public', true);
+  const saved = await saveTree();
+  if (!saved) {
+    notifyUser('Save failed. Fix any errors and try again.', 'warning');
+    return;
+  }
+
+  syncShareLinkUI();
+  await copyEditorShareLink();
 }
 
 function applyTreeSettingsToForm(source) {
@@ -505,7 +716,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     markAsChanged();
   });
   document.getElementById('editTreeDescription').addEventListener('input', markAsChanged);
-  document.getElementById('editTreePrivacy').addEventListener('change', markAsChanged);
+  document.getElementById('editTreePrivacy').addEventListener('change', () => {
+    syncShareLinkUI();
+    markAsChanged();
+  });
+  document.getElementById('copyShareLinkBtn')?.addEventListener('click', copyEditorShareLink);
+  document.getElementById('makePublicShareBtn')?.addEventListener('click', handleMakePublicShare);
   document.getElementById('editCalendarDates').addEventListener('change', () => {
     syncMemberBirthdayFieldVisibility();
     markAsChanged();
@@ -540,6 +756,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   syncMemberCountriesSectionVisibility();
 
   initVisualEditor();
+  initVisualStyleControls();
   if (visualState.initialDataReady) {
     scheduleVisualRender(true);
   }
@@ -586,6 +803,7 @@ async function loadTree() {
     document.getElementById('editTreeName').value = currentTree.name || '';
     document.getElementById('editTreeDescription').value = currentTree.description || '';
     applyTreeSettingsToForm(currentTree);
+    syncTreeViewStyleState(currentTree, { markChanged: false });
     syncMemberBirthdayFieldVisibility();
     syncMemberCountriesSectionVisibility();
     
@@ -650,6 +868,8 @@ function loadGuestTree() {
       enableCalendarDates: settings.enableCalendarDates,
       enableBirthdays: settings.enableCalendarDates,
       enableGlobeCountries: settings.enableGlobeCountries,
+      viewBackground: resolveTreeViewStyle(parsed || {}).background,
+      viewBubble: resolveTreeViewStyle(parsed || {}).bubble,
       data: seededData
     };
 
@@ -657,6 +877,7 @@ function loadGuestTree() {
     document.getElementById('editTreeName').value = currentTree.name;
     document.getElementById('editTreeDescription').value = currentTree.description;
     applyTreeSettingsToForm(currentTree);
+    syncTreeViewStyleState(currentTree, { markChanged: false });
     syncMemberBirthdayFieldVisibility();
     syncMemberCountriesSectionVisibility();
 
@@ -680,12 +901,15 @@ function loadGuestTree() {
       enableCalendarDates: true,
       enableBirthdays: true,
       enableGlobeCountries: true,
+      viewBackground: DEFAULT_VIEW_BACKGROUND,
+      viewBubble: DEFAULT_VIEW_BUBBLE,
       data: ensureDefaultTreeData(null)
     };
     document.getElementById('treeTitle').textContent = currentTree.name;
     document.getElementById('editTreeName').value = currentTree.name;
     document.getElementById('editTreeDescription').value = '';
     applyTreeSettingsToForm(currentTree);
+    syncTreeViewStyleState(currentTree, { markChanged: false });
     syncMemberBirthdayFieldVisibility();
     syncMemberCountriesSectionVisibility();
     document.getElementById('jsonEditor').value = JSON.stringify(currentTree.data || {}, null, 2);
@@ -720,6 +944,7 @@ function persistGuestTree() {
     const description = document.getElementById('editTreeDescription').value.trim();
     const settings = readTreeSettingsFromForm();
     const privacy = settings.privacy;
+    const viewStyle = resolveTreeViewStyle(currentTree);
 
     localStorage.setItem(LOCAL_GUEST_TREE_KEY, JSON.stringify({
       name,
@@ -728,6 +953,8 @@ function persistGuestTree() {
       enableCalendarDates: settings.enableCalendarDates,
       enableBirthdays: settings.enableCalendarDates,
       enableGlobeCountries: settings.enableGlobeCountries,
+      viewBackground: viewStyle.background,
+      viewBubble: viewStyle.bubble,
       data: treeData,
       updatedAt: Date.now()
     }));
@@ -741,6 +968,8 @@ function persistGuestTree() {
       enableCalendarDates: settings.enableCalendarDates,
       enableBirthdays: settings.enableCalendarDates,
       enableGlobeCountries: settings.enableGlobeCountries,
+      viewBackground: viewStyle.background,
+      viewBubble: viewStyle.bubble,
       data: treeData
     };
 
@@ -856,7 +1085,23 @@ function applyExportThemeVariables(svgNode) {
 
   const rootStyles = window.getComputedStyle(document.documentElement);
   const bodyStyles = window.getComputedStyle(document.body);
-  const variableNames = ['--surface', '--surface-2', '--border', '--text', '--accent', '--accent-2', '--line'];
+  const variableNames = [
+    '--surface',
+    '--surface-2',
+    '--border',
+    '--text',
+    '--accent',
+    '--accent-2',
+    '--line',
+    '--editor-person-bubble-fill',
+    '--editor-person-bubble-stroke',
+    '--editor-person-bubble-hover-fill',
+    '--editor-person-bubble-hover-stroke',
+    '--editor-person-bubble-shadow',
+    '--editor-person-bubble-hover-shadow',
+    '--editor-person-name-color',
+    '--editor-person-avatar-bg'
+  ];
 
   variableNames.forEach((variableName) => {
     const value = (bodyStyles.getPropertyValue(variableName) || rootStyles.getPropertyValue(variableName) || '').trim();
@@ -866,13 +1111,280 @@ function applyExportThemeVariables(svgNode) {
   });
 
   const activeBubbleBg = (
+    bodyStyles.getPropertyValue('--editor-person-bubble-fill') ||
     bodyStyles.getPropertyValue('--node-fill') ||
     bodyStyles.getPropertyValue('--surface') ||
+    rootStyles.getPropertyValue('--editor-person-bubble-fill') ||
     rootStyles.getPropertyValue('--node-fill') ||
     rootStyles.getPropertyValue('--surface') ||
     '#f1f3f5'
   ).trim();
   svgNode.style.setProperty('--person-bubble-bg', activeBubbleBg);
+}
+
+function resolveActiveExportViewStyle() {
+  const bodyBackground = document.body?.getAttribute('data-view-bg');
+  const bodyBubble = document.body?.getAttribute('data-view-bubble');
+  return resolveTreeViewStyle({
+    viewBackground: bodyBackground || currentTree?.viewBackground,
+    viewBubble: bodyBubble || currentTree?.viewBubble,
+    background: bodyBackground || currentTree?.viewBackground,
+    bubble: bodyBubble || currentTree?.viewBubble
+  });
+}
+
+function resolveExportAssetUrl(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  if (/^(?:[a-z]+:|#)/i.test(raw)) return raw;
+  try {
+    return new URL(raw, window.location.href).href;
+  } catch (_) {
+    return raw;
+  }
+}
+
+function absolutizeExportSvgImageLinks(svgNode) {
+  if (!svgNode || typeof svgNode.querySelectorAll !== 'function') return;
+  const XLINK_NS = 'http://www.w3.org/1999/xlink';
+  svgNode.querySelectorAll('image').forEach((imageNode) => {
+    const rawHref = imageNode.getAttribute('href') || imageNode.getAttributeNS(XLINK_NS, 'href');
+    const resolvedHref = resolveExportAssetUrl(rawHref);
+    if (!resolvedHref || resolvedHref === rawHref) return;
+    imageNode.setAttribute('href', resolvedHref);
+    imageNode.setAttributeNS(XLINK_NS, 'xlink:href', resolvedHref);
+  });
+}
+
+function applyExportBubbleOverrides(svgNode, bubblePresetId) {
+  if (!svgNode || typeof svgNode.querySelectorAll !== 'function') return;
+  const isHeraldic = bubblePresetId === 'bubble-heraldic';
+
+  svgNode.querySelectorAll('.person rect').forEach((rectEl) => {
+    if (isHeraldic) {
+      rectEl.style.setProperty('display', 'none');
+      rectEl.style.setProperty('fill', 'transparent');
+      rectEl.style.setProperty('stroke', 'transparent');
+      rectEl.style.setProperty('filter', 'none');
+      return;
+    }
+    rectEl.style.removeProperty('display');
+    rectEl.style.removeProperty('fill');
+    rectEl.style.removeProperty('stroke');
+    rectEl.style.removeProperty('filter');
+  });
+
+  svgNode.querySelectorAll('.person .bubble-frame').forEach((frameEl) => {
+    frameEl.style.setProperty('display', isHeraldic ? 'inline' : 'none');
+    frameEl.style.setProperty('opacity', isHeraldic ? '0.96' : '0');
+  });
+}
+
+function drawThemeDefaultThumbnailBackground(ctx, width, height) {
+  const baseGradient = ctx.createLinearGradient(0, 0, width, height);
+  baseGradient.addColorStop(0, '#14345f');
+  baseGradient.addColorStop(0.58, '#215392');
+  baseGradient.addColorStop(1, '#193c6a');
+  ctx.fillStyle = baseGradient;
+  ctx.fillRect(0, 0, width, height);
+
+  const glowA = ctx.createRadialGradient(width * 0.22, height * 0.18, 0, width * 0.22, height * 0.18, width * 0.48);
+  glowA.addColorStop(0, 'rgba(143, 194, 255, 0.26)');
+  glowA.addColorStop(1, 'rgba(143, 194, 255, 0)');
+  ctx.fillStyle = glowA;
+  ctx.fillRect(0, 0, width, height);
+
+  const glowB = ctx.createRadialGradient(width * 0.8, height * 0.78, 0, width * 0.8, height * 0.78, width * 0.4);
+  glowB.addColorStop(0, 'rgba(69, 133, 219, 0.2)');
+  glowB.addColorStop(1, 'rgba(69, 133, 219, 0)');
+  ctx.fillStyle = glowB;
+  ctx.fillRect(0, 0, width, height);
+
+  const dotColors = [
+    'rgba(245, 250, 255, 0.7)',
+    'rgba(250, 168, 126, 0.78)',
+    'rgba(217, 234, 255, 0.64)'
+  ];
+  for (let i = 0; i < 52; i += 1) {
+    const x = ((i * 149) % 1000) / 1000 * width;
+    const y = ((i * 197 + 141) % 1000) / 1000 * height;
+    const radius = (i % 5 === 0) ? 2.3 : ((i % 3 === 0) ? 1.8 : 1.35);
+    ctx.fillStyle = dotColors[i % dotColors.length];
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawParchmentClassicThumbnailBackground(ctx, width, height) {
+  const baseGradient = ctx.createLinearGradient(0, 0, width, height);
+  baseGradient.addColorStop(0, '#f0dfbd');
+  baseGradient.addColorStop(0.5, '#dec596');
+  baseGradient.addColorStop(1, '#e7d5ad');
+  ctx.fillStyle = baseGradient;
+  ctx.fillRect(0, 0, width, height);
+
+  const glowA = ctx.createRadialGradient(width * 0.18, height * 0.2, 0, width * 0.18, height * 0.2, width * 0.45);
+  glowA.addColorStop(0, 'rgba(255, 255, 255, 0.34)');
+  glowA.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = glowA;
+  ctx.fillRect(0, 0, width, height);
+
+  const glowB = ctx.createRadialGradient(width * 0.82, height * 0.78, 0, width * 0.82, height * 0.78, width * 0.52);
+  glowB.addColorStop(0, 'rgba(81, 55, 18, 0.09)');
+  glowB.addColorStop(1, 'rgba(81, 55, 18, 0)');
+  ctx.fillStyle = glowB;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.strokeStyle = 'rgba(112, 78, 33, 0.05)';
+  ctx.lineWidth = 1;
+  for (let y = 0; y < height; y += 6) {
+    ctx.beginPath();
+    ctx.moveTo(0, y + 0.5);
+    ctx.lineTo(width, y + 0.5);
+    ctx.stroke();
+  }
+}
+
+function drawParchmentVintageThumbnailBackground(ctx, width, height) {
+  const baseGradient = ctx.createLinearGradient(0, 0, width, height);
+  baseGradient.addColorStop(0, '#d5b78b');
+  baseGradient.addColorStop(0.52, '#b69263');
+  baseGradient.addColorStop(1, '#cfb286');
+  ctx.fillStyle = baseGradient;
+  ctx.fillRect(0, 0, width, height);
+
+  const glowA = ctx.createRadialGradient(width * 0.74, height * 0.18, 0, width * 0.74, height * 0.18, width * 0.32);
+  glowA.addColorStop(0, 'rgba(255, 235, 189, 0.22)');
+  glowA.addColorStop(1, 'rgba(255, 235, 189, 0)');
+  ctx.fillStyle = glowA;
+  ctx.fillRect(0, 0, width, height);
+
+  const glowB = ctx.createRadialGradient(width * 0.22, height * 0.84, 0, width * 0.22, height * 0.84, width * 0.45);
+  glowB.addColorStop(0, 'rgba(91, 54, 21, 0.16)');
+  glowB.addColorStop(1, 'rgba(91, 54, 21, 0)');
+  ctx.fillStyle = glowB;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.strokeStyle = 'rgba(66, 43, 18, 0.08)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < width; x += 8) {
+    ctx.beginPath();
+    ctx.moveTo(x + 0.5, 0);
+    ctx.lineTo(x + 0.5, height);
+    ctx.stroke();
+  }
+}
+
+function drawParchmentMinimalThumbnailBackground(ctx, width, height) {
+  const baseGradient = ctx.createLinearGradient(0, 0, width, height);
+  baseGradient.addColorStop(0, '#f5ecd7');
+  baseGradient.addColorStop(0.52, '#e9dbc0');
+  baseGradient.addColorStop(1, '#f3e9d2');
+  ctx.fillStyle = baseGradient;
+  ctx.fillRect(0, 0, width, height);
+
+  const glowA = ctx.createRadialGradient(width * 0.2, height * 0.22, 0, width * 0.2, height * 0.22, width * 0.46);
+  glowA.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+  glowA.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = glowA;
+  ctx.fillRect(0, 0, width, height);
+
+  const glowB = ctx.createRadialGradient(width * 0.84, height * 0.72, 0, width * 0.84, height * 0.72, width * 0.4);
+  glowB.addColorStop(0, 'rgba(92, 66, 29, 0.07)');
+  glowB.addColorStop(1, 'rgba(92, 66, 29, 0)');
+  ctx.fillStyle = glowB;
+  ctx.fillRect(0, 0, width, height);
+}
+
+function loadThumbnailParchmentImage() {
+  if (cachedThumbnailParchmentImagePromise) {
+    return cachedThumbnailParchmentImagePromise;
+  }
+
+  cachedThumbnailParchmentImagePromise = new Promise((resolve) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => resolve(null);
+    image.src = resolveExportAssetUrl(THUMBNAIL_PARCHMENT_IMAGE);
+  });
+
+  return cachedThumbnailParchmentImagePromise;
+}
+
+function loadImageAsDataUrl(url) {
+  return fetch(url, { cache: 'force-cache' })
+    .then((response) => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.blob();
+    })
+    .then(blobToDataUrl)
+    .catch(() => null);
+}
+
+function loadThumbnailHeraldicFrameDataUrl() {
+  if (cachedThumbnailHeraldicFrameDataUrlPromise) {
+    return cachedThumbnailHeraldicFrameDataUrlPromise;
+  }
+  const frameUrl = resolveExportAssetUrl(HERALDIC_FRAME_ASSET);
+  cachedThumbnailHeraldicFrameDataUrlPromise = loadImageAsDataUrl(frameUrl);
+  return cachedThumbnailHeraldicFrameDataUrlPromise;
+}
+
+async function inlineExportHeraldicFrames(svgNode, bubblePresetId) {
+  if (!svgNode || bubblePresetId !== 'bubble-heraldic') return;
+  const frameDataUrl = await loadThumbnailHeraldicFrameDataUrl();
+  if (!frameDataUrl) return;
+  const XLINK_NS = 'http://www.w3.org/1999/xlink';
+  svgNode.querySelectorAll('.person .bubble-frame').forEach((frameEl) => {
+    frameEl.setAttribute('href', frameDataUrl);
+    frameEl.setAttributeNS(XLINK_NS, 'xlink:href', frameDataUrl);
+  });
+}
+
+function drawImageCover(ctx, image, width, height) {
+  if (!image) return;
+  const sourceWidth = image.naturalWidth || image.width || 1;
+  const sourceHeight = image.naturalHeight || image.height || 1;
+  const scale = Math.max(width / sourceWidth, height / sourceHeight);
+  const drawWidth = sourceWidth * scale;
+  const drawHeight = sourceHeight * scale;
+  const drawX = (width - drawWidth) / 2;
+  const drawY = (height - drawHeight) / 2;
+  ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+}
+
+async function drawThumbnailBackground(ctx, width, height, backgroundPresetId) {
+  switch (backgroundPresetId) {
+    case 'parchment-classic':
+      drawParchmentClassicThumbnailBackground(ctx, width, height);
+      return;
+    case 'parchment-vintage':
+      drawParchmentVintageThumbnailBackground(ctx, width, height);
+      return;
+    case 'parchment-minimal':
+      drawParchmentMinimalThumbnailBackground(ctx, width, height);
+      return;
+    case 'parchment-photo': {
+      drawParchmentClassicThumbnailBackground(ctx, width, height);
+      const texture = await loadThumbnailParchmentImage();
+      if (texture) {
+        ctx.globalAlpha = 0.92;
+        drawImageCover(ctx, texture, width, height);
+        ctx.globalAlpha = 1;
+      }
+      const overlay = ctx.createLinearGradient(0, 0, 0, height);
+      overlay.addColorStop(0, 'rgba(56, 39, 18, 0.2)');
+      overlay.addColorStop(1, 'rgba(255, 251, 238, 0.12)');
+      ctx.fillStyle = overlay;
+      ctx.fillRect(0, 0, width, height);
+      return;
+    }
+    case 'theme-default':
+    default:
+      drawThemeDefaultThumbnailBackground(ctx, width, height);
+      return;
+  }
 }
 
 async function generateTreeThumbnail() {
@@ -898,14 +1410,14 @@ async function generateTreeThumbnail() {
     const thumbnailHeight = 720;
     
     // Add padding around the tree content
-    const padding = 40;
+    const padding = 140;
     const contentWidth = bbox.width + padding * 2;
     const contentHeight = bbox.height + padding * 2;
     
     // Calculate scale to fit the tree in the thumbnail while maintaining aspect ratio
     const scaleX = thumbnailWidth / contentWidth;
     const scaleY = thumbnailHeight / contentHeight;
-    const scale = Math.min(scaleX, scaleY, 2.25);
+    const scale = Math.min(scaleX, scaleY, 1.55);
     
     // Calculate centered position
     const scaledWidth = bbox.width * scale;
@@ -913,12 +1425,17 @@ async function generateTreeThumbnail() {
     const offsetX = (thumbnailWidth - scaledWidth) / 2 - bbox.x * scale;
     const offsetY = (thumbnailHeight - scaledHeight) / 2 - bbox.y * scale;
     
+    const exportViewStyle = resolveActiveExportViewStyle();
+
     // Clone and prepare SVG
     const clonedSvg = svgNode.cloneNode(true);
     clonedSvg.setAttribute('width', thumbnailWidth.toString());
     clonedSvg.setAttribute('height', thumbnailHeight.toString());
     clonedSvg.setAttribute('viewBox', `0 0 ${thumbnailWidth} ${thumbnailHeight}`);
     applyExportThemeVariables(clonedSvg);
+    applyExportBubbleOverrides(clonedSvg, exportViewStyle.bubble);
+    absolutizeExportSvgImageLinks(clonedSvg);
+    await inlineExportHeraldicFrames(clonedSvg, exportViewStyle.bubble);
     
     // Find the g element in the clone and apply centering transform
     const clonedG = clonedSvg.querySelector('g');
@@ -931,10 +1448,10 @@ async function generateTreeThumbnail() {
     const visitedSheets = new Set();
     const cssText = styleSheets.map((sheet) => collectExportCssRules(sheet, visitedSheets)).join('\n');
     const fallbackTreeCss = [
-      '#visualTree .person rect { fill: var(--person-bubble-bg, #f1f3f5); stroke: var(--border, rgba(230, 238, 249, 0.18)); stroke-width: 2px; }',
-      '#visualTree .person .name { fill: var(--text, #e6eef9); font-size: 14px; font-weight: 700; }',
+      '#visualTree .person rect { fill: var(--editor-person-bubble-fill, var(--person-bubble-bg, #f1f3f5)); stroke: var(--editor-person-bubble-stroke, var(--border, rgba(230, 238, 249, 0.18))); stroke-width: 2px; filter: var(--editor-person-bubble-shadow, drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15))); }',
+      '#visualTree .person .name { fill: var(--editor-person-name-color, var(--text, #e6eef9)); font-size: 14px; font-weight: 700; }',
       '#visualTree .link { fill: none; stroke: var(--line, #cbd5e1); stroke-width: 2.25px; }',
-      '#visualTree .avatar-group > circle { fill: var(--surface-2, #132a46); stroke: var(--border, rgba(230, 238, 249, 0.18)); stroke-width: 2px; }'
+      '#visualTree .avatar-group > circle { fill: var(--editor-person-avatar-bg, var(--surface-2, #132a46)); stroke: var(--editor-person-bubble-stroke, var(--border, rgba(230, 238, 249, 0.18))); stroke-width: 2px; }'
     ].join('\n');
     
     // Add a style element to the cloned SVG
@@ -951,23 +1468,32 @@ async function generateTreeThumbnail() {
       const url = URL.createObjectURL(svgBlob);
       const img = new Image();
       
-      img.onload = () => {
+      img.onload = async () => {
         const canvas = document.createElement('canvas');
         canvas.width = thumbnailWidth;
         canvas.height = thumbnailHeight;
         const ctx = canvas.getContext('2d');
-        
-        // Fill background with button blue
-        ctx.fillStyle = '#1d4ed8';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw the image
-        ctx.drawImage(img, 0, 0, thumbnailWidth, thumbnailHeight);
-        
+
+        if (!ctx) {
+          URL.revokeObjectURL(url);
+          resolve(null);
+          return;
+        }
+
+        try {
+          await drawThumbnailBackground(ctx, canvas.width, canvas.height, exportViewStyle.background);
+          ctx.drawImage(img, 0, 0, thumbnailWidth, thumbnailHeight);
+        } catch (drawError) {
+          console.error('Failed to draw thumbnail background:', drawError);
+          URL.revokeObjectURL(url);
+          resolve(null);
+          return;
+        }
+
         // Convert canvas to blob
         canvas.toBlob((blob) => {
           URL.revokeObjectURL(url);
-          resolve(blob);
+          resolve(blob || null);
         }, 'image/jpeg', 0.84);
       };
       
@@ -994,7 +1520,6 @@ function waitForVisualRender(ms = 160) {
 }
 
 async function ensureTreeThumbnailForDashboard() {
-  if (isVisualTestMode()) return false;
   if (isLocalGuestMode) return false;
   if (!treeId || !currentTree) return false;
   if (hasUnsavedChanges) return false;
@@ -1125,6 +1650,7 @@ async function saveTree() {
       const description = document.getElementById('editTreeDescription').value.trim();
       const settings = readTreeSettingsFromForm();
       const privacy = settings.privacy;
+      const viewStyle = resolveTreeViewStyle(currentTree);
       setInvalidField(treeNameInput, false);
 
       if (!name) {
@@ -1193,6 +1719,8 @@ async function saveTree() {
         enableCalendarDates: settings.enableCalendarDates,
         enableBirthdays: settings.enableCalendarDates,
         enableGlobeCountries: settings.enableGlobeCountries,
+        viewBackground: viewStyle.background,
+        viewBubble: viewStyle.bubble,
         data: treeData,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       };
@@ -1219,6 +1747,8 @@ async function saveTree() {
         enableCalendarDates: settings.enableCalendarDates,
         enableBirthdays: settings.enableCalendarDates,
         enableGlobeCountries: settings.enableGlobeCountries,
+        viewBackground: viewStyle.background,
+        viewBubble: viewStyle.bubble,
         data: treeData,
         updatedAt: 'SERVER_TIMESTAMP',
         thumbnailData: thumbnailData || ''
@@ -1240,6 +1770,8 @@ async function saveTree() {
       currentTree.enableCalendarDates = settings.enableCalendarDates;
       currentTree.enableBirthdays = settings.enableCalendarDates;
       currentTree.enableGlobeCountries = settings.enableGlobeCountries;
+      currentTree.viewBackground = viewStyle.background;
+      currentTree.viewBubble = viewStyle.bubble;
       currentTree.data = treeData;
       if (thumbnailData) {
         currentTree.thumbnailData = thumbnailData;
@@ -1335,6 +1867,7 @@ function buildLocalPreviewDraft() {
   const description = document.getElementById('editTreeDescription')?.value.trim() || currentTree?.description || '';
   const settings = readTreeSettingsFromForm();
   const privacy = settings.privacy;
+  const viewStyle = resolveTreeViewStyle(currentTree);
 
   return {
     treeId: treeId || '',
@@ -1344,6 +1877,8 @@ function buildLocalPreviewDraft() {
     enableCalendarDates: settings.enableCalendarDates,
     enableBirthdays: settings.enableCalendarDates,
     enableGlobeCountries: settings.enableGlobeCountries,
+    viewBackground: viewStyle.background,
+    viewBubble: viewStyle.bubble,
     data: cleanupTreeData(treeData),
     createdAt: Date.now()
   };
@@ -2366,6 +2901,18 @@ function renderVisualEditor(resetTransform) {
       .attr('stop-color', 'var(--accent)')
       .attr('stop-opacity', 0.22);
   }
+  let cardClip = defs.select('#editorPersonCardClip');
+  if (cardClip.empty()) {
+    cardClip = defs.append('clipPath').attr('id', 'editorPersonCardClip');
+    cardClip.append('rect');
+  }
+  cardClip.select('rect')
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr('width', nodeSize.width)
+    .attr('height', nodeSize.height)
+    .attr('rx', 16)
+    .attr('ry', 16);
 
   // Curved link path like demo-tree
   const linkGen = d3.linkVertical()
@@ -2622,6 +3169,16 @@ function renderVisualEditor(resetTransform) {
     .attr('height', avatar.r * 2)
     .attr('clip-path', (d) => `url(#clip-editor-${d.data.id})`)
     .attr('preserveAspectRatio', 'xMidYMid slice');
+
+  avatarGroup.append('image')
+    .attr('class', 'bubble-frame bubble-frame-heraldic')
+    .attr('href', HERALDIC_FRAME_ASSET)
+    .attr('xlink:href', HERALDIC_FRAME_ASSET)
+    .attr('x', HERALDIC_FRAME_LAYOUT.x)
+    .attr('y', HERALDIC_FRAME_LAYOUT.y)
+    .attr('width', HERALDIC_FRAME_LAYOUT.width)
+    .attr('height', HERALDIC_FRAME_LAYOUT.height)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
 
   // Name text
   nodeEnter.append('text')
@@ -2903,7 +3460,7 @@ function buildRFamilyTree(src) {
         children: []
       };
       
-      const grandkids = Array.isArray(k.grandchildren) ? k.grandchildren : [];
+      const grandkids = getRFamilyChildrenList(k, false) || [];
       grandkids.forEach((g, grandIndex) => {
         const rawGrandSpouseIndex = Number(g.fromSpouseIndex);
         const grandFromSpouseIndex = Number.isFinite(rawGrandSpouseIndex)

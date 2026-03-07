@@ -13,15 +13,12 @@
           return reject(err);
         }
         const url = paths[i];
-        console.log(`Trying to load from: ${url}`);
         fetch(url)
           .then((r) => {
-            console.log(`Response from ${url}: ${r.status} ${r.statusText}`);
             if (!r.ok) throw new Error('HTTP ' + r.status + ' at ' + paths[i]);
             return r.json();
           })
           .then((data) => {
-            console.log(`Successfully loaded data from: ${url}`);
             resolve(data);
           })
           .catch((err) => {
@@ -35,21 +32,24 @@
 
   async function loadTreeData() {
     if (typeof window !== 'undefined' && window.FIREBASE_TREE_READY) {
-      console.log('Waiting for Firebase tree data to load...');
       try {
         await window.FIREBASE_TREE_READY;
-        console.log('Firebase tree data ready');
       } catch (err) {
         console.warn('Firebase tree data loading failed:', err);
       }
     }
 
     if (typeof window !== 'undefined' && window.FIREBASE_TREE_DATA) {
-      console.log('Loading data from Firebase:', window.FIREBASE_TREE_DATA);
       return Promise.resolve(window.FIREBASE_TREE_DATA);
     }
 
-    console.log('Loading data from local rfamily.json');
+    if (
+      typeof window !== 'undefined' &&
+      ['missing', 'private', 'error'].includes(window.FIREBASE_TREE_LOAD_MODE)
+    ) {
+      throw new Error(window.FIREBASE_TREE_LOAD_ERROR || 'Family tree data is unavailable.');
+    }
+
     return loadDataSequential(['../data/rfamily.json', '/data/rfamily.json']);
   }
 

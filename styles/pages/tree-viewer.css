@@ -18,6 +18,42 @@ body.tree-viewer-page {
   --viewer-bubble-meta-color: var(--muted);
 }
 
+.share-tree-btn,
+.order-print-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid transparent;
+  color: #ffffff;
+}
+
+.share-tree-btn {
+  background: var(--gradient-secondary);
+}
+
+.order-print-btn {
+  background: var(--gradient-primary);
+}
+
+.share-tree-btn .material-symbols-outlined,
+.order-print-btn .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.share-tree-btn:hover,
+.share-tree-btn:focus-visible,
+.order-print-btn:hover,
+.order-print-btn:focus-visible {
+  border-color: transparent;
+  box-shadow: var(--shadow-md);
+}
+
+body.tree-viewer-page .controls-tree .share-tree-btn,
+body.tree-viewer-page .controls-tree .order-print-btn {
+  color: #ffffff;
+  border-color: transparent;
+}
+
 .view-style-panel {
   position: fixed;
   left: var(--viewer-style-panel-left);
@@ -160,6 +196,12 @@ body.theme-dark.tree-viewer-page.view-calendar #birthdaySection {
   background: linear-gradient(155deg, #ffffff 0%, #f1f3f5 100%);
 }
 
+.view-style-swatch.swatch-bubble-heraldic {
+  background:
+    linear-gradient(180deg, rgba(120, 76, 38, 0.18) 0 22%, transparent 22% 78%, rgba(120, 76, 38, 0.22) 78% 100%),
+    linear-gradient(155deg, #f2e2bf 0%, #dec18d 100%);
+}
+
 .view-style-swatch.swatch-bubble-ink {
   background: linear-gradient(155deg, #f8ecd4 0%, #edd7ae 100%);
 }
@@ -229,6 +271,22 @@ body.tree-viewer-page[data-view-bubble="bubble-classic"] {
   --viewer-bubble-meta-color: var(--muted);
 }
 
+body.tree-viewer-page[data-view-bubble="bubble-heraldic"] {
+  --viewer-bubble-fill: transparent;
+  --viewer-bubble-stroke: transparent;
+  --viewer-bubble-hover-fill: transparent;
+  --viewer-bubble-hover-stroke: transparent;
+  --viewer-bubble-shadow: none;
+  --viewer-bubble-hover-shadow: none;
+  --viewer-bubble-name-color: #5a3c1f;
+  --viewer-bubble-meta-color: #7a5930;
+}
+
+body.theme-dark.tree-viewer-page[data-view-bubble="bubble-heraldic"] {
+  --viewer-bubble-name-color: #f3e5c8;
+  --viewer-bubble-meta-color: #e1cda7;
+}
+
 body.tree-viewer-page[data-view-bubble="bubble-ink"] {
   --viewer-bubble-fill: #efe0c0;
   --viewer-bubble-stroke: rgba(88, 62, 21, 0.42);
@@ -269,6 +327,29 @@ body.tree-viewer-page .person .name {
 
 body.tree-viewer-page .person .meta {
   fill: var(--viewer-bubble-meta-color, var(--muted));
+}
+
+body.tree-viewer-page .person .bubble-frame {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.tree-viewer-page[data-view-bubble="bubble-heraldic"] .person rect,
+body.tree-viewer-page[data-view-bubble="bubble-heraldic"] .person:hover rect {
+  display: none;
+  fill: transparent;
+  stroke: transparent;
+  filter: none;
+}
+
+body.tree-viewer-page[data-view-bubble="bubble-heraldic"] .person .bubble-frame {
+  display: inline;
+  opacity: 0.96;
+}
+
+body.tree-viewer-page[data-view-bubble="bubble-heraldic"] .person:hover .bubble-frame {
+  opacity: 1;
 }
 
 body.tree-viewer-page #tree.dna-active .person.primary rect,
@@ -344,7 +425,7 @@ body.demo-tree-page.site-shell:not(.focus-mode) .topbar {
   border-radius: 999px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 58%),
-    var(--shell-panel-bg-accented);
+    var(--shell-surface-accented);
   box-shadow: var(--shadow-md);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--border);
@@ -366,7 +447,7 @@ body.demo-tree-page.site-shell.view-calendar #birthdaySection .birthday-months {
 body.theme-dark.demo-tree-page.site-shell:not(.focus-mode) .topbar {
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 58%),
-    var(--shell-panel-bg-accented);
+    var(--shell-surface-accented);
   border-bottom-color: var(--border);
 }
 
@@ -408,7 +489,21 @@ body.demo-tree-page.site-shell:not(.focus-mode) #upcomingBtn {
   border: 1px solid var(--shell-panel-border);
   background: var(--shell-field-bg-soft);
   color: var(--text);
-  padding: 0 18px;
+  padding: 0 16px;
+}
+
+body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree > .share-tree-btn,
+body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree > .order-print-btn {
+  border-color: transparent;
+  color: #ffffff;
+}
+
+body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree > .share-tree-btn {
+  background: var(--gradient-secondary);
+}
+
+body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree > .order-print-btn {
+  background: var(--gradient-primary);
 }
 
 body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree > a {
@@ -439,7 +534,7 @@ body.demo-tree-page.site-shell:not(.focus-mode) #upcomingBtn:hover,
 body.demo-tree-page.site-shell:not(.focus-mode) #upcomingBtn:focus-visible,
 body.demo-tree-page.site-shell:not(.focus-mode) #backBtn:hover,
 body.demo-tree-page.site-shell:not(.focus-mode) #backBtn:focus-visible {
-  border-color: rgba(36, 92, 90, 0.35);
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--shell-panel-border) 62%);
   box-shadow: var(--shadow-md);
   outline: none;
 }
@@ -481,7 +576,7 @@ body.demo-tree-page.site-shell:not(.focus-mode) #backBtn .material-symbols-outli
   body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree > button,
   body.demo-tree-page.site-shell:not(.focus-mode) .controls-tree > a,
   body.demo-tree-page.site-shell:not(.focus-mode) #upcomingBtn {
-    min-height: 44px;
+    min-height: var(--shell-control-height-compact);
     padding: 0 12px;
   }
 
@@ -489,8 +584,8 @@ body.demo-tree-page.site-shell:not(.focus-mode) #backBtn .material-symbols-outli
   body.demo-tree-page.site-shell:not(.focus-mode) #helpBtn,
   body.demo-tree-page.site-shell:not(.focus-mode) #themeBtn,
   body.demo-tree-page.site-shell:not(.focus-mode) #backBtn {
-    width: 44px;
-    min-width: 44px;
+    width: var(--shell-control-height-compact);
+    min-width: var(--shell-control-height-compact);
     padding: 0;
   }
 }

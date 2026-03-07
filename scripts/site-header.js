@@ -1,8 +1,28 @@
-(function () {
+﻿(function () {
   const MOBILE_BREAKPOINT = 1120;
   const HEADER_AUTH_CACHE_KEY = 'ancestrio:header-auth-state:v1';
   const AUTH_PAGE_PATTERN = /(?:^|\/)auth\.html(?:[?#]|$)/i;
   const DASHBOARD_PAGE_PATTERN = /(?:^|\/)dashboard\.html(?:[?#]|$)/i;
+
+  function readCachedAuthState() {
+    try {
+      const raw = localStorage.getItem(HEADER_AUTH_CACHE_KEY);
+      if (!raw) return null;
+
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object') return null;
+
+      return {
+        authenticated: Boolean(parsed.authenticated),
+        isAnonymous: Boolean(parsed.isAnonymous),
+        displayName: typeof parsed.displayName === 'string' ? parsed.displayName : '',
+        email: typeof parsed.email === 'string' ? parsed.email : '',
+        updatedAt: Number.isFinite(parsed.updatedAt) ? parsed.updatedAt : 0
+      };
+    } catch (_) {
+      return null;
+    }
+  }
 
   function writeCachedAuthState(user) {
     try {
@@ -29,6 +49,14 @@
         email: typeof user?.email === 'string' ? user.email : ''
       };
     }
+  }
+
+  if (typeof window !== 'undefined') {
+    window.AncestrioHeaderAuthCache = {
+      key: HEADER_AUTH_CACHE_KEY,
+      read: readCachedAuthState,
+      setFromUser: writeCachedAuthState
+    };
   }
 
   function resolveHeaderLinks(header) {
@@ -91,8 +119,10 @@
       return;
     }
 
-    // Default to signed-out UI until Firebase confirms a real authenticated user.
-    applyAuthStateToHeader(header, { authenticated: false, isAnonymous: false });
+    applyAuthStateToHeader(
+      header,
+      readCachedAuthState() || { authenticated: false, isAnonymous: false }
+    );
 
     let unsubscribe = null;
     let subscribed = false;
@@ -119,11 +149,20 @@
     const handleFirebaseReady = (event) => {
       subscribeWithAuth(event?.detail?.auth || window.auth);
     };
+    const handleStorage = (event) => {
+      if (event.key !== HEADER_AUTH_CACHE_KEY) return;
+      applyAuthStateToHeader(
+        header,
+        readCachedAuthState() || { authenticated: false, isAnonymous: false }
+      );
+    };
 
     document.addEventListener('ancestrio:firebase-ready', handleFirebaseReady);
+    window.addEventListener('storage', handleStorage);
 
     window.addEventListener('beforeunload', () => {
       document.removeEventListener('ancestrio:firebase-ready', handleFirebaseReady);
+      window.removeEventListener('storage', handleStorage);
       if (typeof unsubscribe === 'function') {
         unsubscribe();
       }
@@ -136,19 +175,52 @@
     const menuBtn = header.querySelector('.site-menu-btn');
     const nav = header.querySelector('.site-header__nav');
 
-    function setMenuOpen(isOpen) {
-      header.classList.toggle('menu-open', isOpen);
+    function isMobileNavMode() {
+      return window.innerWidth <= MOBILE_BREAKPOINT;
+    }
+
+    function syncMobileNavState() {
+      if (!nav) return;
+      const isOpen = header.classList.contains('menu-open');
+      const isMobile = isMobileNavMode();
+      nav.setAttribute('aria-hidden', isMobile && !isOpen ? 'true' : 'false');
+      nav.querySelectorAll('a').forEach((link) => {
+        if (isMobile && !isOpen) {
+          link.setAttribute('tabindex', '-1');
+        } else {
+          link.removeAttribute('tabindex');
+        }
+      });
+    }
+
+    function setMenuOpen(isOpen, options = {}) {
+      const shouldOpen = Boolean(isOpen) && isMobileNavMode();
+      header.classList.toggle('menu-open', shouldOpen);
       if (menuBtn) {
-        menuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        menuBtn.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
         const icon = menuBtn.querySelector('.material-symbols-outlined');
         if (icon) {
-          icon.textContent = isOpen ? 'close' : 'menu';
+          icon.textContent = shouldOpen ? 'close' : 'menu';
         }
+      }
+      syncMobileNavState();
+
+      if (shouldOpen && options.focusFirstItem) {
+        requestAnimationFrame(() => {
+          nav?.querySelector('a')?.focus();
+        });
+      }
+
+      if (!shouldOpen && options.restoreFocus && menuBtn) {
+        requestAnimationFrame(() => {
+          menuBtn.focus();
+        });
       }
     }
 
-    menuBtn?.addEventListener('click', () => {
-      setMenuOpen(!header.classList.contains('menu-open'));
+    menuBtn?.addEventListener('click', (event) => {
+      const isOpening = !header.classList.contains('menu-open');
+      setMenuOpen(isOpening, { focusFirstItem: isOpening && event.detail === 0 });
     });
 
     nav?.querySelectorAll('a').forEach((link) => {
@@ -156,16 +228,27 @@
     });
 
     window.addEventListener('resize', () => {
-      if (window.innerWidth > MOBILE_BREAKPOINT) {
+      if (!isMobileNavMode()) {
         setMenuOpen(false);
+      } else {
+        syncMobileNavState();
       }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!isMobileNavMode() || !header.classList.contains('menu-open')) return;
+      if (header.contains(event.target)) return;
+      setMenuOpen(false);
     });
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && header.classList.contains('menu-open')) {
-        setMenuOpen(false);
+        event.preventDefault();
+        setMenuOpen(false, { restoreFocus: true });
       }
     });
+
+    syncMobileNavState();
   }
 
   function setFooterYears() {

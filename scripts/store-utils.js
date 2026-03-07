@@ -1,11 +1,36 @@
 (function (global) {
   const STORE_CURRENCY = 'EUR';
   const PRODUCT_SKUS = ['paper-print'];
-  const SOURCE_VALUES = ['landing', 'dashboard', 'tree', 'demo-tree'];
+  const SOURCE_VALUES = ['landing', 'contact', 'auth', 'dashboard', 'editor', 'privacy', 'terms', 'cookies', 'store', 'tree', 'demo-tree'];
   const VIEW_VALUES = ['tree', 'calendar', 'globe'];
   const PRINT_STYLES = ['Classic', 'Ornate', 'Minimal'];
   const PAPER_FINISHES = ['Matte', 'Satin', 'Gloss'];
   const PRINT_SIZES = ['A3', 'A2', 'Custom'];
+  const SOURCE_ALIASES = Object.freeze({
+    'site-header': 'landing',
+    'landing-paths': 'landing',
+    'landing-cta': 'landing',
+    'contact-footer': 'contact',
+    'auth-footer': 'auth',
+    'dashboard-footer': 'dashboard',
+    'privacy-footer': 'privacy',
+    'terms-footer': 'terms',
+    'cookies-footer': 'cookies',
+    'store-footer': 'store'
+  });
+  const SOURCE_META = Object.freeze({
+    landing: Object.freeze({ label: 'Landing', backHref: '../index.html' }),
+    contact: Object.freeze({ label: 'About & Contact', backHref: 'contact.html' }),
+    auth: Object.freeze({ label: 'Sign In', backHref: 'auth.html' }),
+    dashboard: Object.freeze({ label: 'Dashboard', backHref: 'dashboard.html' }),
+    editor: Object.freeze({ label: 'Editor', backHref: 'editor.html' }),
+    privacy: Object.freeze({ label: 'Privacy', backHref: 'privacy.html' }),
+    terms: Object.freeze({ label: 'Terms', backHref: 'terms.html' }),
+    cookies: Object.freeze({ label: 'Cookies', backHref: 'cookies.html' }),
+    store: Object.freeze({ label: 'Store', backHref: 'store.html' }),
+    tree: Object.freeze({ label: 'Tree Viewer', backHref: 'tree.html' }),
+    'demo-tree': Object.freeze({ label: 'Demo Tree', backHref: 'demo-tree.html' })
+  });
 
   const STORE_PRODUCTS = {
     'paper-print': {
@@ -20,17 +45,6 @@
     const numeric = Number(value);
     if (!Number.isFinite(numeric)) return 0;
     return Math.round(numeric * 100) / 100;
-  }
-
-  function parseBooleanFlag(value, fallback = true) {
-    if (typeof value === 'boolean') return value;
-    if (typeof value === 'number') return value !== 0;
-    if (typeof value === 'string') {
-      const normalized = value.trim().toLowerCase();
-      if (['1', 'true', 'yes', 'on', 'enabled'].includes(normalized)) return true;
-      if (['0', 'false', 'no', 'off', 'disabled'].includes(normalized)) return false;
-    }
-    return fallback;
   }
 
   function sanitizeText(value, maxLength = 140) {
@@ -59,7 +73,9 @@
   }
 
   function sanitizeSource(value, fallback = 'dashboard') {
-    return sanitizeEnum(value, SOURCE_VALUES, fallback);
+    const cleaned = sanitizeText(value, 48).toLowerCase();
+    const canonical = SOURCE_ALIASES[cleaned] || cleaned;
+    return SOURCE_VALUES.includes(canonical) ? canonical : fallback;
   }
 
   function sanitizeView(value, fallback = 'tree') {
@@ -137,6 +153,16 @@
     return `${path}?${query.toString()}`;
   }
 
+  function getSourceMeta(value, fallback = 'dashboard') {
+    const source = sanitizeSource(value, fallback);
+    const meta = SOURCE_META[source] || SOURCE_META[fallback] || SOURCE_META.dashboard;
+    return {
+      source,
+      label: meta.label,
+      backHref: meta.backHref
+    };
+  }
+
   function deriveRecommendedProduct() {
     return 'paper-print';
   }
@@ -165,7 +191,6 @@
     SOURCE_VALUES: SOURCE_VALUES.slice(),
     VIEW_VALUES: VIEW_VALUES.slice(),
     STORE_PRODUCTS,
-    parseBooleanFlag,
     parseStoreQuery,
     getProductBySku,
     getProductPricing,
@@ -175,6 +200,7 @@
     sanitizeProduct,
     sanitizeSource,
     sanitizeView,
+    getSourceMeta,
     buildStoreUrl,
     deriveRecommendedProduct,
     isAllowedPrintStyle,

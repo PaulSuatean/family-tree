@@ -15,20 +15,13 @@
     ]
   };
 
-  function initClouds(target) {
-    if (target.querySelector('.day-clouds')) return;
+  function initClouds() {
+    if (document.body.querySelector('.day-clouds')) return;
+    const random = Math.random;
 
     const cloudsEl = document.createElement('div');
     cloudsEl.className = 'day-clouds';
     cloudsEl.setAttribute('aria-hidden', 'true');
-
-    if (target !== document.body) {
-      cloudsEl.classList.add('day-clouds--scoped');
-      const targetStyle = window.getComputedStyle(target);
-      if (targetStyle.position === 'static') {
-        target.style.position = 'relative';
-      }
-    }
 
     // Create cloud elements
     for (let i = 0; i < cloudConfig.count; i++) {
@@ -40,20 +33,20 @@
       cloudDiv.innerHTML = cloudSVG;
       
       // Set random size within range
-      const size = layer.sizeRange[0] + Math.random() * (layer.sizeRange[1] - layer.sizeRange[0]);
+      const size = layer.sizeRange[0] + random() * (layer.sizeRange[1] - layer.sizeRange[0]);
       cloudDiv.style.width = `${size}px`;
       
       // Set random opacity within range (stored for animation)
-      const opacity = layer.opacityRange[0] + Math.random() * (layer.opacityRange[1] - layer.opacityRange[0]);
+      const opacity = layer.opacityRange[0] + random() * (layer.opacityRange[1] - layer.opacityRange[0]);
       cloudDiv.style.setProperty('--cloud-base-opacity', opacity);
       
       // Set random vertical position
       const [minTop, maxTop] = cloudConfig.verticalRange;
-      const topPosition = minTop + Math.random() * (maxTop - minTop);
+      const topPosition = minTop + random() * (maxTop - minTop);
       cloudDiv.style.top = `${topPosition}%`;
       
       // Set animation delay and duration
-      const delay = -(Math.random() * cloudConfig.duration * layer.multiplier);
+      const delay = -(random() * cloudConfig.duration * layer.multiplier);
       const duration = cloudConfig.duration * layer.multiplier - (i * 4);
       cloudDiv.style.animationDelay = `${delay}s`;
       cloudDiv.style.animationDuration = `${duration}s`;
@@ -61,11 +54,7 @@
       cloudsEl.appendChild(cloudDiv);
     }
 
-    if (target === document.body) {
-      document.body.prepend(cloudsEl);
-    } else {
-      target.prepend(cloudsEl);
-    }
+    document.body.prepend(cloudsEl);
 
     function applyCloudsVisibility() {
       const isDark = document.body.classList.contains('theme-dark');
@@ -74,7 +63,7 @@
 
     applyCloudsVisibility();
 
-    if (target === document.body && window.MutationObserver) {
+    if (window.MutationObserver) {
       const observer = new MutationObserver((entries) => {
         for (const entry of entries) {
           if (entry.attributeName === 'class') {
@@ -87,8 +76,5 @@
     }
   }
 
-  const rawTargets = Array.from(document.querySelectorAll('[data-day-clouds]'));
-  const targets = rawTargets.length > 0 ? rawTargets : [document.body];
-
-  targets.forEach(initClouds);
+  initClouds();
 })();
