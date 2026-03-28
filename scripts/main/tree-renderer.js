@@ -64,7 +64,6 @@
       typeof opts.getTreeDefaultPadding === 'function'
         ? opts.getTreeDefaultPadding
         : function getTreeDefaultPaddingFallback() { return 36; };
-    let personCardClipPath = '';
     if (defs && typeof defs.select === 'function') {
       let cardClip = defs.select('#viewerPersonCardClip');
       if (cardClip.empty()) {
@@ -78,7 +77,6 @@
         .attr('height', person.height)
         .attr('rx', 12)
         .attr('ry', 12);
-      personCardClipPath = 'url(#viewerPersonCardClip)';
     }
 
     function asHierarchy(data) {
@@ -305,11 +303,6 @@
       function topOfPrimary(node) {
         const L = layoutFor(node.data);
         return { x: node.x + L.xPrimary + person.width / 2, y: node.y - person.height / 2 };
-      }
-      function bottomOfRightSpouse(node) {
-        const L = layoutFor(node.data);
-        if (!L.hasRight) return null;
-        return { x: node.x + L.xRightSpouse + person.width / 2, y: node.y + person.height / 2 };
       }
       function topOfRightSpouse(node) {
         const L = layoutFor(node.data);

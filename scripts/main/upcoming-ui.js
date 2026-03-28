@@ -96,10 +96,12 @@
       upcomingCurrentIndex = 0;
 
       if (!upcomingBirthdaysList.length) {
-        upcomingContainer.style.display = 'none';
+        upcomingContainer.hidden = true;
+        upcomingContainer.style.display = '';
         return;
       }
 
+      upcomingContainer.hidden = false;
       upcomingContainer.style.display = 'flex';
       renderUpcomingBirthdayButton();
     }

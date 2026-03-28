@@ -4,13 +4,19 @@
   const AUTH_PAGE_PATTERN = /(?:^|\/)auth\.html(?:[?#]|$)/i;
   const DASHBOARD_PAGE_PATTERN = /(?:^|\/)dashboard\.html(?:[?#]|$)/i;
 
-  function debounce(fn, ms) {
+  function fallbackDebounce(fn, ms) {
     let id;
     return function (...args) {
       clearTimeout(id);
       id = setTimeout(() => fn.apply(this, args), ms);
     };
   }
+
+  const debounce = (
+    typeof window !== 'undefined' &&
+    window.AncUtils &&
+    typeof window.AncUtils.debounce === 'function'
+  ) ? window.AncUtils.debounce : fallbackDebounce;
 
   function readCachedAuthState() {
     try {
@@ -262,31 +268,18 @@
 
     // Move theme button out of the header on mobile so it escapes the
     // backdrop-filter containing block and can be fixed to the viewport.
-    // Move the dashboard link next to the burger for reachability.
     const themeBtn = header.querySelector('#themeBtn');
     const themeBtnParent = themeBtn?.parentElement;
     const themeBtnNextSibling = themeBtn?.nextSibling;
 
-    const { dashboardLink } = resolveHeaderLinks(header);
-    const dashLinkParent = dashboardLink?.parentElement;
-    const dashLinkNextSibling = dashboardLink?.nextSibling;
-    const headerInner = header.querySelector('.site-header__inner');
-
     function syncMobileLayout() {
-      if (!headerInner) return;
       if (isMobileNavMode()) {
         if (themeBtn && themeBtn.parentElement !== document.body) {
           document.body.appendChild(themeBtn);
         }
-        if (dashboardLink && menuBtn && dashboardLink.parentElement !== headerInner) {
-          headerInner.insertBefore(dashboardLink, menuBtn);
-        }
       } else {
         if (themeBtn && themeBtn.parentElement === document.body && themeBtnParent) {
           themeBtnParent.insertBefore(themeBtn, themeBtnNextSibling);
-        }
-        if (dashboardLink && dashboardLink.parentElement === headerInner && dashLinkParent) {
-          dashLinkParent.insertBefore(dashboardLink, dashLinkNextSibling);
         }
       }
     }

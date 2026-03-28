@@ -1,10 +1,7 @@
 // Authentication Logic
 
 const authFirebaseReadyPromise = (
-  window.AncestrioDeps &&
-  typeof window.AncestrioDeps.ensureFirebaseApp === 'function'
-    ? window.AncestrioDeps.ensureFirebaseApp()
-    : Promise.resolve(typeof initializeFirebase === 'function' ? initializeFirebase() : false)
+  Promise.resolve(typeof initializeFirebase === 'function' ? initializeFirebase() : false)
 ).catch((error) => {
   console.error('Failed to load Firebase for auth page:', error);
   return false;
@@ -12,6 +9,15 @@ const authFirebaseReadyPromise = (
 
 document.addEventListener('DOMContentLoaded', async () => {
   const USERNAME_EMAIL_DOMAIN = 'users.ancestrio.local';
+  const debounce = (window.AncUtils && typeof window.AncUtils.debounce === 'function')
+    ? window.AncUtils.debounce
+    : (fn, wait = 120) => {
+      let timeoutId;
+      return (...args) => {
+        window.clearTimeout(timeoutId);
+        timeoutId = window.setTimeout(() => fn.apply(null, args), wait);
+      };
+    };
   
   // Theme toggle
   window.AncestrioTheme?.initThemeToggle();
@@ -101,10 +107,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Sign up with email/password
   signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const usernameRaw = document.getElementById('signupUsername').value;
-    const emailRaw = document.getElementById('signupEmail').value;
+    const identifierRaw = document.getElementById('signupIdentifier').value;
     const password = document.getElementById('signupPassword').value;
-    const resolvedSignup = resolveSignupIdentity(emailRaw, usernameRaw);
+    const resolvedSignup = resolveSignupIdentity(identifierRaw);
     if (resolvedSignup.error) {
       showError(resolvedSignup.error);
       return;
@@ -368,16 +373,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  function debounce(fn, waitMs) {
-    let timeoutId = null;
-    return (...args) => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      timeoutId = setTimeout(() => fn(...args), waitMs);
-    };
-  }
-
   function getNetworkRequestErrorMessage() {
     const firebaseState = window.AncestrioFirebase || {};
     if (firebaseState.isDevelopment) {
@@ -476,35 +471,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     return getErrorMessage(code);
   }
 
-  function resolveSignupIdentity(emailRaw, usernameRaw) {
-    const email = String(emailRaw || '').trim();
-    const usernameInput = normalizeUsername(usernameRaw);
+  function resolveSignupIdentity(identifierRaw) {
+    const input = String(identifierRaw || '').trim();
 
-    if (!email && !usernameInput) {
-      return { error: 'Provide either an email or a username.' };
+    if (!input) {
+      return { error: 'Enter an email or username.' };
     }
 
-    let username = usernameInput || '';
-    if (!username && email) {
-      username = deriveUsernameFromEmail(email);
-    }
+    if (input.includes('@')) {
+      const usernameFromEmail = deriveUsernameFromEmail(input);
+      if (!usernameFromEmail) {
+        return { error: 'Could not create a username from this email. Please enter a username.' };
+      }
 
-    if (!username) {
-      return { error: 'Could not create a username from this email. Please enter a username.' };
-    }
-
-    if (!isValidUsername(username)) {
       return {
-        error: 'Please enter a valid username.'
+        authEmail: input,
+        publicEmail: input,
+        username: usernameFromEmail,
+        usesSyntheticEmail: false
       };
     }
 
-    if (email) {
+    const username = normalizeUsername(input);
+    if (!isValidUsername(username)) {
       return {
-        authEmail: email,
-        publicEmail: email,
-        username,
-        usesSyntheticEmail: false
+        error: 'Please enter a valid username.'
       };
     }
 

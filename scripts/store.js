@@ -1,39 +1,12 @@
 (function () {
-  const storeUtils = window.AncestrioStoreUtils || {};
-  const PRODUCT_SKUS = Array.isArray(storeUtils.PRODUCT_SKUS)
-    ? storeUtils.PRODUCT_SKUS
-    : ['paper-print'];
+  const storeUtils = window.AncestrioStoreUtils;
+  if (!storeUtils || typeof storeUtils !== 'object') {
+    throw new Error('AncestrioStoreUtils is required on store pages.');
+  }
   const SELECTABLE_PRODUCTS = ['paper-print'];
   const CURRENCY = storeUtils.STORE_CURRENCY || 'EUR';
-  const EMAIL_PROVIDER_PLACEHOLDER = 'REPLACE_WITH_YOUR_FORM_ID';
   const FORMSPREE_HOST = 'formspree.io';
   const FORMSUBMIT_HOST = 'formsubmit.co';
-  const LOCAL_SOURCE_VALUES = ['landing', 'contact', 'auth', 'dashboard', 'editor', 'privacy', 'terms', 'cookies', 'store', 'tree', 'demo-tree'];
-  const LOCAL_SOURCE_ALIASES = Object.freeze({
-    'site-header': 'landing',
-    'landing-paths': 'landing',
-    'landing-cta': 'landing',
-    'contact-footer': 'contact',
-    'auth-footer': 'auth',
-    'dashboard-footer': 'dashboard',
-    'privacy-footer': 'privacy',
-    'terms-footer': 'terms',
-    'cookies-footer': 'cookies',
-    'store-footer': 'store'
-  });
-  const LOCAL_SOURCE_META = Object.freeze({
-    landing: Object.freeze({ label: 'Landing', backHref: '../index.html' }),
-    contact: Object.freeze({ label: 'About & Contact', backHref: 'contact.html' }),
-    auth: Object.freeze({ label: 'Sign In', backHref: 'auth.html' }),
-    dashboard: Object.freeze({ label: 'Dashboard', backHref: 'dashboard.html' }),
-    editor: Object.freeze({ label: 'Editor', backHref: 'editor.html' }),
-    privacy: Object.freeze({ label: 'Privacy', backHref: 'privacy.html' }),
-    terms: Object.freeze({ label: 'Terms', backHref: 'terms.html' }),
-    cookies: Object.freeze({ label: 'Cookies', backHref: 'cookies.html' }),
-    store: Object.freeze({ label: 'Store', backHref: 'store.html' }),
-    tree: Object.freeze({ label: 'Tree Viewer', backHref: 'tree.html' }),
-    'demo-tree': Object.freeze({ label: 'Demo Tree', backHref: 'demo-tree.html' })
-  });
 
   const PRODUCT_PRESENTATION = {
     'paper-print': {
@@ -89,24 +62,10 @@
 
   const refs = {};
 
-  function notifyUser(message, type = 'error', options = {}) {
-    if (window.AncestrioRuntime && typeof window.AncestrioRuntime.notify === 'function') {
-      window.AncestrioRuntime.notify(message, type, options);
-      return;
-    }
-    if (type === 'error') {
-      console.error(message);
-    } else {
-      console.warn(message);
-    }
-  }
+  const notifyUser = AncUtils.notifyUser;
 
   function sanitizeProduct(value, fallback = 'paper-print') {
-    if (typeof storeUtils.sanitizeProduct === 'function') {
-      return storeUtils.sanitizeProduct(value, fallback);
-    }
-    const normalized = String(value || '').trim().toLowerCase();
-    return PRODUCT_SKUS.includes(normalized) ? normalized : fallback;
+    return storeUtils.sanitizeProduct(value, fallback);
   }
 
   function normalizeSelectableProduct(value, fallback = 'paper-print') {
@@ -115,52 +74,23 @@
   }
 
   function sanitizeSource(value, fallback = 'dashboard') {
-    if (typeof storeUtils.sanitizeSource === 'function') {
-      return storeUtils.sanitizeSource(value, fallback);
-    }
-    const normalized = String(value || '').trim().toLowerCase();
-    const canonical = LOCAL_SOURCE_ALIASES[normalized] || normalized;
-    return LOCAL_SOURCE_VALUES.includes(canonical) ? canonical : fallback;
+    return storeUtils.sanitizeSource(value, fallback);
   }
 
   function getSourceMeta(value, fallback = 'dashboard') {
-    if (typeof storeUtils.getSourceMeta === 'function') {
-      return storeUtils.getSourceMeta(value, fallback);
-    }
-    const source = sanitizeSource(value, fallback);
-    const meta = LOCAL_SOURCE_META[source] || LOCAL_SOURCE_META[fallback] || LOCAL_SOURCE_META.dashboard;
-    return {
-      source,
-      label: meta.label,
-      backHref: meta.backHref
-    };
+    return storeUtils.getSourceMeta(value, fallback);
   }
 
   function sanitizeView(value, fallback = 'tree') {
-    if (typeof storeUtils.sanitizeView === 'function') {
-      return storeUtils.sanitizeView(value, fallback);
-    }
-    const allowed = ['tree', 'calendar', 'globe'];
-    const normalized = String(value || '').trim().toLowerCase();
-    return allowed.includes(normalized) ? normalized : fallback;
+    return storeUtils.sanitizeView(value, fallback);
   }
 
   function sanitizeText(value, maxLength = 140) {
-    if (typeof storeUtils.sanitizeText === 'function') {
-      return storeUtils.sanitizeText(value, maxLength);
-    }
-    const cleaned = String(value == null ? '' : value)
-      .replace(/[\u0000-\u001f\u007f]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-    return cleaned.slice(0, Math.max(0, maxLength));
+    return storeUtils.sanitizeText(value, maxLength);
   }
 
   function sanitizeTreeId(value) {
-    if (typeof storeUtils.sanitizeTreeId === 'function') {
-      return storeUtils.sanitizeTreeId(value);
-    }
-    return sanitizeText(value, 120).replace(/[^a-zA-Z0-9_-]/g, '');
+    return storeUtils.sanitizeTreeId(value);
   }
 
   function sanitizePhoneNumber(value) {
@@ -255,39 +185,18 @@
   }
 
   function parseContextFromQuery() {
-    if (typeof storeUtils.parseStoreQuery === 'function') {
-      const parsed = storeUtils.parseStoreQuery(window.location.search) || {};
-      return {
-        product: normalizeSelectableProduct(parsed.product, 'paper-print'),
-        source: sanitizeSource(parsed.source, 'dashboard'),
-        view: sanitizeView(parsed.view, 'tree'),
-        treeId: sanitizeTreeId(parsed.treeId),
-        treeName: sanitizeText(parsed.treeName, 160)
-      };
-    }
-
-    const params = new URLSearchParams(window.location.search);
+    const parsed = storeUtils.parseStoreQuery(window.location.search);
     return {
-      product: normalizeSelectableProduct(params.get('product'), 'paper-print'),
-      source: sanitizeSource(params.get('source')),
-      view: sanitizeView(params.get('view')),
-      treeId: sanitizeTreeId(params.get('treeId')),
-      treeName: sanitizeText(params.get('treeName'), 160)
+      product: normalizeSelectableProduct(parsed.product, 'paper-print'),
+      source: sanitizeSource(parsed.source, 'dashboard'),
+      view: sanitizeView(parsed.view, 'tree'),
+      treeId: sanitizeTreeId(parsed.treeId),
+      treeName: sanitizeText(parsed.treeName, 160)
     };
   }
 
   function getProductBySku(sku) {
-    if (typeof storeUtils.getProductBySku === 'function') {
-      const product = storeUtils.getProductBySku(normalizeSelectableProduct(sku, 'paper-print'));
-      if (product && SELECTABLE_PRODUCTS.includes(sanitizeProduct(product.sku, ''))) {
-        return product;
-      }
-    }
-
-    const fallbackProducts = {
-      'paper-print': { sku: 'paper-print', label: 'Printed Paper Family Tree', shortLabel: 'Paper Print', price: 69 }
-    };
-    return fallbackProducts[normalizeSelectableProduct(sku, 'paper-print')];
+    return storeUtils.getProductBySku(normalizeSelectableProduct(sku, 'paper-print'));
   }
 
   function getProductPresentation(sku) {
@@ -297,51 +206,23 @@
 
   function getProductPricing(sku, quantity) {
     const safeSku = normalizeSelectableProduct(sku, 'paper-print');
-    if (typeof storeUtils.getProductPricing === 'function') {
-      return storeUtils.getProductPricing(safeSku, quantity);
-    }
-
-    const safeQuantity = Math.max(1, Math.min(999, Math.floor(Number(quantity) || 1)));
-    const product = getProductBySku(safeSku);
-    const subtotal = product.price * safeQuantity;
-    return {
-      sku: product.sku,
-      quantity: safeQuantity,
-      unitPrice: product.price,
-      subtotal,
-      discountPercent: 0,
-      discountAmount: 0,
-      total: subtotal
-    };
+    return storeUtils.getProductPricing(safeSku, quantity);
   }
 
   function formatCurrency(value) {
-    if (typeof storeUtils.formatCurrency === 'function') {
-      return storeUtils.formatCurrency(value, CURRENCY);
-    }
-    const amount = Number(value) || 0;
-    return `${amount.toFixed(2)} ${CURRENCY}`;
+    return storeUtils.formatCurrency(value, CURRENCY);
   }
 
   function isAllowedPrintStyle(style) {
-    if (typeof storeUtils.isAllowedPrintStyle === 'function') {
-      return storeUtils.isAllowedPrintStyle(style);
-    }
-    return ['Classic', 'Ornate', 'Minimal'].includes(sanitizeText(style, 32));
+    return storeUtils.isAllowedPrintStyle(style);
   }
 
   function isAllowedPaperFinish(finish) {
-    if (typeof storeUtils.isAllowedPaperFinish === 'function') {
-      return storeUtils.isAllowedPaperFinish(finish);
-    }
-    return ['Matte', 'Satin', 'Gloss'].includes(sanitizeText(finish, 32));
+    return storeUtils.isAllowedPaperFinish(finish);
   }
 
   function isAllowedPrintSize(size) {
-    if (typeof storeUtils.isAllowedPrintSize === 'function') {
-      return storeUtils.isAllowedPrintSize(size);
-    }
-    return ['A3', 'A2', 'Custom'].includes(sanitizeText(size, 32));
+    return storeUtils.isAllowedPrintSize(size);
   }
 
   function buildStoreUrl(overrides = {}) {
@@ -351,17 +232,7 @@
       product: normalizeSelectableProduct(overrides.product || selectedProduct, 'paper-print')
     };
 
-    if (typeof storeUtils.buildStoreUrl === 'function') {
-      return storeUtils.buildStoreUrl(payload, { path: 'store.html' });
-    }
-
-    const params = new URLSearchParams();
-    params.set('product', normalizeSelectableProduct(payload.product, 'paper-print'));
-    params.set('source', sanitizeSource(payload.source));
-    params.set('view', sanitizeView(payload.view));
-    if (payload.treeId) params.set('treeId', sanitizeTreeId(payload.treeId));
-    if (payload.treeName) params.set('treeName', sanitizeText(payload.treeName, 160));
-    return `store.html?${params.toString()}`;
+    return storeUtils.buildStoreUrl(payload, { path: 'store.html' });
   }
 
   function buildAuthNextTarget() {
@@ -702,7 +573,8 @@
 
   function updateAuthUI() {
     if (refs.orderLoginRequired) {
-      refs.orderLoginRequired.style.display = currentUser ? 'none' : 'block';
+      refs.orderLoginRequired.hidden = !!currentUser;
+      refs.orderLoginRequired.style.display = currentUser ? '' : 'block';
     }
     if (refs.orderAuthState) {
       refs.orderAuthState.textContent = currentUser

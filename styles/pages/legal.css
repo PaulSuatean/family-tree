@@ -74,7 +74,6 @@
 .legal-callout {
   padding: 16px;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--shell-panel-border-soft);
   background: var(--shell-row-bg-accented);
   color: var(--text);
   line-height: 1.6;
@@ -108,3 +107,4 @@
     grid-template-columns: 1fr;
   }
 }
+

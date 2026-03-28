@@ -1,4 +1,4 @@
-body.store-page {
+﻿body.store-page {
   min-height: 100vh;
   min-height: 100dvh;
 }
@@ -11,9 +11,8 @@ body.store-page {
   margin-bottom: 18px;
   padding: clamp(22px, 4vw, 36px);
   border-radius: calc(var(--radius-xl) + 8px);
-  border: 1px solid var(--shell-panel-border-strong);
   background: var(--shell-surface-accented-strong);
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
 }
 
 .store-hero-copy {
@@ -62,7 +61,6 @@ body.store-page {
   gap: 12px;
   padding: 18px;
   border-radius: var(--radius-xl);
-  border: 1px solid var(--shell-panel-border);
   background: var(--shell-surface-base);
 }
 
@@ -98,9 +96,8 @@ body.store-page {
   align-items: start;
   padding: 18px;
   border-radius: var(--radius-xl);
-  border: 1px solid var(--shell-panel-border);
   background: var(--shell-surface-base);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .store-confidence .material-symbols-outlined {
@@ -109,7 +106,7 @@ body.store-page {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
+  border-radius: var(--radius-control-sm);
   background: var(--shell-chip-bg);
   color: var(--accent);
 }
@@ -134,9 +131,8 @@ body.store-page {
   padding: 18px;
   margin-bottom: 18px;
   border-radius: var(--radius-xl);
-  border: 1px solid var(--shell-panel-border-strong);
   background: var(--shell-surface-accented);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .store-ordering-details h2 {
@@ -171,9 +167,8 @@ body.store-page {
   padding: 18px;
   margin-bottom: 18px;
   border-radius: var(--radius-xl);
-  border: 1px solid var(--shell-panel-border-strong);
   background: var(--shell-surface-base);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .store-expectations-copy {
@@ -206,9 +201,8 @@ body.store-page {
   gap: 8px;
   padding: 18px;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--shell-panel-border);
   background: var(--shell-row-bg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .store-expectation-card h3 {
@@ -233,7 +227,6 @@ body.store-page {
   gap: 20px;
   padding: clamp(22px, 4vw, 32px);
   border-radius: calc(var(--radius-xl) + 8px);
-  border: 1px solid var(--shell-panel-border-strong);
   background: var(--shell-surface-accented);
   --store-products-closed-height: auto;
 }
@@ -253,13 +246,12 @@ body.store-page .store-products.store-products-modal-open .store-product-modal {
   margin-top: 0;
   padding: 0;
   background: transparent;
-  backdrop-filter: none;
   z-index: 1;
 }
 
 body.store-page .store-products.store-products-modal-open .modal-dialog.store-modal-dialog.store-product-dialog {
-  border: 0;
-  border-radius: 0;
+  border: none;
+  border-radius: var(--radius-modal);
   background: transparent;
   box-shadow: none;
 }
@@ -306,22 +298,18 @@ body.store-page .store-products.store-products-modal-open .store-modal-body {
   min-height: 100%;
   overflow: hidden;
   border-radius: calc(var(--radius-lg) + 2px);
-  border: 1px solid var(--shell-panel-border);
   background: var(--shell-surface-base);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
   cursor: pointer;
   transition:
-    transform var(--transition-base) ease,
-    box-shadow var(--transition-base) ease,
-    border-color var(--transition-base) ease;
+    transform var(--transition-base) ease;
 }
 
 .store-product-card:hover,
 .store-product-card:focus-visible,
 .store-product-card.is-selected {
   transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-  border-color: color-mix(in srgb, var(--accent) 38%, var(--line) 62%);
+  box-shadow: none;
   outline: none;
 }
 
@@ -335,7 +323,7 @@ body.store-page .store-products.store-products-modal-open .store-modal-body {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(31, 36, 48, 0) 45%, rgba(31, 36, 48, 0.18) 100%);
+  background: color-mix(in srgb, var(--overlay-scrim) 22%, transparent);
   pointer-events: none;
 }
 
@@ -394,7 +382,7 @@ body.store-page .store-products.store-products-modal-open .store-modal-body {
 .store-orders-login-link,
 .store-continue-btn,
 .store-order-back-btn {
-  border-color: var(--shell-panel-border);
+  border-color: transparent;
   background: var(--shell-field-bg-soft);
   color: var(--text);
 }
@@ -408,7 +396,7 @@ body.store-page .store-products.store-products-modal-open .store-modal-body {
 .store-continue-btn:focus-visible,
 .store-order-back-btn:focus-visible {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
   outline: none;
 }
 
@@ -416,8 +404,8 @@ body.store-page .store-products.store-products-modal-open .store-modal-body {
 .order-submit-btn,
 .login-order-btn {
   background: var(--gradient-primary);
-  color: #ffffff;
-  box-shadow: var(--shadow-sm);
+  color: var(--on-primary);
+  box-shadow: none;
 }
 
 .store-order-open-btn:hover,
@@ -427,7 +415,7 @@ body.store-page .store-products.store-products-modal-open .store-modal-body {
 .order-submit-btn:focus-visible,
 .login-order-btn:focus-visible {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
   outline: none;
 }
 
@@ -435,7 +423,6 @@ body.store-page .store-products.store-products-modal-open .store-modal-body {
   display: grid;
   gap: 12px;
   padding-top: 18px;
-  border-top: 1px solid var(--shell-panel-border-soft);
 }
 
 .store-orders-login-link {
@@ -457,7 +444,6 @@ body.store-page .store-products.store-products-modal-open .store-modal-body {
 .store-orders-item {
   padding: 14px;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--shell-panel-border);
   background: var(--shell-surface-base);
 }
 
@@ -487,7 +473,7 @@ body.store-page .store-products.store-products-modal-open .store-modal-body {
   align-items: center;
   min-height: 30px;
   padding: 0 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-size: 0.74rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -495,28 +481,28 @@ body.store-page .store-products.store-products-modal-open .store-modal-body {
 }
 
 .store-order-status-pill.is-new {
-  background: rgba(160, 97, 58, 0.12);
-  color: #8a4f2d;
+  background: var(--status-new-bg);
+  color: var(--status-new-text);
 }
 
 .store-order-status-pill.is-processing {
-  background: rgba(36, 92, 90, 0.12);
-  color: #245c5a;
+  background: var(--status-processing-bg);
+  color: var(--status-processing-text);
 }
 
 .store-order-status-pill.is-shipped {
-  background: rgba(48, 92, 156, 0.14);
-  color: #2f5f97;
+  background: var(--status-shipped-bg);
+  color: var(--status-shipped-text);
 }
 
 .store-order-status-pill.is-delivered {
-  background: rgba(86, 132, 74, 0.14);
-  color: #4f7d46;
+  background: var(--status-delivered-bg);
+  color: var(--status-delivered-text);
 }
 
 .store-order-status-pill.is-cancelled {
-  background: rgba(184, 79, 68, 0.14);
-  color: #9b4338;
+  background: var(--status-cancelled-bg);
+  color: var(--status-cancelled-text);
 }
 
 .store-product-modal {
@@ -538,10 +524,9 @@ body.store-page .modal-dialog.store-modal-dialog.store-product-dialog {
   max-width: 100%;
   max-height: none;
   margin: 0;
-  border-radius: calc(var(--radius-xl) + 8px);
-  border: 1px solid var(--shell-panel-border-strong);
+  border-radius: var(--radius-modal);
   background: var(--shell-surface-accented-strong);
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
   overflow: hidden;
 }
 
@@ -602,7 +587,6 @@ body.store-page .modal-dialog.store-modal-dialog.store-product-dialog {
   aspect-ratio: 1.12 / 1;
   object-fit: cover;
   border-radius: calc(var(--radius-xl) + 2px);
-  border: 1px solid var(--shell-panel-border);
   background: var(--shell-surface-soft);
 }
 
@@ -622,7 +606,6 @@ body.store-page .modal-dialog.store-modal-dialog.store-product-dialog {
   gap: 8px;
   padding: 8px;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--shell-panel-border);
   background: var(--shell-field-bg-soft);
   font: inherit;
   color: var(--text);
@@ -634,7 +617,7 @@ body.store-page .modal-dialog.store-modal-dialog.store-product-dialog {
   width: 100%;
   aspect-ratio: 1.1 / 1;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
 }
 
 .store-preview-thumb span {
@@ -644,8 +627,7 @@ body.store-page .modal-dialog.store-modal-dialog.store-product-dialog {
 }
 
 .store-preview-thumb.is-active {
-  border-color: color-mix(in srgb, var(--accent) 44%, var(--line) 56%);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .store-product-info {
@@ -711,7 +693,7 @@ body.store-page .modal-dialog.store-modal-dialog.store-product-dialog {
   top: 0.58em;
   width: 8px;
   height: 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--accent-soft);
 }
 
@@ -727,7 +709,7 @@ body.store-page .modal-dialog.store-modal-dialog.store-product-dialog {
   display: grid;
   gap: 18px;
   padding: clamp(22px, 4vw, 34px);
-  border-radius: calc(var(--radius-xl) + 8px);
+  border-radius: var(--radius-modal);
   background: var(--shell-panel-bg);
 }
 
@@ -738,8 +720,8 @@ body.store-page .modal-dialog.store-modal-dialog.store-product-dialog {
   align-items: center;
   flex-wrap: wrap;
   padding: 0;
-  border-radius: 0;
-  border: 0;
+  border-radius: var(--radius-control);
+  border: none;
   background: transparent;
   box-shadow: none;
 }
@@ -770,8 +752,7 @@ body.store-page .modal-dialog.store-modal-dialog.store-product-dialog {
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--shell-panel-border);
+  border-radius: var(--radius-pill);
   background: var(--shell-field-bg-soft);
   color: var(--text);
   font-size: 0.72rem;
@@ -793,9 +774,8 @@ body.store-page .modal-dialog.store-modal-dialog.store-product-dialog {
   margin-top: 4px;
   padding: 14px 16px;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--shell-panel-border);
   background: var(--shell-row-bg-accented);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .order-login-required p {
@@ -828,9 +808,8 @@ body.store-page .modal-dialog.store-modal-dialog.store-product-dialog {
   gap: 12px;
   padding: 22px 20px 20px 28px;
   border-radius: calc(var(--radius-lg) + 4px);
-  border: 1px solid var(--shell-panel-border);
   background: var(--shell-row-bg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
   overflow: hidden;
   counter-increment: order-section;
   animation: store-rise 0.45s ease both;
@@ -860,7 +839,6 @@ body.store-page .modal-dialog.store-modal-dialog.store-product-dialog {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  border: 1px solid var(--shell-panel-border);
   background: var(--shell-field-bg);
   color: var(--accent);
   font-size: 0.7rem;
@@ -936,15 +914,14 @@ body.store-page .modal-dialog.store-modal-dialog.store-product-dialog {
   width: 100%;
   min-height: 48px;
   padding: 0 14px;
-  border-radius: 14px;
-  border: 1px solid color-mix(in srgb, var(--shell-panel-border) 75%, transparent);
+  border-radius: var(--radius-control);
+  border: none;
   background: var(--shell-field-bg);
   color: var(--text);
   font: inherit;
   box-sizing: border-box;
   transition:
     border-color var(--transition-base) ease,
-    box-shadow var(--transition-base) ease,
     background var(--transition-base) ease;
 }
 
@@ -956,8 +933,8 @@ textarea.form-input {
 
 .form-input:focus {
   outline: none;
-  border-color: color-mix(in srgb, var(--accent) 60%, var(--line) 40%);
-  box-shadow: 0 0 0 4px var(--ring);
+  border-color: transparent;
+  box-shadow: none;
   background: var(--shell-field-bg-soft);
 }
 
@@ -969,9 +946,8 @@ textarea.form-input {
   top: 20px;
   padding: 20px;
   border-radius: calc(var(--radius-lg) + 6px);
-  border: 1px solid var(--shell-panel-border-strong);
   background: var(--shell-surface-accented);
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
 }
 
 .price-summary {
@@ -979,22 +955,13 @@ textarea.form-input {
   display: grid;
   gap: 12px;
   padding: 16px 18px;
-  border-radius: 22px;
-  border: 1px dashed color-mix(in srgb, var(--shell-panel-border) 70%, transparent);
+  border-radius: var(--radius-md);
   background: var(--shell-row-bg);
 }
 
 .price-summary::before,
 .price-summary::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--shell-panel-bg);
-  border: 1px solid var(--shell-panel-border);
-  transform: translateY(-50%);
+  display: none;
 }
 
 .price-summary::before {
@@ -1022,7 +989,6 @@ textarea.form-input {
 
 .total-row {
   padding-top: 12px;
-  border-top: 1px solid var(--shell-panel-border-soft);
   color: var(--text);
   font-size: 1.02rem;
   font-weight: 800;
@@ -1031,8 +997,7 @@ textarea.form-input {
 .store-order-trust {
   font-size: 0.86rem;
   padding: 10px 12px;
-  border-radius: 16px;
-  border: 1px solid var(--shell-panel-border);
+  border-radius: var(--radius-control);
   background: var(--shell-field-bg-soft);
   line-height: 1.55;
 }
@@ -1085,6 +1050,11 @@ textarea.form-input {
     padding: 18px;
   }
 
+  .store-hero-copy .page-title {
+    max-width: none;
+    overflow-wrap: break-word;
+  }
+
   .store-hero-actions {
     display: grid;
     grid-template-columns: 1fr;
@@ -1100,7 +1070,7 @@ textarea.form-input {
   .store-order-header {
     flex-direction: column;
     align-items: stretch;
-    border-radius: 24px;
+    border-radius: var(--radius-lg);
   }
 
   .store-order-step {
@@ -1154,3 +1124,5 @@ textarea.form-input {
     right: 12px;
   }
 }
+
+

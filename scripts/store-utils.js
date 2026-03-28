@@ -163,10 +163,6 @@
     };
   }
 
-  function deriveRecommendedProduct() {
-    return 'paper-print';
-  }
-
   function isAllowedPrintStyle(style) {
     const cleaned = sanitizeText(style, 32);
     return PRINT_STYLES.includes(cleaned);
@@ -202,7 +198,6 @@
     sanitizeView,
     getSourceMeta,
     buildStoreUrl,
-    deriveRecommendedProduct,
     isAllowedPrintStyle,
     isAllowedPaperFinish,
     isAllowedPrintSize

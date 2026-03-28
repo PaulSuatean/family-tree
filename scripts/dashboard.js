@@ -113,77 +113,38 @@ function showErrorText(errorEl, message) {
   window.AncestrioDomDisplay.show(errorEl);
 }
 
-function notifyUser(message, type = 'error', options = {}) {
-  if (window.AncestrioRuntime && typeof window.AncestrioRuntime.notify === 'function') {
-    window.AncestrioRuntime.notify(message, type, options);
-    return;
-  }
-  if (type === 'error') {
-    console.error(message);
-  } else {
-    console.warn(message);
-  }
-}
+const notifyUser = AncUtils.notifyUser;
 
-function parseTreeFlag(value, fallback = true) {
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'number') return value !== 0;
-  if (typeof value === 'string') {
-    const normalized = value.trim().toLowerCase();
-    if (['1', 'true', 'yes', 'on', 'enabled'].includes(normalized)) return true;
-    if (['0', 'false', 'no', 'off', 'disabled'].includes(normalized)) return false;
-  }
-  return fallback;
-}
-
-function resolveTreeFeatureSettings(tree) {
-  const setupContext = tree?.wizardContext && typeof tree.wizardContext === 'object'
-    ? tree.wizardContext
-    : (tree?.data?.setupContext && typeof tree.data.setupContext === 'object' ? tree.data.setupContext : null);
-
-  const calendarRaw = Object.prototype.hasOwnProperty.call(tree || {}, 'enableCalendarDates')
-    ? tree.enableCalendarDates
-    : (
-      Object.prototype.hasOwnProperty.call(tree || {}, 'enableBirthdays')
-        ? tree.enableBirthdays
-        : setupContext?.enableBirthdays
-    );
-  const globeRaw = Object.prototype.hasOwnProperty.call(tree || {}, 'enableGlobeCountries')
-    ? tree.enableGlobeCountries
-    : setupContext?.enableGlobeCountries;
-
-  return {
-    enableCalendarDates: parseTreeFlag(calendarRaw, true),
-    enableGlobeCountries: parseTreeFlag(globeRaw, true)
-  };
-}
-
-function getRecommendedStoreProduct(tree) {
-  const settings = resolveTreeFeatureSettings(tree);
-  if (
-    window.AncestrioStoreUtils &&
-    typeof window.AncestrioStoreUtils.deriveRecommendedProduct === 'function'
-  ) {
-    return window.AncestrioStoreUtils.deriveRecommendedProduct(settings);
-  }
+function getRecommendedStoreProduct() {
   return 'paper-print';
 }
 
 
 function buildStoreUrlForDashboard(context = {}) {
+  const storeUtils = window.AncestrioStoreUtils || null;
+  const sanitizeProduct = storeUtils && typeof storeUtils.sanitizeProduct === 'function'
+    ? storeUtils.sanitizeProduct
+    : (value, fallback) => String(value || fallback || 'paper-print').toLowerCase();
+  const sanitizeView = storeUtils && typeof storeUtils.sanitizeView === 'function'
+    ? storeUtils.sanitizeView
+    : (value, fallback) => String(value || fallback || 'tree');
+  const sanitizeTreeId = storeUtils && typeof storeUtils.sanitizeTreeId === 'function'
+    ? storeUtils.sanitizeTreeId
+    : (value) => sanitizeText(value, 120).replace(/[^a-zA-Z0-9_-]/g, '');
+  const sanitizeTreeName = storeUtils && typeof storeUtils.sanitizeText === 'function'
+    ? storeUtils.sanitizeText
+    : (value) => sanitizeText(value, 160);
+
   const payload = {
-    product: String(context.product || 'paper-print').toLowerCase(),
+    product: sanitizeProduct(context.product, 'paper-print'),
     source: 'dashboard',
-    view: context.view || 'tree',
-    treeId: context.treeId || '',
-    treeName: context.treeName || ''
+    view: sanitizeView(context.view, 'tree'),
+    treeId: sanitizeTreeId(context.treeId),
+    treeName: sanitizeTreeName(context.treeName)
   };
 
-  if (
-    window.AncestrioStoreUtils &&
-    typeof window.AncestrioStoreUtils.buildStoreUrl === 'function'
-  ) {
-    return window.AncestrioStoreUtils.buildStoreUrl(payload, { path: 'store.html' });
+  if (storeUtils && typeof storeUtils.buildStoreUrl === 'function') {
+    return storeUtils.buildStoreUrl(payload, { path: 'store.html' });
   }
 
   const params = new URLSearchParams();
@@ -208,45 +169,11 @@ function buildShareUrlForTree(treeId) {
   return `tree.html?id=${encodeURIComponent(safeId)}`;
 }
 
-function buildSocialShareUrl(platform, shareUrl, title) {
-  const encodedUrl = encodeURIComponent(shareUrl || '');
-  const encodedTitle = encodeURIComponent(title || 'Family tree');
-  switch (platform) {
-    case 'facebook':
-      return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
-    case 'x':
-      return `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
-    case 'whatsapp':
-      return `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`;
-    case 'telegram':
-      return `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`;
-    case 'linkedin':
-      return `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
-    default:
-      return '';
-  }
-}
-
 function updateShareModalSocialLinks(shareUrl, treeName, isPublic) {
-  const socialLinks = document.querySelectorAll('[data-share-platform]');
-  socialLinks.forEach((link) => {
-    const platform = link.dataset.sharePlatform;
-    if (!isPublic || !shareUrl) {
-      link.removeAttribute('href');
-      link.setAttribute('aria-disabled', 'true');
-      link.tabIndex = -1;
-      link.classList.add('is-disabled');
-      return;
-    }
-    const platformUrl = buildSocialShareUrl(platform, shareUrl, treeName);
-    if (platformUrl) {
-      link.href = platformUrl;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-    }
-    link.removeAttribute('aria-disabled');
-    link.tabIndex = 0;
-    link.classList.remove('is-disabled');
+  window.AncestrioShareUtils?.setSocialShareLinks?.({
+    shareUrl,
+    treeName,
+    isPublic
   });
 }
 
@@ -283,16 +210,11 @@ function updateShareModalUI(tree) {
 }
 
 async function copyShareUrl(url) {
-  if (!url) {
-    notifyUser('Share link is not available.', 'warning');
-    return false;
-  }
-  if (window.AncestrioShareUtils && typeof window.AncestrioShareUtils.copyToClipboard === 'function') {
-    const copied = await window.AncestrioShareUtils.copyToClipboard(url);
-    if (copied) {
-      window.AncestrioShareUtils.notifyShare?.('Share link copied.', 'success');
-      return true;
-    }
+  if (window.AncestrioShareUtils && typeof window.AncestrioShareUtils.copyShareLink === 'function') {
+    return window.AncestrioShareUtils.copyShareLink(url, {
+      unavailableMessage: 'Share link is not available.',
+      failureMessage: 'Unable to copy link. Please copy it manually.'
+    });
   }
   notifyUser('Unable to copy link. Please copy it manually.', 'warning');
   return false;
@@ -416,13 +338,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
   document.getElementById('logoutBtn').addEventListener('click', logout);
-  document.getElementById('createTreeBtn').addEventListener('click', showCreateModal);
-  document.getElementById('createTreeBtnEmpty')?.addEventListener('click', showCreateModal);
+  document.getElementById('createTreeBtn').addEventListener('click', showCreateModeModal);
+  document.getElementById('createTreeBtnEmpty')?.addEventListener('click', showCreateModeModal);
+  document.getElementById('closeCreateModeModal')?.addEventListener('click', hideCreateModeModal);
+  document.getElementById('startWizardBtn')?.addEventListener('click', () => {
+    hideCreateModeModal();
+    showCreateModal();
+  });
+  document.getElementById('startManualBtn')?.addEventListener('click', () => {
+    hideCreateModeModal();
+    showManualCreateModal();
+  });
   document.getElementById('closeCreateModal').addEventListener('click', hideCreateModal);
+  document.getElementById('closeManualCreateModal')?.addEventListener('click', hideManualCreateModal);
+  document.getElementById('cancelManualCreateBtn')?.addEventListener('click', hideManualCreateModal);
+  document.getElementById('confirmManualCreateBtn')?.addEventListener('click', createTreeManualQuick);
+  document.getElementById('manualTreeName')?.addEventListener('input', () => clearFieldError('manualTreeName', 'manualTreeNameError'));
   document.getElementById('closeShareModal')?.addEventListener('click', hideShareModal);
   document.getElementById('cancelShareBtn')?.addEventListener('click', hideShareModal);
   document.getElementById('confirmShareBtn')?.addEventListener('click', confirmShare);
   document.getElementById('shareCopyBtn')?.addEventListener('click', handleShareCopy);
+  document.getElementById('createTreeModeModal')?.addEventListener('click', (event) => {
+    if (event.target && event.target.id === 'createTreeModeModal') {
+      hideCreateModeModal();
+    }
+  });
+  document.getElementById('createTreeModal')?.addEventListener('click', (event) => {
+    if (event.target && event.target.id === 'createTreeModal') {
+      // Keep wizard progress safe: do not close on backdrop click.
+      event.preventDefault();
+    }
+  });
+  document.getElementById('manualCreateModal')?.addEventListener('click', (event) => {
+    if (event.target && event.target.id === 'manualCreateModal') {
+      hideManualCreateModal();
+    }
+  });
   document.getElementById('shareTreeModal')?.addEventListener('click', (event) => {
     if (event.target && event.target.id === 'shareTreeModal') {
       hideShareModal();
@@ -437,6 +388,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('confirmDeleteAccountBtn')?.addEventListener('click', confirmDeleteAccount);
   document.getElementById('deleteAccountPasswordBtn')?.addEventListener('click', handlePasswordReauth);
   document.getElementById('deleteAccountGoogleBtn')?.addEventListener('click', handleGoogleReauth);
+  document.addEventListener('keydown', handleDashboardModalEscapeKey);
   
   setupWizardEventListeners();
 
@@ -457,7 +409,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateAccountPanel(currentUser);
     await loadTrees();
     if (!hasStoredGuestTree()) {
-      showCreateModal();
+      showCreateModeModal();
     }
     return;
   }
@@ -769,51 +721,6 @@ function updateGrandchildrenBlock() {
   if (hasGrandchildren && !document.querySelector('#grandchildrenList .person-row')) {
     addSplitNameRow('grandchildrenList', 'Grandchild');
   }
-}
-
-function addPersonRow(listId, placeholder, value = '', options = {}) {
-  const list = document.getElementById(listId);
-  if (!list) return;
-  const includeInlineAdd = Boolean(options.includeInlineAdd);
-  const normalizedLabel = sanitizeText(placeholder).toLowerCase() || 'person';
-
-  const row = document.createElement('div');
-  row.className = includeInlineAdd ? 'person-row sibling-row' : 'person-row';
-
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.className = 'form-input person-row-input';
-  input.placeholder = placeholder;
-  input.value = value;
-
-  const removeBtn = document.createElement('button');
-  removeBtn.type = 'button';
-  removeBtn.className = 'btn-secondary btn-inline btn-person-control btn-remove-person';
-  removeBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">remove</span>';
-  removeBtn.setAttribute('aria-label', `Remove ${normalizedLabel}`);
-  removeBtn.setAttribute('title', `Remove ${normalizedLabel}`);
-  removeBtn.addEventListener('click', () => {
-    row.remove();
-    if (includeInlineAdd && !list.querySelector('.person-row')) {
-      addPersonRow(listId, placeholder, '', options);
-    }
-  });
-
-  row.appendChild(input);
-  row.appendChild(removeBtn);
-  if (includeInlineAdd) {
-    const addBtn = document.createElement('button');
-    addBtn.type = 'button';
-    addBtn.className = 'btn-secondary btn-inline btn-person-control btn-add-person';
-    addBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">add</span>';
-    addBtn.setAttribute('aria-label', `Add ${normalizedLabel}`);
-    addBtn.setAttribute('title', `Add ${normalizedLabel}`);
-    addBtn.addEventListener('click', () => {
-      addPersonRow(listId, placeholder, '', options);
-    });
-    row.appendChild(addBtn);
-  }
-  list.appendChild(row);
 }
 
 function addSplitNameRow(listId, personLabel, values = {}, options = {}) {
@@ -1219,7 +1126,7 @@ function mapTreesFromSnapshot(snapshot) {
   return mappedTrees;
 }
 
-function setCreateTreeButtonVisibility(visible) {
+function setCreateTreeButtonVisibility() {
   const createTreeActions = document.querySelector('.dashboard-hero-actions');
   if (!createTreeActions) return;
   // Keep the primary CTA visible in the merged overview card even when the list is empty.
@@ -1274,7 +1181,7 @@ function updateGuestEmptyState(hasTree) {
   if (description) {
     description.textContent = hasTree
       ? 'Your guest data is stored only in this browser.'
-      : 'Use the setup wizard to create your first local family tree.';
+      : 'Choose guided setup or start manually to create your first local family tree.';
   }
 
   const createButton = document.getElementById('createTreeBtnEmpty');
@@ -1314,7 +1221,7 @@ function renderTreesState(treesGrid, emptyState) {
     updateTreesGridLayout(treesGrid, trees.length);
   }
   const hasTrees = trees.length > 0;
-  setCreateTreeButtonVisibility(hasTrees);
+  setCreateTreeButtonVisibility();
   if (!hasTrees) {
     window.AncestrioDomDisplay.show(emptyState);
     return;
@@ -1336,13 +1243,13 @@ async function loadTrees() {
       updateTreesGridLayout(treesGrid, 0);
     }
     window.AncestrioDomDisplay.hide(loadingState);
-    setCreateTreeButtonVisibility(false);
+    setCreateTreeButtonVisibility();
     updateGuestEmptyState(hasStoredGuestTree());
     window.AncestrioDomDisplay.show(emptyState);
     return;
   }
 
-  setCreateTreeButtonVisibility(false);
+  setCreateTreeButtonVisibility();
   window.AncestrioDomDisplay.show(loadingState);
   window.AncestrioDomDisplay.hide(emptyState);
   if (treesGrid) {
@@ -1590,7 +1497,179 @@ function countMembers(data) {
   traverse(data);
   return count;
 }
+function isDashboardModalVisible(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return false;
+  return !modal.hasAttribute('hidden');
+}
+
+function handleDashboardModalEscapeKey(event) {
+  if (event.key !== 'Escape') return;
+
+  if (isDashboardModalVisible('createTreeModal')) {
+    hideCreateModal();
+    event.preventDefault();
+    return;
+  }
+  if (isDashboardModalVisible('manualCreateModal')) {
+    hideManualCreateModal();
+    event.preventDefault();
+    return;
+  }
+  if (isDashboardModalVisible('createTreeModeModal')) {
+    hideCreateModeModal();
+    event.preventDefault();
+  }
+}
+
+function showCreateModeModal() {
+  window.AncestrioDomDisplay.show('createTreeModeModal', 'flex');
+  const wizardBtn = document.getElementById('startWizardBtn');
+  if (wizardBtn) wizardBtn.focus();
+}
+
+function hideCreateModeModal() {
+  window.AncestrioDomDisplay.hide('createTreeModeModal');
+}
+
+function resetManualCreateForm() {
+  const nameInput = document.getElementById('manualTreeName');
+  if (nameInput) nameInput.value = '';
+  const privacyPrivate = document.querySelector('input[name="manualPrivacy"][value="private"]');
+  if (privacyPrivate) privacyPrivate.checked = true;
+  const birthdaysYes = document.querySelector('input[name="manualEnableBirthdays"][value="yes"]');
+  if (birthdaysYes) birthdaysYes.checked = true;
+  const globeYes = document.querySelector('input[name="manualEnableGlobeCountries"][value="yes"]');
+  if (globeYes) globeYes.checked = true;
+  clearFieldError('manualTreeName', 'manualTreeNameError');
+}
+
+function showManualCreateModal() {
+  resetManualCreateForm();
+  window.AncestrioDomDisplay.show('manualCreateModal', 'flex');
+  const nameInput = document.getElementById('manualTreeName');
+  if (nameInput) nameInput.focus();
+}
+
+function hideManualCreateModal() {
+  window.AncestrioDomDisplay.hide('manualCreateModal');
+  resetManualCreateForm();
+}
+
+function validateManualCreateForm() {
+  const treeName = document.getElementById('manualTreeName')?.value.trim() || '';
+  clearFieldError('manualTreeName', 'manualTreeNameError');
+  if (treeName) return true;
+  setFieldError('manualTreeName', 'manualTreeNameError', 'Family tree name is required');
+  document.getElementById('manualTreeName')?.focus();
+  return false;
+}
+
+function createManualStarterData(options = {}) {
+  const birthdaysEnabled = options.enableBirthdays !== false;
+  const globeCountriesEnabled = options.enableGlobeCountries !== false;
+  const rootName = sanitizeText(options.rootName) || getCurrentUserName(currentUser) || 'Family Member';
+  return {
+    Grandparent: rootName,
+    image: '',
+    birthday: '',
+    Parent: [],
+    setupContext: {
+      centerMode: 'manual',
+      centerName: rootName,
+      enableBirthdays: birthdaysEnabled,
+      enableGlobeCountries: globeCountriesEnabled,
+      createSource: 'manual'
+    }
+  };
+}
+
+async function createTreeManualQuick(event) {
+  if (event && typeof event.preventDefault === 'function') {
+    event.preventDefault();
+  }
+  if (!validateManualCreateForm()) return;
+
+  const name = document.getElementById('manualTreeName').value.trim();
+  const description = '';
+  const privacy = document.querySelector('input[name="manualPrivacy"]:checked')?.value === 'public' ? 'public' : 'private';
+  const birthdaysEnabled = document.querySelector('input[name="manualEnableBirthdays"]:checked')?.value !== 'no';
+  const globeCountriesEnabled = document.querySelector('input[name="manualEnableGlobeCountries"]:checked')?.value !== 'no';
+  const centerName = getCurrentUserName(currentUser) || 'Family Member';
+  const initialData = createManualStarterData({
+    rootName: centerName,
+    enableBirthdays: birthdaysEnabled,
+    enableGlobeCountries: globeCountriesEnabled
+  });
+  const wizardContext = {
+    centerMode: 'manual',
+    centerName,
+    relationshipToCenter: null,
+    enableBirthdays: birthdaysEnabled,
+    enableGlobeCountries: globeCountriesEnabled,
+    createSource: 'manual'
+  };
+
+  const createBtn = document.getElementById('confirmManualCreateBtn');
+  if (createBtn) {
+    createBtn.disabled = true;
+    createBtn.textContent = 'Creating...';
+  }
+
+  try {
+    if (isLocalGuestMode) {
+      localStorage.setItem(LOCAL_GUEST_TREE_KEY, JSON.stringify({
+        name,
+        description,
+        privacy,
+        enableCalendarDates: birthdaysEnabled,
+        enableBirthdays: birthdaysEnabled,
+        enableGlobeCountries: globeCountriesEnabled,
+        data: initialData,
+        wizardContext,
+        updatedAt: Date.now()
+      }));
+
+      hideManualCreateModal();
+      window.location.href = 'editor.html?guest=1';
+      return;
+    }
+
+    if (!db || !currentUser || !currentUser.uid) {
+      notifyUser('Please wait for your account to finish loading, then try again.', 'warning');
+      return;
+    }
+
+    const docRef = await db.collection('trees').add({
+      userId: currentUser.uid,
+      name,
+      description,
+      privacy,
+      enableCalendarDates: birthdaysEnabled,
+      enableBirthdays: birthdaysEnabled,
+      enableGlobeCountries: globeCountriesEnabled,
+      data: initialData,
+      wizardContext,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    hideManualCreateModal();
+    await loadTrees();
+    window.location.href = `editor.html?id=${docRef.id}`;
+  } catch (error) {
+    console.error('Error creating manual tree:', error);
+    notifyUser('Failed to create tree. Please try again.', 'error');
+  } finally {
+    if (createBtn) {
+      createBtn.disabled = false;
+      createBtn.textContent = 'Create & Open Editor';
+    }
+  }
+}
+
 function showCreateModal() {
+  hideCreateModeModal();
   window.AncestrioDomDisplay.show('createTreeModal', 'flex');
   resetWizard();
   goToStep(1);
@@ -1762,6 +1841,7 @@ async function createTreeFromWizard(e) {
       centerBirthdate,
       centerPhotoUrl,
       relationshipToCenter,
+      createSource: 'wizard',
       enableBirthdays: birthdaysEnabled,
       enableGlobeCountries: globeCountriesEnabled,
       fatherName,
@@ -1780,7 +1860,8 @@ async function createTreeFromWizard(e) {
       centerName,
       relationshipToCenter: relationshipToCenter || null,
       enableBirthdays: birthdaysEnabled,
-      enableGlobeCountries: globeCountriesEnabled
+      enableGlobeCountries: globeCountriesEnabled,
+      createSource: 'wizard'
     };
 
     if (isLocalGuestMode) {
@@ -1947,7 +2028,8 @@ function generateFamilyTemplate(options) {
     centerMode: sanitizeText(options.centerMode) || 'me',
     centerName: center.name,
     enableBirthdays: birthdaysEnabled,
-    enableGlobeCountries: globeCountriesEnabled
+    enableGlobeCountries: globeCountriesEnabled,
+    createSource: sanitizeText(options.createSource) || 'wizard'
   };
 
   const relationshipToCenter = sanitizeText(options.relationshipToCenter);

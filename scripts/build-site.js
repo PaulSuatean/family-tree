@@ -32,10 +32,6 @@ const pageDir = 'pages';
 const imageDir = 'images';
 
 const themeInitPath = path.join(rootDir, 'scripts', 'theme-init.js');
-const ambientSourceFiles = [
-  path.join(rootDir, 'scripts', 'night-sky.js'),
-  path.join(rootDir, 'scripts', 'day-clouds.js')
-];
 
 const firebaseBridgeEntry = path.join(rootDir, 'scripts', 'build', 'firebase-modules.entry.js');
 const d3BridgeEntry = path.join(rootDir, 'scripts', 'build', 'd3-topo.entry.js');
@@ -59,7 +55,25 @@ const d3CdnScriptPattern = /<script\b[^>]*src=(["'])https:\/\/cdn\.jsdelivr\.net
 const topojsonCdnScriptPattern = /<script\b[^>]*src=(["'])https:\/\/cdn\.jsdelivr\.net\/npm\/topojson-client@[^"']*\1[^>]*><\/script>\s*/gi;
 const gstaticPreconnectPattern = /<link[^>]+href=(["'])https:\/\/www\.gstatic\.com\1[^>]*>\s*/gi;
 const jsdelivrPreconnectPattern = /<link[^>]+href=(["'])https:\/\/cdn\.jsdelivr\.net\1[^>]*>\s*/gi;
-const ambientBodyOptInPattern = /<body\b[^>]*\bdata-ambient-enabled(?:=(["'])(?:true|1|enabled)\1)?[^>]*>/i;
+const bodyTagPattern = /<body[^>]*>[\s\S]*<\/body>/i;
+const metadataTagPatterns = [
+  /<title>[\s\S]*?<\/title>/i,
+  /<meta\s+name=(["'])description\1[^>]*>/i,
+  /<link\s+rel=(["'])canonical\1[^>]*>/i,
+  /<meta\s+name=(["'])robots\1[^>]*>/i,
+  /<meta\s+property=(["'])og:title\1[^>]*>/i,
+  /<meta\s+property=(["'])og:description\1[^>]*>/i,
+  /<meta\s+property=(["'])og:url\1[^>]*>/i,
+  /<meta\s+name=(["'])twitter:title\1[^>]*>/i,
+  /<meta\s+name=(["'])twitter:description\1[^>]*>/i
+];
+const htmlTemplateVariants = new Map([
+  ['pages/tree.html', { templateRelPath: 'pages/tree.html', variantRelPath: 'pages/tree.html' }],
+  ['pages/demo-tree.html', { templateRelPath: 'pages/tree.html', variantRelPath: 'pages/demo-tree.html' }],
+  ['pages/privacy.html', { templateRelPath: 'pages/privacy.html', variantRelPath: 'pages/privacy.html' }],
+  ['pages/terms.html', { templateRelPath: 'pages/privacy.html', variantRelPath: 'pages/terms.html' }],
+  ['pages/cookies.html', { templateRelPath: 'pages/privacy.html', variantRelPath: 'pages/cookies.html' }]
+]);
 
 function toPosixPath(filePath) {
   return filePath.split(path.sep).join('/');
@@ -73,12 +87,45 @@ function escapeInlineScript(value) {
   return String(value || '').replace(/<\/script/gi, '<\\/script');
 }
 
-function escapeHtmlAttribute(value) {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+function replaceTagFromVariant(templateSource, variantSource, pattern) {
+  const variantMatch = variantSource.match(pattern);
+  if (!variantMatch) return templateSource;
+  return templateSource.replace(pattern, variantMatch[0]);
+}
+
+function applyVariantMetadata(templateSource, variantSource) {
+  return metadataTagPatterns.reduce((acc, pattern) => {
+    return replaceTagFromVariant(acc, variantSource, pattern);
+  }, templateSource);
+}
+
+function replaceBodyFromVariant(templateSource, variantSource) {
+  const variantBody = variantSource.match(bodyTagPattern);
+  if (!variantBody) return templateSource;
+  return templateSource.replace(bodyTagPattern, variantBody[0]);
+}
+
+async function readHtmlSourceForBuild(htmlRelPath) {
+  const variantConfig = htmlTemplateVariants.get(htmlRelPath);
+  if (!variantConfig) {
+    return readText(path.join(rootDir, htmlRelPath));
+  }
+
+  const templatePath = path.join(rootDir, variantConfig.templateRelPath);
+  const variantPath = path.join(rootDir, variantConfig.variantRelPath);
+  const [templateSource, variantSource] = await Promise.all([
+    readText(templatePath),
+    readText(variantPath)
+  ]);
+
+  if (variantConfig.templateRelPath === variantConfig.variantRelPath) {
+    return templateSource;
+  }
+
+  return replaceBodyFromVariant(
+    applyVariantMetadata(templateSource, variantSource),
+    variantSource
+  );
 }
 
 function sanitizeIconName(value) {
@@ -94,10 +141,6 @@ function isExternalAsset(src) {
 
 function isThemeInitScript(scriptRelPath) {
   return scriptRelPath === 'scripts/theme-init.js';
-}
-
-function isAmbientScript(scriptRelPath) {
-  return scriptRelPath === 'scripts/night-sky.js' || scriptRelPath === 'scripts/day-clouds.js';
 }
 
 function pageNeedsFirebase(scriptRelPaths) {
@@ -116,10 +159,6 @@ function pageNeedsD3(scriptRelPaths) {
 
 function pageNeedsRemoteWorldAtlas(scriptRelPaths) {
   return scriptRelPaths.includes('scripts/main.js');
-}
-
-function pageHasAmbientOptIn(htmlContent) {
-  return ambientBodyOptInPattern.test(htmlContent);
 }
 
 function pageKeyForHtml(htmlRelPath) {
@@ -430,7 +469,7 @@ function stripExternalVendorScripts(htmlContent, options = {}) {
 }
 
 function removeLocalScriptTags(htmlRelPath, htmlContent) {
-  return htmlContent.replace(localScriptTagPattern, (match, before, quote, src, after) => {
+  return htmlContent.replace(localScriptTagPattern, (match, before, quote, src) => {
     const assetPath = resolveLocalAssetPath(htmlRelPath, src);
     if (!assetPath) {
       return match;
@@ -439,12 +478,9 @@ function removeLocalScriptTags(htmlRelPath, htmlContent) {
   });
 }
 
-function injectSpriteAndAmbient(htmlContent, spriteMarkup, ambientBundleRef) {
+function injectSpriteMarkup(htmlContent, spriteMarkup) {
   return htmlContent.replace(/<body([^>]*)>/i, (match, attributes) => {
-    const ambientAttribute = ambientBundleRef
-      ? ` data-ambient-bundle="${escapeHtmlAttribute(ambientBundleRef)}"`
-      : '';
-    return `<body${attributes}${ambientAttribute}>${spriteMarkup}`;
+    return `<body${attributes}>${spriteMarkup}`;
   });
 }
 
@@ -453,12 +489,12 @@ function injectPageBundle(htmlContent, bundleRef) {
   return htmlContent.replace(/<\/body>/i, `${bundleTag}</body>`);
 }
 
-function buildBundleManifest(scriptRelPaths, pageHasAmbient) {
+function buildBundleManifest(scriptRelPaths) {
   const filtered = [];
   let insertedRuntimeExtras = false;
 
   for (const scriptRelPath of scriptRelPaths) {
-    if (isThemeInitScript(scriptRelPath) || isAmbientScript(scriptRelPath)) {
+    if (isThemeInitScript(scriptRelPath)) {
       continue;
     }
 
@@ -466,19 +502,12 @@ function buildBundleManifest(scriptRelPaths, pageHasAmbient) {
 
     if (!insertedRuntimeExtras && scriptRelPath === 'scripts/runtime.js') {
       filtered.push('scripts/icon-runtime.js');
-      if (pageHasAmbient) {
-        filtered.push('scripts/ambient-loader.js');
-      }
       insertedRuntimeExtras = true;
     }
   }
 
   if (!filtered.includes('scripts/icon-runtime.js')) {
     filtered.unshift('scripts/icon-runtime.js');
-  }
-
-  if (pageHasAmbient && !filtered.includes('scripts/ambient-loader.js')) {
-    filtered.splice(1, 0, 'scripts/ambient-loader.js');
   }
 
   return filtered;
@@ -516,25 +545,10 @@ async function writePageBundle(htmlRelPath, bundleSource) {
   return bundleRelPath;
 }
 
-async function writeAmbientBundle() {
-  const sources = await Promise.all(ambientSourceFiles.map(readText));
-  const result = await transform(sources.join('\n;\n'), {
-    charset: 'utf8',
-    legalComments: 'none',
-    loader: 'js',
-    minify: true
-  });
-  const ambientRelPath = path.posix.join('assets', 'ambient.js');
-  await writeText(path.join(distDir, ambientRelPath), result.code);
-  return ambientRelPath;
-}
-
 async function buildHtmlPage(htmlRelPath, options) {
-  const sourcePath = path.join(rootDir, htmlRelPath);
-  const htmlSource = await readText(sourcePath);
+  const htmlSource = await readHtmlSourceForBuild(htmlRelPath);
   const scriptRelPaths = extractLocalScriptPaths(htmlRelPath, htmlSource);
-  const pageHasAmbient = pageHasAmbientOptIn(htmlSource);
-  const bundleManifest = buildBundleManifest(scriptRelPaths, pageHasAmbient);
+  const bundleManifest = buildBundleManifest(scriptRelPaths);
 
   const bundleSource = await buildPageBundle(bundleManifest, {
     d3VendorCode: options.d3VendorCode,
@@ -545,9 +559,6 @@ async function buildHtmlPage(htmlRelPath, options) {
 
   const bundleRelPath = await writePageBundle(htmlRelPath, bundleSource);
   const bundleRef = relativeRefFromHtml(htmlRelPath, bundleRelPath);
-  const ambientRef = pageHasAmbient
-    ? relativeRefFromHtml(htmlRelPath, options.ambientBundleRelPath)
-    : '';
   const keepJsDelivrPreconnect = pageNeedsRemoteWorldAtlas(bundleManifest);
 
   let htmlOutput = htmlSource;
@@ -564,7 +575,7 @@ async function buildHtmlPage(htmlRelPath, options) {
   htmlOutput = inlineThemeInit(htmlOutput, options.themeInitSource);
   htmlOutput = removeLocalScriptTags(htmlRelPath, htmlOutput);
   htmlOutput = rewriteStaticIconMarkup(htmlOutput);
-  htmlOutput = injectSpriteAndAmbient(htmlOutput, options.iconSpriteMarkup, ambientRef);
+  htmlOutput = injectSpriteMarkup(htmlOutput, options.iconSpriteMarkup);
   htmlOutput = injectPageBundle(htmlOutput, bundleRef);
 
   await writeText(path.join(distDir, htmlRelPath), htmlOutput);
@@ -583,7 +594,6 @@ async function build() {
   ]);
 
   const iconSpriteMarkup = await buildIconSpriteMarkup(iconNames);
-  const ambientBundleRelPath = await writeAmbientBundle();
 
   for (const fileName of rootStaticFiles) {
     await transformStaticAsset(
@@ -608,7 +618,6 @@ async function build() {
 
   for (const htmlFile of rootHtmlFiles) {
     await buildHtmlPage(htmlFile, {
-      ambientBundleRelPath,
       d3VendorCode,
       firebaseVendorCode,
       iconSpriteMarkup,
@@ -620,7 +629,6 @@ async function build() {
   for (const pageFile of pageFiles) {
     const htmlRelPath = toPosixPath(path.relative(rootDir, pageFile));
     await buildHtmlPage(htmlRelPath, {
-      ambientBundleRelPath,
       d3VendorCode,
       firebaseVendorCode,
       iconSpriteMarkup,

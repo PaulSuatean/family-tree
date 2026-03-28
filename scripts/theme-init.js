@@ -2,6 +2,7 @@
   const THEME_KEY = 'tree-theme';
   const DARK_CLASS = 'theme-dark';
   const LIGHT_CLASS = 'theme-light';
+  const BODY_WAIT_FLAG = '__ancestrioThemeBodyWaitAttached';
 
   function isNightTime() {
     const hour = new Date().getHours();
@@ -69,7 +70,48 @@
 
     const theme = resolveInitialTheme(savedTheme);
     applyTheme(theme, global.document, config);
+    ensureBodyTheme(theme, config);
     return theme;
+  }
+
+  function ensureBodyTheme(theme, config) {
+    const doc = global.document;
+    if (!doc) return;
+
+    if (doc.body) {
+      applyTheme(theme, doc, config);
+      return;
+    }
+
+    if (doc.documentElement && doc.documentElement[BODY_WAIT_FLAG]) {
+      return;
+    }
+    if (doc.documentElement) {
+      doc.documentElement[BODY_WAIT_FLAG] = true;
+    }
+
+    const applyToBodyIfReady = () => {
+      if (!doc.body) return false;
+      applyTheme(theme, doc, config);
+      return true;
+    };
+
+    if (applyToBodyIfReady()) return;
+
+    const observer = new MutationObserver(() => {
+      if (!applyToBodyIfReady()) return;
+      observer.disconnect();
+    });
+
+    observer.observe(doc.documentElement, {
+      childList: true,
+      subtree: true
+    });
+
+    doc.addEventListener('DOMContentLoaded', () => {
+      applyToBodyIfReady();
+      observer.disconnect();
+    }, { once: true });
   }
 
   global.AncestrioThemeInit = {

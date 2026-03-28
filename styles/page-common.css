@@ -1,4 +1,4 @@
-/* Shared dashboard/editor primitives. Keep declarations identical to preserve visuals. */
+﻿/* Shared dashboard/editor primitives. Keep declarations identical to preserve visuals. */
 
 .modal-header {
   display: flex;
@@ -33,19 +33,19 @@
 .form-input {
   width: 100%;
   padding: 10px 16px;
-  border: 1px solid var(--shell-panel-border);
+  border: none;
   border-radius: var(--radius-control, 16px);
   font-size: 1rem;
   font-family: inherit;
   color: var(--text);
   background: var(--shell-field-bg, var(--surface));
-  transition: border-color 0.15s ease;
+  transition: border-color var(--transition-base) ease;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+  border-color: transparent;
+  box-shadow: none;
 }
 
 textarea.form-input {
@@ -59,11 +59,18 @@ textarea.form-input {
   justify-content: flex-end;
 }
 
-body.theme-dark .privacy-badge.public {
+.privacy-badge.public {
   background: var(--success-bg);
   color: var(--success-text);
+}
+
+body.theme-dark .privacy-badge.private {
+  background: var(--danger-bg);
+  color: var(--danger-light);
 }
 
 .person-row-input {
   flex: 1;
 }
+
+

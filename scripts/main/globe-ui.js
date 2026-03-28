@@ -227,7 +227,7 @@
       if (!globeTooltip) return;
       const listItems = (people && people.length)
         ? people.map((person) => `<li class="tooltip-pill">${escapeHtml(person)}</li>`).join('')
-        : '<li class="tooltip-pill">Fara date</li>';
+        : '<li class="tooltip-pill">No data</li>';
       globeTooltip.innerHTML = `
       <div class="tooltip-title">${escapeHtml(name)}</div>
       <ul class="tooltip-list">${listItems}</ul>

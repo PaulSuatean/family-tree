@@ -23,13 +23,12 @@
   <meta name="twitter:image:alt" content="Ancestrio family tree workspace preview" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   <link rel="stylesheet" href="styles/theme.css" />
   <link rel="stylesheet" href="styles/base.css" />
   <link rel="stylesheet" href="styles/components.css" />
-  <link rel="stylesheet" href="styles/page-overrides.css" />
-  <link rel="stylesheet" href="styles/pages/landing.css?v=4" />
+  <link rel="stylesheet" href="styles/pages/landing.css?v=5" />
   <link rel="stylesheet" href="styles/shell.css?v=7" />
   <script type="application/ld+json">
     {
@@ -59,64 +58,8 @@
       ]
     }
   </script>
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "Is my family tree public by default?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "No. Trees start private, and you can share by link only after you choose to make a tree public."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Can I try Ancestrio without creating an account?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes. Guest mode lets you try the workflow locally in your browser before signing in for cloud sync."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Do relatives need accounts to view a shared tree?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "No. Anyone with the share link can view a public tree without needing the editor or a separate account flow."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Who owns the family tree data I add?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "You own the family tree data you provide. Ancestrio stores it so the workspace, viewer, and keepsake flow can use the same record."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How do print requests work?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "You choose the style, paper finish, and size, then submit a request. Proof and delivery timing are confirmed by email before printing."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Do you take payment in the app?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "No. The current store flow captures requests only, and online payment is not processed in the app."
-          }
-        }
-      ]
-    }
-  </script>
 </head>
-<body class="landing-page site-shell site-public" data-ambient-enabled="true">
+<body class="landing-page site-shell site-public">
   <header class="site-header">
     <div class="site-header__inner">
       <a href="index.html" class="site-header__brand" aria-label="Go to homepage">Ancestrio</a>
@@ -134,7 +77,7 @@
         <a href="index.html" aria-current="page">Home</a>
         <a href="pages/demo-tree.html">Demo</a>
         <a href="pages/store.html?product=paper-print&source=landing&view=tree">Store</a>
-        <a href="pages/contact.html">About &amp; Contact</a>
+        <a href="pages/contact.html">About</a>
       </nav>
       <div class="site-header__actions">
         <a href="pages/auth.html" class="site-btn site-btn--secondary">Sign In</a>
@@ -150,454 +93,111 @@
     <section class="landing-hero-section" aria-labelledby="landingHeroTitle">
       <div class="landing-hero-grid">
         <div class="landing-hero-copy">
-          <div class="landing-announcement">
-            <span class="landing-pill">Private Family Workspace</span>
-            <span>Research, relative review, and print-ready proofing in one flow.</span>
-          </div>
-          <p class="landing-kicker">Family Workspace</p>
-          <h1 id="landingHeroTitle">The family tree platform that keeps your story in sync.</h1>
+          <p class="landing-kicker">Private Family Workspace</p>
+          <h1 id="landingHeroTitle">Build your family tree once, then share or print from the same source.</h1>
           <p class="landing-subtitle">
-            Build privately, clean up relationships and dates in one workspace, then share a link or request a printed keepsake without rebuilding the same family tree twice.
+            Ancestrio keeps names, relationships, dates, and places in one private workspace so you can review details before sharing a link or requesting a keepsake.
+          </p>
+          <p class="landing-subtitle">
+            Instead of splitting work between notes, spreadsheets, and redesign requests, you keep the full story in one record from draft to final handoff.
           </p>
           <div class="landing-hero-cta">
             <a href="pages/auth.html" class="landing-btn landing-btn-primary">Start Building</a>
-            <a href="pages/demo-tree.html" class="landing-btn landing-btn-secondary">View Demo Tree</a>
+            <a href="pages/demo-tree.html" class="landing-btn landing-btn-secondary">View Demo</a>
           </div>
-          <p class="landing-price-note">Start privately for free. Printed keepsake requests begin at &euro;69 once the tree is ready.</p>
-          <div class="landing-command-bar" aria-label="What Ancestrio replaces">
-            <span class="landing-command-label">Replaces</span>
-            <div class="landing-command-list">
-              <span>scattered notes</span>
-              <span>shared spreadsheets</span>
-              <span>chat-thread corrections</span>
-              <span>last-minute print redesigns</span>
-            </div>
-          </div>
-          <ul class="landing-hero-signals" aria-label="Core platform highlights">
-            <li>
-              <strong>Private by default</strong>
-              <span>Verify branches, dates, and notes before the tree is visible to anyone else.</span>
-            </li>
-            <li>
-              <strong>Share by link</strong>
-              <span>Give relatives a cleaner viewer instead of asking them to open another editor.</span>
-            </li>
-            <li>
-              <strong>Print-ready workflow</strong>
-              <span>Move from workspace to proof without exporting data into another tool first.</span>
-            </li>
-          </ul>
+          <p class="landing-hero-note">Printed keepsake requests start at &euro;69 after your tree is ready.</p>
         </div>
-
-        <div class="landing-hero-stage" aria-label="Ancestrio workspace preview">
-          <div class="landing-stage-window">
-            <div class="landing-stage-window__chrome">
-              <div class="landing-stage-dots" aria-hidden="true">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-              <p>Workspace Preview</p>
-              <span class="landing-stage-status">Live tree</span>
-            </div>
-            <div class="landing-stage-window__body">
-              <div class="landing-stage-sidebar">
-                <p class="landing-stage-eyebrow">Active workspace</p>
-                <h2>One family source for names, dates, places, and proofing.</h2>
-                <ul class="landing-stage-list">
-                  <li><span>Tree review</span><strong>Check relationships before sharing</strong></li>
-                  <li><span>Calendar</span><strong>Spot birthdays before the link goes out</strong></li>
-                  <li><span>Places</span><strong>Keep origin stories attached to the same record</strong></li>
-                </ul>
-                <div class="landing-stage-tags">
-                  <span>Private mode</span>
-                  <span>Shared link pending</span>
-                  <span>Print proof ready</span>
-                </div>
-              </div>
-              <div class="landing-stage-preview">
-                <img src="images/landing/app-preview-tree.webp" alt="Ancestrio workspace showing a multi-generation family tree" loading="eager" decoding="async" fetchpriority="high" />
-              </div>
-            </div>
-          </div>
-
-          <article class="landing-stage-card landing-stage-card--share">
-            <p class="landing-stage-card__kicker">Share controls</p>
-            <h3>Publish only when the details feel ready.</h3>
-            <ul class="landing-stage-card__list">
-              <li>Keep the workspace private while you verify branches.</li>
-              <li>Send one cleaner view link to relatives when it is time.</li>
-            </ul>
-          </article>
-
-          <article class="landing-stage-card landing-stage-card--print">
-            <p class="landing-stage-card__kicker">Print preview</p>
-            <h3>Compare the wall-ready styles before you order.</h3>
-            <div class="landing-stage-thumbs">
-              <img src="images/landing/print-01.webp" alt="Classic heritage printed family tree" loading="lazy" decoding="async" />
-              <img src="images/landing/print-02.webp" alt="Gallery ornate printed family tree" loading="lazy" decoding="async" />
-            </div>
-          </article>
-
-          <article class="landing-stage-card landing-stage-card--reminders">
-            <p class="landing-stage-card__kicker">Review checklist</p>
-            <h3>Keep the same story through research, review, and handoff.</h3>
-            <div class="landing-stage-pill-list">
-              <span>Birthdays</span>
-              <span>Origin places</span>
-              <span>Proof review</span>
-            </div>
-          </article>
+        <div class="landing-hero-media">
+          <img src="images/landing/app-preview-tree.webp" alt="Ancestrio workspace showing a multi-generation family tree" loading="eager" decoding="async" fetchpriority="high" />
         </div>
       </div>
     </section>
 
-    <section class="landing-proof-band" aria-label="Workflow stages">
-      <article class="landing-proof-card">
-        <p class="landing-proof-card__index">01</p>
-        <h2>Build privately</h2>
-        <p>Start with your own workspace and add people, dates, and notes before anyone else sees the tree.</p>
-      </article>
-      <article class="landing-proof-card">
-        <p class="landing-proof-card__index">02</p>
-        <h2>Review everything</h2>
-        <p>Use the tree, calendar, and place views to clean up the story before it spreads across family chats.</p>
-      </article>
-      <article class="landing-proof-card">
-        <p class="landing-proof-card__index">03</p>
-        <h2>Share by link</h2>
-        <p>Relatives can view the same tree without needing the editor or a new account flow.</p>
-      </article>
-      <article class="landing-proof-card">
-        <p class="landing-proof-card__index">04</p>
-        <h2>Order the keepsake</h2>
-        <p>Come back for paper, finish, size, and proof confirmation after the digital tree feels settled.</p>
-      </article>
-    </section>
-
-    <section class="landing-paths-section" aria-labelledby="pathsTitle">
-      <div class="section-heading">
-        <p class="landing-kicker">Choose Your Path</p>
-        <h2 id="pathsTitle">Start where your family story is right now.</h2>
-        <p class="section-intro">Ancestrio works as a balanced brand site: you can inspect the product in the demo, begin a private workspace, or jump straight into the keepsake request flow.</p>
-      </div>
-
-      <div class="landing-path-grid">
-        <article class="landing-path-card">
-          <p class="landing-path-card__eyebrow">Explore the demo</p>
-          <h3>See the tree, birthday calendar, and place view before you commit.</h3>
-          <p>Browse the public demo to understand how relatives will experience the finished tree without touching your own data first.</p>
-          <a href="pages/demo-tree.html" class="landing-path-card__link">Open Demo</a>
-        </article>
-        <article class="landing-path-card">
-          <p class="landing-path-card__eyebrow">Start a private workspace</p>
-          <h3>Create, verify, and refine the tree before anyone else sees it.</h3>
-          <p>Use an account for cloud sync or guest mode for a local-first draft while you sort names, dates, places, and relationships.</p>
-          <a href="pages/auth.html" class="landing-path-card__link">Start Building</a>
-        </article>
-        <article class="landing-path-card">
-          <p class="landing-path-card__eyebrow">Order a keepsake</p>
-          <h3>Review the print styles, then request a wall-ready version by email.</h3>
-          <p>Choose the print style, paper finish, and size once the tree feels stable enough to move from workspace to proof.</p>
-          <a href="pages/store.html?product=paper-print&source=landing&view=tree" class="landing-path-card__link">View Store</a>
-        </article>
-      </div>
-    </section>
-
-    <section class="landing-trust-section" aria-labelledby="trustTitle">
-      <div class="section-heading">
-        <p class="landing-kicker">Credibility</p>
-        <h2 id="trustTitle">The practical promises stay visible.</h2>
-        <p class="section-intro">The product asks families to trust it with personal history, so the homepage should answer the obvious trust questions before anyone starts.</p>
-      </div>
-
-      <div class="landing-trust-grid">
-        <article class="landing-trust-card">
-          <p class="landing-trust-card__label">Private by default</p>
-          <h3>Draft privately and publish only when you decide.</h3>
-          <p>Tree sharing stays opt-in. You make a tree public only when you are ready to send the link.</p>
-        </article>
-        <article class="landing-trust-card">
-          <p class="landing-trust-card__label">Open source</p>
-          <h3>The codebase is public.</h3>
-          <p>The project is available on GitHub so the product direction and implementation stay inspectable.</p>
-        </article>
-        <article class="landing-trust-card">
-          <p class="landing-trust-card__label">No ads or analytics</p>
-          <h3>Tracking stays minimal.</h3>
-          <p>Ancestrio does not run third-party advertising or analytics scripts on the site today.</p>
-        </article>
-        <article class="landing-trust-card">
-          <p class="landing-trust-card__label">Real relationship patterns</p>
-          <h3>The demo is based on real family structure.</h3>
-          <p>The public tree uses real relationship patterns so the viewer reads like an actual family record instead of sample filler.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="landing-workflow-section" aria-labelledby="workflowTitle">
+    <section class="landing-flow-section" aria-labelledby="landingFlowTitle">
       <div class="section-heading">
         <p class="landing-kicker">Workflow</p>
-        <h2 id="workflowTitle">Everything you need before the tree leaves draft mode.</h2>
-        <p class="section-intro">The private workspace, shared viewer, and print handoff are meant to feel like one connected system instead of three separate tools.</p>
+        <h2 id="landingFlowTitle">A simple 3-step flow.</h2>
+        <p class="section-intro">The product is designed to keep research, family review, and keepsake handoff in one sequence.</p>
       </div>
+      <div class="landing-flow-grid">
+        <article class="landing-flow-card">
+          <p class="landing-flow-card__index">01</p>
+          <h3>Build privately</h3>
+          <p>Add people, dates, and notes in your private workspace while details are still changing.</p>
+        </article>
+        <article class="landing-flow-card">
+          <p class="landing-flow-card__index">02</p>
+          <h3>Review and share</h3>
+          <p>Use the viewer to check the story, then send one clear link to relatives.</p>
+        </article>
+        <article class="landing-flow-card">
+          <p class="landing-flow-card__index">03</p>
+          <h3>Print when ready</h3>
+          <p>Request a keepsake only after the family tree is clean and approved.</p>
+        </article>
+      </div>
+    </section>
 
+    <section class="landing-features-section" aria-labelledby="landingFeaturesTitle">
+      <div class="section-heading">
+        <p class="landing-kicker">Core Capabilities</p>
+        <h2 id="landingFeaturesTitle">Everything stays in one system.</h2>
+        <p class="section-intro">The same workspace powers your private edits, shared view link, and print-ready output.</p>
+      </div>
       <div class="landing-feature-grid">
         <article class="landing-feature-card">
           <span class="material-symbols-outlined" aria-hidden="true">account_tree</span>
-          <h3>Branch editing that stays readable</h3>
-          <p>Track spouses, children, and side branches without collapsing into spreadsheet cleanup.</p>
+          <h3>Readable branch editing</h3>
+          <p>Track parents, spouses, and children without spreadsheet cleanup.</p>
         </article>
         <article class="landing-feature-card">
           <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
-          <h3>Birthday review before you share</h3>
-          <p>Catch missing dates and upcoming reminders while the tree is still in a controlled draft state.</p>
+          <h3>Birthday and date review</h3>
+          <p>Catch missing dates before the tree leaves draft mode.</p>
         </article>
         <article class="landing-feature-card">
           <span class="material-symbols-outlined" aria-hidden="true">public</span>
-          <h3>Places that keep context attached</h3>
-          <p>Origin stories and travel notes stay tied to the same people instead of living in separate documents.</p>
+          <h3>Places with context</h3>
+          <p>Keep origins and location notes attached to the same people record.</p>
         </article>
       </div>
+    </section>
 
-      <div class="landing-workflow-panel">
-        <div class="landing-workflow-panel__copy">
-          <p class="landing-kicker">One source</p>
-          <h3>Research, review, and handoff happen in the same system.</h3>
-          <p>Stop stitching together folders, screenshots, and email notes. The same tree powers the private editor, the shared link, and the printed keepsake request.</p>
-          <ul class="landing-workflow-points">
-            <li>One workspace for names, relationships, dates, and places.</li>
-            <li>One viewer for relatives who just need the finished story.</li>
-            <li>One print handoff once the tree is ready for the wall.</li>
+    <section class="landing-trust-section" aria-labelledby="landingTrustTitle">
+      <div class="landing-trust-layout">
+        <article class="landing-trust-panel">
+          <div class="section-heading">
+            <p class="landing-kicker">Trust</p>
+            <h2 id="landingTrustTitle">Built for family history, not ad traffic.</h2>
+            <p class="section-intro">Families need confidence before they upload personal history, so these product promises stay explicit.</p>
+          </div>
+          <ul class="landing-trust-list">
+            <li><strong>Private by default.</strong><span>You decide when a tree becomes shareable.</span></li>
+            <li><strong>Open source codebase.</strong><span>Product direction and implementation stay inspectable.</span></li>
+            <li><strong>No third-party ads.</strong><span>The product does not rely on ad tracking scripts.</span></li>
           </ul>
-        </div>
-        <div class="landing-workflow-panel__stack">
-          <article class="landing-inline-card">
-            <span class="material-symbols-outlined" aria-hidden="true">link</span>
-            <div>
-              <p class="landing-inline-card__label">Shared view</p>
-              <h4>Send the family one clearer link.</h4>
-              <p>Anyone with the link can inspect the tree without learning the editor first.</p>
-            </div>
-          </article>
-          <article class="landing-inline-card">
-            <span class="material-symbols-outlined" aria-hidden="true">print</span>
-            <div>
-              <p class="landing-inline-card__label">Print request</p>
-              <h4>Carry the same data into the keepsake proof.</h4>
-              <p>Style, finish, and size choices happen after the family story is already structured.</p>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="landing-platform-section" aria-labelledby="platformTitle">
-      <div class="section-heading section-heading--inverse">
-        <p class="landing-kicker">Product</p>
-        <h2 id="platformTitle">Not just a tree builder.</h2>
-        <p class="section-intro">Ancestrio works best when the tree is still changing. The workspace helps you clean it up, share it later, and only then turn it into a keepsake.</p>
-      </div>
-
-      <div class="landing-platform-grid">
-        <div class="landing-platform-stage">
-          <img src="images/landing/app-preview-tree.webp" alt="Ancestrio tree viewer with search and multi-generation layout" loading="lazy" decoding="async" />
-          <div class="landing-platform-stage__chip landing-platform-stage__chip--search">Search and focus</div>
-          <div class="landing-platform-stage__chip landing-platform-stage__chip--calendar">Birthday calendar</div>
-          <div class="landing-platform-stage__chip landing-platform-stage__chip--places">Origin places</div>
-        </div>
-
-        <div class="landing-platform-list">
-          <article class="landing-platform-item">
-            <p class="landing-platform-item__kicker">Viewer</p>
-            <h3>Browse the same tree from multiple angles.</h3>
-            <p>Switch between the visual tree, upcoming birthdays, and location context without losing the thread of the family story.</p>
-          </article>
-          <article class="landing-platform-item">
-            <p class="landing-platform-item__kicker">Editor</p>
-            <h3>Clean up the details before relatives spot the gaps.</h3>
-            <p>Adjust dates, relationships, and notes in one place while the workspace is still private.</p>
-          </article>
-          <article class="landing-platform-item">
-            <p class="landing-platform-item__kicker">Sharing</p>
-            <h3>Separate the builder from the audience.</h3>
-            <p>Family members who only need the finished result can stay in the read-only view.</p>
-          </article>
-          <article class="landing-platform-item">
-            <p class="landing-platform-item__kicker">Keepsakes</p>
-            <h3>Return for print only when the story is ready.</h3>
-            <p>Choose a style and confirm the proof after the digital version feels stable enough to frame.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="landing-prints-section" id="products" aria-labelledby="printsTitle">
-      <div class="section-heading">
-        <p class="landing-kicker">Printed Paper Styles</p>
-        <h2 id="printsTitle">Choose the wall treatment after the tree feels complete.</h2>
-        <p class="section-intro">The print offer is still here, but it now sits inside a clearer product story: organize first, then decide how formal the keepsake should feel.</p>
-      </div>
-
-      <div class="landing-print-grid">
-        <article class="landing-print-card landing-print-card--featured">
-          <div class="landing-print-card__media">
-            <img src="images/landing/print-01.webp" alt="Classic heritage printed family tree" loading="lazy" decoding="async" />
-            <span class="landing-print-card__badge">Best first print</span>
-          </div>
-          <div class="landing-print-card__body">
-            <p class="landing-print-card__kicker">Classic</p>
-            <h3>Classic Heritage</h3>
-            <p>Balanced typography and safer framing for the first version most families will want on the wall.</p>
-            <ul class="landing-print-card__points">
-              <li>Works well for mixed generations and dense branches.</li>
-              <li>Feels traditional without becoming too ornate.</li>
-            </ul>
-            <a href="pages/store.html?product=paper-print&source=landing&view=tree">See this style</a>
-          </div>
         </article>
 
-        <article class="landing-print-card">
-          <div class="landing-print-card__media">
-            <img src="images/landing/print-02.webp" alt="Gallery ornate printed family tree" loading="lazy" decoding="async" />
-            <span class="landing-print-card__badge">Most ceremonial</span>
-          </div>
-          <div class="landing-print-card__body">
-            <p class="landing-print-card__kicker">Ornate</p>
-            <h3>Gallery Ornate</h3>
-            <p>Richer framing and more visual ceremony for a keepsake that is meant to read as an event piece.</p>
-            <ul class="landing-print-card__points">
-              <li>Fits formal gifting moments and larger wall presence.</li>
-              <li>Adds decorative weight around the family record.</li>
-            </ul>
-            <a href="pages/store.html?product=paper-print&source=landing&view=tree">See this style</a>
-          </div>
-        </article>
-
-        <article class="landing-print-card">
-          <div class="landing-print-card__media">
-            <img src="images/landing/print-04.webp" alt="Minimal linework printed family tree" loading="lazy" decoding="async" />
-            <span class="landing-print-card__badge">Most restrained</span>
-          </div>
-          <div class="landing-print-card__body">
-            <p class="landing-print-card__kicker">Minimal</p>
-            <h3>Minimal Linework</h3>
-            <p>Cleaner spacing and lighter ornament for a quieter display that still carries the whole family structure.</p>
-            <ul class="landing-print-card__points">
-              <li>Best when you want the story to feel contemporary.</li>
-              <li>Leaves more breathing room around each branch.</li>
-            </ul>
-            <a href="pages/store.html?product=paper-print&source=landing&view=tree">See this style</a>
-          </div>
+        <article class="landing-print-teaser">
+          <p class="landing-kicker">Keepsake</p>
+          <h3>When the story feels final, order a print-ready version.</h3>
+          <p>Choose style and finish after the same tree has been researched and reviewed.</p>
+          <p>The request flow starts from your existing tree data, so there is no second rebuild before print proofing.</p>
+          <a href="pages/store.html?product=paper-print&source=landing&view=tree" class="landing-print-teaser__link">Explore Print Options</a>
+          <img src="images/landing/print-01.webp" alt="Classic heritage printed family tree" loading="lazy" decoding="async" />
         </article>
       </div>
     </section>
 
-    <section class="landing-personas-section" aria-labelledby="personasTitle">
-      <div class="section-heading">
-        <p class="landing-kicker">Who It Helps</p>
-        <h2 id="personasTitle">Built for the moments when family history stops being casual.</h2>
-        <p class="section-intro">Ancestrio is designed for people who need a family record they can research, review, share with relatives, and eventually turn into something tangible.</p>
-      </div>
-
-      <div class="landing-personas-grid">
-        <article class="landing-persona-card">
-          <p class="landing-persona-card__label">Family historians</p>
-          <h3>Keep long-running research from drifting across files.</h3>
-          <p>Dates, relationships, notes, and locations stay in one place while the tree is still being verified.</p>
-        </article>
-        <article class="landing-persona-card">
-          <p class="landing-persona-card__label">Reunion organizers</p>
-          <h3>Share the right version without exposing the editing mess.</h3>
-          <p>Relatives get a cleaner tree view while you keep the builder and corrections behind the scenes.</p>
-        </article>
-        <article class="landing-persona-card">
-          <p class="landing-persona-card__label">Gift planners</p>
-          <h3>Turn a settled tree into something worth framing.</h3>
-          <p>When the story feels finished, move straight into style selection and proof confirmation for print.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="landing-faq-section" aria-labelledby="faqTitle">
-      <div class="section-heading">
-        <p class="landing-kicker">FAQ</p>
-        <h2 id="faqTitle">The questions families ask before they trust the site.</h2>
-        <p class="section-intro">These answers match the product behavior and policies already present across the workspace, store, privacy, and terms pages.</p>
-      </div>
-
-      <div class="landing-faq-list">
-        <article class="faq-item">
-          <button class="faq-toggle" type="button">
-            <span>Is my family tree public by default?</span>
-            <span class="material-symbols-outlined" aria-hidden="true">add</span>
-          </button>
-          <div class="faq-content">
-            <p>No. Trees start private, and you only make them public when you want to share a link with relatives.</p>
-          </div>
-        </article>
-
-        <article class="faq-item">
-          <button class="faq-toggle" type="button">
-            <span>Can I try Ancestrio without creating an account?</span>
-            <span class="material-symbols-outlined" aria-hidden="true">add</span>
-          </button>
-          <div class="faq-content">
-            <p>Yes. Guest mode keeps the draft local to your browser so you can test the workflow before signing in for cloud sync.</p>
-          </div>
-        </article>
-
-        <article class="faq-item">
-          <button class="faq-toggle" type="button">
-            <span>Do relatives need accounts to view a shared tree?</span>
-            <span class="material-symbols-outlined" aria-hidden="true">add</span>
-          </button>
-          <div class="faq-content">
-            <p>No. Relatives can view a public tree by link without needing the editor or a separate account flow.</p>
-          </div>
-        </article>
-
-        <article class="faq-item">
-          <button class="faq-toggle" type="button">
-            <span>Who owns the family tree data I add?</span>
-            <span class="material-symbols-outlined" aria-hidden="true">add</span>
-          </button>
-          <div class="faq-content">
-            <p>You own the family tree data you provide. Ancestrio stores it so the workspace, viewer, and keepsake flow can use the same record.</p>
-          </div>
-        </article>
-
-        <article class="faq-item">
-          <button class="faq-toggle" type="button">
-            <span>How do print requests work?</span>
-            <span class="material-symbols-outlined" aria-hidden="true">add</span>
-          </button>
-          <div class="faq-content">
-            <p>You choose the style, paper finish, and size, then submit a request. Proof and delivery timing are confirmed by email before anything is printed.</p>
-          </div>
-        </article>
-
-        <article class="faq-item">
-          <button class="faq-toggle" type="button">
-            <span>Do you take payment in the app?</span>
-            <span class="material-symbols-outlined" aria-hidden="true">add</span>
-          </button>
-          <div class="faq-content">
-            <p>No. The current store flow captures requests only, and online payment is not processed in the app.</p>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section class="landing-cta">
+    <section class="landing-cta" aria-labelledby="landingCtaTitle">
       <div class="landing-cta-copy">
         <p class="landing-kicker">Ready To Begin</p>
-        <h2>Build the tree once. Share it when it feels ready. Print it when it deserves the wall.</h2>
-        <p>Start with the private workspace now. The print flow stays available when the family story is settled enough to keep.</p>
+        <h2 id="landingCtaTitle">Start your family workspace today.</h2>
+        <p>Create privately now, share when ready, and come back to print only when the tree is settled. The project is designed for ongoing family updates, not one-time static exports, for every branch.</p>
       </div>
       <div class="landing-hero-cta">
         <a href="pages/auth.html" class="landing-btn landing-btn-primary">Start Building</a>
-        <a href="pages/store.html?product=paper-print&source=landing&view=tree" class="landing-btn landing-btn-primary-alt">Print &amp; Gift</a>
+        <a href="pages/demo-tree.html" class="landing-btn landing-btn-secondary">View Demo</a>
       </div>
     </section>
   </main>
@@ -608,7 +208,7 @@
       <div class="site-footer__links">
         <a href="pages/store.html?product=paper-print&source=landing&view=tree">Store</a>
         <a href="pages/demo-tree.html">Demo</a>
-        <a href="pages/contact.html">About &amp; Contact</a>
+        <a href="pages/contact.html">About</a>
         <a href="pages/privacy.html">Privacy</a>
         <a href="pages/terms.html">Terms</a>
         <a href="pages/cookies.html">Cookies</a>
@@ -622,14 +222,10 @@
   </footer>
 
   <script src="scripts/runtime.js"></script>
-  <script src="scripts/night-sky.js"></script>
-  <script src="scripts/day-clouds.js"></script>
+  <script src="scripts/utils.js"></script>
   <script src="scripts/site-header.js?v=6"></script>
   <script src="scripts/theme-toggle.js"></script>
   <script src="scripts/landing.js"></script>
   <script src="scripts/cookie-consent.js"></script>
 </body>
 </html>
-
-
-

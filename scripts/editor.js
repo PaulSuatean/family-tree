@@ -41,6 +41,7 @@ const MEMBER_IMAGE_MAX_BYTES = 180 * 1024;
 const MEMBER_IMAGE_MAX_DIMENSION = 1200;
 const MEMBER_IMAGE_MIN_DIMENSION = 260;
 const THUMBNAIL_MAX_BYTES = 220 * 1024;
+const THUMBNAIL_STYLE_VERSION = 3;
 const IMAGE_FIELD_NAMES = new Set(['image', 'spouseImage', 'thumb', 'spouseThumb', 'thumbnailData']);
 const SAVE_BUTTON_DEFAULT_LABEL = 'Save';
 const SAVE_BUTTON_DIRTY_SUFFIX = ' *';
@@ -74,127 +75,36 @@ let cachedThumbnailHeraldicFrameDataUrlPromise = null;
 const SAVE_BUTTON_SAVING_LABEL = 'Saving...';
 const SAVE_BUTTON_SAVED_LABEL = 'Saved!';
 const editorD3ReadyPromise = (
-  window.AncestrioDeps &&
-  typeof window.AncestrioDeps.ensureD3 === 'function'
-    ? window.AncestrioDeps.ensureD3()
-    : Promise.resolve(window.d3)
+  Promise.resolve(window.d3)
 ).catch((error) => {
   console.error('Failed to load D3 for editor:', error);
   return null;
 });
 const editorFirebaseReadyPromise = (
-  window.AncestrioDeps &&
-  typeof window.AncestrioDeps.ensureFirebaseApp === 'function'
-    ? window.AncestrioDeps.ensureFirebaseApp()
-    : Promise.resolve(typeof initializeFirebase === 'function' ? initializeFirebase() : false)
+  Promise.resolve(typeof initializeFirebase === 'function' ? initializeFirebase() : false)
 ).catch((error) => {
   console.error('Failed to load Firebase for editor:', error);
   return false;
 });
 
-function notifyUser(msg, type) {
-  if (window.AncestrioRuntime && window.AncestrioRuntime.notify) {
-    window.AncestrioRuntime.notify(msg, type);
+const notifyUser = AncUtils.notifyUser;
+const editorMediaUtils = window.AncestrioEditorMediaUtils || {};
+
+function requireEditorMediaHelper(name) {
+  const helper = editorMediaUtils[name];
+  if (typeof helper === 'function') {
+    return helper;
   }
+  throw new Error(`AncestrioEditorMediaUtils.${name} is unavailable.`);
 }
 
-function getUtf8Size(value) {
-  if (value === null || value === undefined) return 0;
-  const text = String(value);
-  if (typeof TextEncoder !== 'undefined') {
-    return new TextEncoder().encode(text).length;
-  }
-  return unescape(encodeURIComponent(text)).length;
-}
-
-function formatBytes(bytes) {
-  if (!Number.isFinite(bytes) || bytes <= 0) return '0 B';
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-}
-
-function isImageDataUrl(value) {
-  return typeof value === 'string' && /^data:image\/[a-zA-Z0-9.+-]+;base64,/i.test(value);
-}
-
-function normalizeEditorAssetPath(value) {
-  const cleaned = safeText(value).trim();
-  if (!cleaned) return '';
-  if (
-    isImageDataUrl(cleaned) ||
-    /^blob:/i.test(cleaned) ||
-    /^(?:https?:)?\/\//i.test(cleaned) ||
-    cleaned.startsWith('../') ||
-    cleaned.startsWith('./') ||
-    cleaned.startsWith('/')
-  ) {
-    return cleaned;
-  }
-  if (cleaned.startsWith('images/')) {
-    return `../${cleaned}`;
-  }
-  return cleaned;
-}
-
-function deriveEditorThumbPath(value) {
-  const normalized = normalizeEditorAssetPath(value);
-  if (
-    !normalized ||
-    isImageDataUrl(normalized) ||
-    /^blob:/i.test(normalized) ||
-    /^(?:https?:)?\/\//i.test(normalized)
-  ) {
-    return normalized;
-  }
-  if (normalized.startsWith('../images/thumbs/')) return normalized;
-  if (normalized.startsWith('../images/')) {
-    return `../images/thumbs/${normalized.slice('../images/'.length)}`;
-  }
-  return normalized;
-}
-
-function resolveEditorAvatarImage(value) {
-  const full = normalizeEditorAssetPath(value);
-  const thumb = deriveEditorThumbPath(value);
-  return {
-    full,
-    preferred: thumb || full || ''
-  };
-}
-
-function readFileAsDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const result = typeof event.target?.result === 'string' ? event.target.result : '';
-      resolve(result);
-    };
-    reader.onerror = () => reject(reader.error || new Error('Failed to read file'));
-    reader.readAsDataURL(file);
-  });
-}
-
-function blobToDataUrl(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = typeof reader.result === 'string' ? reader.result : '';
-      resolve(result);
-    };
-    reader.onerror = () => reject(reader.error || new Error('Failed to convert blob'));
-    reader.readAsDataURL(blob);
-  });
-}
-
-function loadImageElement(dataUrl) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error('Failed to load image data'));
-    img.src = dataUrl;
-  });
-}
+const getUtf8Size = requireEditorMediaHelper('getUtf8Size');
+const formatBytes = requireEditorMediaHelper('formatBytes');
+const isImageDataUrl = requireEditorMediaHelper('isImageDataUrl');
+const resolveEditorAvatarImage = requireEditorMediaHelper('resolveEditorAvatarImage');
+const readFileAsDataUrl = requireEditorMediaHelper('readFileAsDataUrl');
+const blobToDataUrl = requireEditorMediaHelper('blobToDataUrl');
+const loadImageElement = requireEditorMediaHelper('loadImageElement');
 
 async function compressImageDataUrl(dataUrl, options = {}) {
   if (!isImageDataUrl(dataUrl)) return dataUrl;
@@ -399,13 +309,7 @@ function getTreeSettingsFromSource(source) {
   };
 }
 
-function sanitizeViewStyleValue(value, fallback, allowedValues) {
-  const normalized = String(value == null ? '' : value)
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, '');
-  return allowedValues.has(normalized) ? normalized : fallback;
-}
+const sanitizeViewStyleValue = AncUtils.sanitizeViewStyleValue;
 
 function resolveTreeViewStyle(source) {
   const nested = (source && source.viewStyle && typeof source.viewStyle === 'object')
@@ -1180,10 +1084,12 @@ function applyExportThemeVariables(svgNode) {
     bodyStyles.getPropertyValue('--editor-person-bubble-fill') ||
     bodyStyles.getPropertyValue('--node-fill') ||
     bodyStyles.getPropertyValue('--surface') ||
+    bodyStyles.getPropertyValue('--surface-2') ||
     rootStyles.getPropertyValue('--editor-person-bubble-fill') ||
     rootStyles.getPropertyValue('--node-fill') ||
     rootStyles.getPropertyValue('--surface') ||
-    '#f1f3f5'
+    rootStyles.getPropertyValue('--surface-2') ||
+    '#edf5fc'
   ).trim();
   svgNode.style.setProperty('--person-bubble-bg', activeBubbleBg);
 }
@@ -1246,40 +1152,75 @@ function applyExportBubbleOverrides(svgNode, bubblePresetId) {
   });
 }
 
+function readThemeColor(variableName, fallbackColor) {
+  const rootStyles = window.getComputedStyle(document.documentElement);
+  const bodyStyles = window.getComputedStyle(document.body || document.documentElement);
+  const colorValue = (bodyStyles.getPropertyValue(variableName) || rootStyles.getPropertyValue(variableName) || '').trim();
+  return colorValue || fallbackColor;
+}
+
 function drawThemeDefaultThumbnailBackground(ctx, width, height) {
+  const bodyBackgroundColor = window.getComputedStyle(document.body || document.documentElement).backgroundColor;
+  const pageBg = readThemeColor('--page-bg', bodyBackgroundColor);
+  const pageBgAlt = readThemeColor('--page-bg-2', pageBg);
+  const minorGrid = readThemeColor('--editor-accent-grid', 'rgba(143, 198, 255, 0.1)');
+  const majorGrid = readThemeColor('--editor-accent-grid-strong', 'rgba(143, 198, 255, 0.18)');
+  const crossColor = readThemeColor('--accent-soft', majorGrid);
+
   const baseGradient = ctx.createLinearGradient(0, 0, width, height);
-  baseGradient.addColorStop(0, '#14345f');
-  baseGradient.addColorStop(0.58, '#215392');
-  baseGradient.addColorStop(1, '#193c6a');
+  baseGradient.addColorStop(0, pageBg);
+  baseGradient.addColorStop(1, pageBgAlt);
   ctx.fillStyle = baseGradient;
   ctx.fillRect(0, 0, width, height);
 
-  const glowA = ctx.createRadialGradient(width * 0.22, height * 0.18, 0, width * 0.22, height * 0.18, width * 0.48);
-  glowA.addColorStop(0, 'rgba(143, 194, 255, 0.26)');
-  glowA.addColorStop(1, 'rgba(143, 194, 255, 0)');
-  ctx.fillStyle = glowA;
-  ctx.fillRect(0, 0, width, height);
+  const minorStep = 24;
+  const majorStep = minorStep * 5;
 
-  const glowB = ctx.createRadialGradient(width * 0.8, height * 0.78, 0, width * 0.8, height * 0.78, width * 0.4);
-  glowB.addColorStop(0, 'rgba(69, 133, 219, 0.2)');
-  glowB.addColorStop(1, 'rgba(69, 133, 219, 0)');
-  ctx.fillStyle = glowB;
-  ctx.fillRect(0, 0, width, height);
-
-  const dotColors = [
-    'rgba(245, 250, 255, 0.7)',
-    'rgba(250, 168, 126, 0.78)',
-    'rgba(217, 234, 255, 0.64)'
-  ];
-  for (let i = 0; i < 52; i += 1) {
-    const x = ((i * 149) % 1000) / 1000 * width;
-    const y = ((i * 197 + 141) % 1000) / 1000 * height;
-    const radius = (i % 5 === 0) ? 2.3 : ((i % 3 === 0) ? 1.8 : 1.35);
-    ctx.fillStyle = dotColors[i % dotColors.length];
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.fill();
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = minorGrid;
+  ctx.beginPath();
+  for (let x = 0; x <= width; x += minorStep) {
+    const snappedX = Math.round(x) + 0.5;
+    ctx.moveTo(snappedX, 0);
+    ctx.lineTo(snappedX, height);
   }
+  for (let y = 0; y <= height; y += minorStep) {
+    const snappedY = Math.round(y) + 0.5;
+    ctx.moveTo(0, snappedY);
+    ctx.lineTo(width, snappedY);
+  }
+  ctx.stroke();
+
+  ctx.strokeStyle = majorGrid;
+  ctx.beginPath();
+  for (let x = 0; x <= width; x += majorStep) {
+    const snappedX = Math.round(x) + 0.5;
+    ctx.moveTo(snappedX, 0);
+    ctx.lineTo(snappedX, height);
+  }
+  for (let y = 0; y <= height; y += majorStep) {
+    const snappedY = Math.round(y) + 0.5;
+    ctx.moveTo(0, snappedY);
+    ctx.lineTo(width, snappedY);
+  }
+  ctx.stroke();
+
+  ctx.strokeStyle = crossColor;
+  ctx.globalAlpha = 0.24;
+  ctx.beginPath();
+  const crossHalfSize = 2;
+  for (let x = majorStep; x < width; x += majorStep) {
+    const snappedX = Math.round(x) + 0.5;
+    for (let y = majorStep; y < height; y += majorStep) {
+      const snappedY = Math.round(y) + 0.5;
+      ctx.moveTo(snappedX - crossHalfSize, snappedY);
+      ctx.lineTo(snappedX + crossHalfSize, snappedY);
+      ctx.moveTo(snappedX, snappedY - crossHalfSize);
+      ctx.lineTo(snappedX, snappedY + crossHalfSize);
+    }
+  }
+  ctx.stroke();
+  ctx.globalAlpha = 1;
 }
 
 function drawParchmentClassicThumbnailBackground(ctx, width, height) {
@@ -1456,7 +1397,6 @@ async function drawThumbnailBackground(ctx, width, height, backgroundPresetId) {
 async function generateTreeThumbnail() {
   try {
     if (!visualState.svg || !visualState.g) {
-      console.log('Visual editor not initialized, skipping thumbnail generation');
       return null;
     }
     
@@ -1467,7 +1407,6 @@ async function generateTreeThumbnail() {
     // Get the bounding box of all content
     const bbox = visualState.g.node().getBBox();
     if (!bbox || bbox.width === 0 || bbox.height === 0) {
-      console.log('Empty tree, skipping thumbnail');
       return null;
     }
     
@@ -1514,10 +1453,10 @@ async function generateTreeThumbnail() {
     const visitedSheets = new Set();
     const cssText = styleSheets.map((sheet) => collectExportCssRules(sheet, visitedSheets)).join('\n');
     const fallbackTreeCss = [
-      '#visualTree .person rect { fill: var(--editor-person-bubble-fill, var(--person-bubble-bg, #f1f3f5)); stroke: var(--editor-person-bubble-stroke, var(--border, rgba(230, 238, 249, 0.18))); stroke-width: 2px; filter: var(--editor-person-bubble-shadow, drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15))); }',
-      '#visualTree .person .name { fill: var(--editor-person-name-color, var(--text, #e6eef9)); font-size: 14px; font-weight: 700; }',
-      '#visualTree .link { fill: none; stroke: var(--line, #cbd5e1); stroke-width: 2.25px; }',
-      '#visualTree .avatar-group > circle { fill: var(--editor-person-avatar-bg, var(--surface-2, #132a46)); stroke: var(--editor-person-bubble-stroke, var(--border, rgba(230, 238, 249, 0.18))); stroke-width: 2px; }'
+      '#visualTree .person rect { fill: var(--editor-person-bubble-fill, var(--person-bubble-bg, var(--surface-2, #edf5fc))); stroke: var(--editor-person-bubble-stroke, var(--border, rgba(23, 49, 79, 0.16))); stroke-width: 2px; filter: var(--editor-person-bubble-shadow, none); }',
+      '#visualTree .person .name { fill: var(--editor-person-name-color, var(--text, #17314f)); font-size: 14px; font-weight: 700; }',
+      '#visualTree .link { fill: none; stroke: var(--line, #c7d8ea); stroke-width: 2.25px; }',
+      '#visualTree .avatar-group > circle { fill: var(--editor-person-avatar-bg, var(--surface-2, #edf5fc)); stroke: var(--editor-person-bubble-stroke, var(--border, rgba(23, 49, 79, 0.16))); stroke-width: 2px; }'
     ].join('\n');
     
     // Add a style element to the cloned SVG
@@ -1578,7 +1517,11 @@ async function generateTreeThumbnail() {
 }
 
 function hasStoredThumbnail(tree) {
-  return Boolean(tree && typeof tree.thumbnailData === 'string' && tree.thumbnailData.trim().length > 0);
+  if (!tree || typeof tree.thumbnailData !== 'string' || tree.thumbnailData.trim().length === 0) {
+    return false;
+  }
+  const version = Number(tree.thumbnailStyleVersion);
+  return Number.isFinite(version) && version >= THUMBNAIL_STYLE_VERSION;
 }
 
 function waitForVisualRender(ms = 160) {
@@ -1643,10 +1586,12 @@ async function ensureTreeThumbnailForDashboard() {
 
       await db.collection('trees').doc(treeId).update({
         thumbnailData,
+        thumbnailStyleVersion: THUMBNAIL_STYLE_VERSION,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
 
       currentTree.thumbnailData = thumbnailData;
+      currentTree.thumbnailStyleVersion = THUMBNAIL_STYLE_VERSION;
       return true;
     } catch (error) {
       console.error('Failed to create missing dashboard thumbnail:', error);
@@ -1688,7 +1633,7 @@ async function saveTree() {
       let treeData;
       try {
         treeData = JSON.parse(jsonText);
-      } catch (e) {
+      } catch (_error) {
         showJsonStatus('Invalid JSON format. Please fix errors before saving.', 'invalid');
         notifyUser('Invalid JSON format. Please fix errors before saving.', 'warning');
         return false;
@@ -1762,14 +1707,12 @@ async function saveTree() {
               fillBackground: true
             });
             if (thumbnailData) {
-              console.log('Thumbnail generated successfully');
+              // thumbnail generated
             } else {
               notifyUser('Thumbnail exceeded size limits and was skipped for this save.', 'warning', {
                 duration: 4600
               });
             }
-          } else {
-            console.log('No thumbnail blob generated - tree may be empty');
           }
         }
       } catch (thumbnailError) {
@@ -1804,6 +1747,7 @@ async function saveTree() {
       // Only update thumbnailData if we have a new one
       if (thumbnailData) {
         updateData.thumbnailData = thumbnailData;
+        updateData.thumbnailStyleVersion = THUMBNAIL_STYLE_VERSION;
       }
 
       const estimatedPayloadSize = estimateFirestorePayloadSize({
@@ -1841,6 +1785,7 @@ async function saveTree() {
       currentTree.data = treeData;
       if (thumbnailData) {
         currentTree.thumbnailData = thumbnailData;
+        currentTree.thumbnailStyleVersion = THUMBNAIL_STYLE_VERSION;
       }
 
       // Update JSON editor to reflect cleaned data
@@ -1923,7 +1868,7 @@ function buildLocalPreviewDraft() {
   let treeData;
   try {
     treeData = JSON.parse(jsonEditor.value || '{}');
-  } catch (e) {
+  } catch (_error) {
     showJsonStatus('Invalid JSON format. Please fix errors before preview.', 'invalid');
     notifyUser('Invalid JSON format. Please fix errors before preview.', 'warning');
     return null;
@@ -2064,7 +2009,7 @@ function formatJson() {
     jsonEditor.value = JSON.stringify(parsed, null, 2);
     showJsonStatus('Formatted successfully', 'valid');
     scheduleVisualRender(false);
-  } catch (e) {
+  } catch (_error) {
     showJsonStatus('Invalid JSON - cannot format', 'invalid');
   }
 }
@@ -2259,58 +2204,6 @@ function resetVisualView(forceReset) {
   scheduleVisualRender(true);
 }
 
-function restructureForOrigin(data) {
-  // Find the origin node (marked with isOrigin: true)
-  function findOrigin(node) {
-    if (node && node.isOrigin) return node;
-    if (node && Array.isArray(node.children)) {
-      for (let child of node.children) {
-        const found = findOrigin(child);
-        if (found) return found;
-      }
-    }
-    return null;
-  }
-
-  const originNode = findOrigin(data);
-  if (!originNode) return data; // No origin found, return as-is
-
-  // Find parent of origin node
-  function findNodeAndParent(current, target, parent = null) {
-    if (current === target) return { node: current, parent };
-    if (current && Array.isArray(current.children)) {
-      for (let child of current.children) {
-        const result = findNodeAndParent(child, target, current);
-        if (result) return result;
-      }
-    }
-    return null;
-  }
-
-  const result = findNodeAndParent(data, originNode);
-  if (!result || !result.parent) return data; // Origin is root, return as-is
-
-  // Clone the selected origin node as-is so visual schema fields stay intact.
-  const newRoot = JSON.parse(JSON.stringify(originNode));
-  if (!Array.isArray(newRoot.children)) {
-    newRoot.children = [];
-  }
-
-  // Deep clone the parent and remove the origin node from its children by index.
-  const parentCopy = JSON.parse(JSON.stringify(result.parent));
-  const originIndex = Array.isArray(result.parent.children)
-    ? result.parent.children.indexOf(originNode)
-    : -1;
-  if (Array.isArray(parentCopy.children) && originIndex >= 0) {
-    parentCopy.children.splice(originIndex, 1);
-  }
-
-  // Store the parent hierarchy as "parents" property
-  newRoot.parents = parentCopy;
-
-  return newRoot;
-}
-
 function scheduleVisualRender(resetTransform) {
   if (!visualState.initialized) return;
   if (visualState.pendingRender) {
@@ -2330,7 +2223,6 @@ function scheduleVisualRender(resetTransform) {
 
 function renderVisualEditor(resetTransform) {
   if (!visualState.initialized) {
-    console.log('Visual state not initialized');
     return;
   }
   if (!visualState.initialDataReady) {
@@ -2344,14 +2236,12 @@ function renderVisualEditor(resetTransform) {
   try {
     data = JSON.parse(jsonEditor.value || '{}');
   } catch (e) {
-    console.log('JSON parse error:', e);
+    console.error('JSON parse error:', e);
     visualState.g.selectAll('*').remove();
     return;
   }
 
-  console.log('Parsed tree data:', data);
   let treeData = buildVisualTreeData(data);
-  console.log('Built visual tree data:', treeData);
   if (!treeData) {
     if (!visualState.autoSeeded) {
       const seeded = ensureDefaultTreeData(data);
@@ -3721,7 +3611,7 @@ function safeText(value) {
   return String(value).trim();
 }
 
-function formatCoupleLabel(primary, spouse) {
+function formatCoupleLabel(primary, _spouse) {
   const main = safeText(primary);
   // Only show primary person's name - spouse will be rendered as separate node
   return main || 'Member';
@@ -3738,7 +3628,7 @@ function addMemberAt(meta, memberData) {
   let treeData;
   try {
     treeData = JSON.parse(jsonEditor.value || '{}');
-  } catch (e) {
+  } catch (_error) {
     showJsonStatus('JSON is invalid. Fix it before adding members.', 'invalid');
     notifyUser('JSON is invalid. Fix it before adding members.', 'warning');
     return;
@@ -4121,7 +4011,7 @@ function deleteMember(meta) {
   let treeData;
   try {
     treeData = JSON.parse(jsonEditor.value || '{}');
-  } catch (e) {
+  } catch (_error) {
     showJsonStatus('JSON is invalid. Fix it before deleting members.', 'invalid');
     notifyUser('JSON is invalid. Fix it before deleting members.', 'warning');
     return;
@@ -4154,7 +4044,7 @@ function performDelete() {
   let treeData;
   try {
     treeData = JSON.parse(jsonEditor.value || '{}');
-  } catch (e) {
+  } catch (_error) {
     showJsonStatus('JSON is invalid. Fix it before deleting members.', 'invalid');
     notifyUser('JSON is invalid. Fix it before deleting members.', 'warning');
     hideDeleteConfirmModal();
@@ -4428,6 +4318,7 @@ function showAddMemberModal(relation) {
 
   resetAddMemberForm();
   modal.classList.add('show');
+  document.body.classList.add('scroll-locked');
 }
 
 function showEditMemberModal(meta) {
@@ -4445,7 +4336,7 @@ function showEditMemberModal(meta) {
   let treeData;
   try {
     treeData = JSON.parse(jsonEditor.value || '{}');
-  } catch (e) {
+  } catch (_error) {
     showJsonStatus('JSON is invalid. Fix it before editing members.', 'invalid');
     notifyUser('JSON is invalid. Fix it before editing members.', 'warning');
     return;
@@ -4479,12 +4370,16 @@ function showEditMemberModal(meta) {
   resetAddMemberForm();
   fillMemberForm(existing);
   modal.classList.add('show');
+  document.body.classList.add('scroll-locked');
 }
 
 function hideAddMemberModal() {
   const modal = document.getElementById('addMemberModal');
   if (modal) {
     modal.classList.remove('show');
+  }
+  if (!document.querySelector('.modal:not([hidden])')) {
+    document.body.classList.remove('scroll-locked');
   }
   pendingAddMemberMeta = null;
   pendingAddRelation = null;
@@ -4921,7 +4816,7 @@ function updateMemberAt(meta, memberData) {
   let treeData;
   try {
     treeData = JSON.parse(jsonEditor.value || '{}');
-  } catch (e) {
+  } catch (_error) {
     showJsonStatus('JSON is invalid. Fix it before editing members.', 'invalid');
     notifyUser('JSON is invalid. Fix it before editing members.', 'warning');
     return false;
@@ -4938,5 +4833,6 @@ function updateMemberAt(meta, memberData) {
   scheduleVisualRender(false);
   return true;
 }
+
 
 

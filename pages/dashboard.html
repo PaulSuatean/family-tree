@@ -25,10 +25,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  <script src="../scripts/theme-init.js"></script>
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="../styles/components.css" />
-  <link rel="stylesheet" href="../styles/page-overrides.css" />
   <link rel="stylesheet" href="../styles/page-common.css" />
   <link rel="stylesheet" href="../styles/dashboard.css?v=18" />
   <link rel="stylesheet" href="../styles/shell.css?v=7" />
@@ -51,7 +51,7 @@
         <a href="../index.html">Home</a>
         <a href="demo-tree.html">Demo</a>
         <a href="store.html?product=paper-print&source=dashboard&view=tree">Store</a>
-        <a href="contact.html">About &amp; Contact</a>
+        <a href="contact.html">About</a>
       </nav>
       <div class="site-header__actions">
         <button id="themeBtn" title="Switch theme" aria-label="Switch theme">
@@ -95,7 +95,7 @@
         <!-- Trees will be loaded here -->
       </div>
 
-      <div id="emptyState" class="empty-state" style="display: none;">
+      <div id="emptyState" class="empty-state" hidden>
         <span class="material-symbols-outlined empty-icon">account_tree</span>
         <h3>No family trees yet</h3>
         <p>Create your first family tree to get started</p>
@@ -114,42 +114,6 @@
         <div class="spinner"></div>
         <p>Loading your trees...</p>
       </div>
-
-      <section class="account-panel surface-card" id="accountPanel" aria-label="Account settings">
-        <div class="account-panel__header">
-          <div class="account-panel__intro">
-            <p class="page-kicker">Account</p>
-            <h2 class="account-panel__title" id="accountPanelTitle">Account &amp; data controls</h2>
-            <p class="account-panel__subtitle">Manage your account, review data policies, and remove your data when needed.</p>
-          </div>
-          <button
-            type="button"
-            class="account-panel__toggle"
-            id="accountPanelToggle"
-            aria-expanded="true"
-            aria-controls="accountPanelBody"
-            aria-labelledby="accountPanelTitle accountPanelToggleText"
-          >
-            <span class="account-panel__toggle-text" id="accountPanelToggleText">Collapse</span>
-            <span class="account-panel__toggle-icon material-symbols-outlined" aria-hidden="true">expand_more</span>
-          </button>
-        </div>
-        <div class="account-panel__body" id="accountPanelBody">
-          <div
-            class="account-warning"
-            title="Deleting your account removes your trees, order requests, and profile data."
-          >
-            <span class="account-warning__title">Delete account</span>
-            <span class="account-warning__text">Removes trees, orders, and profile data.</span>
-            <span class="account-guest-note" id="accountGuestNote" hidden>Guest mode is local-only. Leave guest mode to delete a cloud account.</span>
-          </div>
-          <div class="account-panel__card">
-            <span class="account-label">Signed in as</span>
-            <span class="account-value" id="accountIdentity">Loading...</span>
-          </div>
-          <button type="button" class="btn-danger" id="deleteAccountBtn">Delete account</button>
-        </div>
-      </section>
     </div>
   </main>
 
@@ -157,9 +121,10 @@
     <div class="site-footer__inner">
       <p>&copy; <span data-site-footer-year></span> Ancestrio</p>
       <div class="site-footer__links">
+        <button type="button" class="site-footer__link-btn" id="deleteAccountBtn">Delete account</button>
         <a href="store.html?product=paper-print&source=dashboard&view=tree">Store</a>
         <a href="demo-tree.html">Demo</a>
-        <a href="contact.html">About &amp; Contact</a>
+        <a href="contact.html">About</a>
         <a href="privacy.html">Privacy</a>
         <a href="terms.html">Terms</a>
         <a href="cookies.html">Cookies</a>
@@ -168,8 +133,91 @@
     </div>
   </footer>
 
+  <!-- Create Tree Mode Modal -->
+  <div id="createTreeModeModal" class="modal" hidden>
+    <div class="modal-dialog modal-small create-mode-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Create New Tree</h3>
+          <button class="modal-close" id="closeCreateModeModal" aria-label="Close create options">&times;</button>
+        </div>
+        <div class="modal-body create-mode-body">
+          <p class="step-subtitle">Choose how you want to start your next family tree.</p>
+          <button type="button" class="btn-primary create-mode-action" id="startWizardBtn">
+            Guided setup (Wizard)
+          </button>
+          <button type="button" class="btn-secondary create-mode-action" id="startManualBtn">
+            Create manually from scratch
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manual Create Modal -->
+  <div id="manualCreateModal" class="modal" hidden>
+    <div class="modal-dialog modal-small manual-create-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Create Manually</h3>
+          <button class="modal-close" id="closeManualCreateModal" aria-label="Close manual create">&times;</button>
+        </div>
+        <div class="modal-body manual-create-body">
+          <div class="form-group form-group-error-slot">
+            <label class="form-label" for="manualTreeName">Family Tree Name <span class="required">*</span></label>
+            <div id="manualTreeNameError" class="form-error" hidden>Family tree name is required</div>
+            <input type="text" class="form-input" id="manualTreeName" required placeholder="e.g., Smith Family Tree" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Privacy</label>
+            <div class="radio-group radio-group-inline">
+              <label class="radio-label">
+                <input type="radio" name="manualPrivacy" value="private" checked />
+                <span>Private</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="manualPrivacy" value="public" />
+                <span>Public</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Enable birthdays</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="manualEnableBirthdays" value="yes" checked />
+                <span>Yes</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="manualEnableBirthdays" value="no" />
+                <span>No</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Enable globe countries</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="manualEnableGlobeCountries" value="yes" checked />
+                <span>Yes</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="manualEnableGlobeCountries" value="no" />
+                <span>No</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="cancelManualCreateBtn">Cancel</button>
+          <button type="button" class="btn-primary" id="confirmManualCreateBtn">Create &amp; Open Editor</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Create Tree Wizard Modal -->
-  <div id="createTreeModal" class="modal" style="display: none;">
+  <div id="createTreeModal" class="modal" hidden>
     <div class="modal-dialog modal-wizard">
       <div class="modal-content">
         <div class="modal-header">
@@ -232,9 +280,9 @@
             <h4 class="step-heading" id="step2Heading">About You</h4>
             <p class="step-subtitle" id="step2Subtitle">Add tree details and the central person's information.</p>
 
-            <div class="form-group">
+            <div class="form-group form-group-error-slot">
               <label class="form-label" for="treeName">Family Tree Name <span class="required">*</span></label>
-              <div id="treeNameError" class="form-error" style="display: none;">Family tree name is required</div>
+              <div id="treeNameError" class="form-error" hidden>Family tree name is required</div>
               <input type="text" class="form-input" id="treeName" required placeholder="e.g., Smith Family Tree" />
             </div>
             <div class="form-group">
@@ -255,9 +303,9 @@
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group form-group-error-slot">
               <label class="form-label" id="centralNameLabel">Your full name <span class="required">*</span></label>
-              <div id="centralPersonNameError" class="form-error" style="display: none;">First name and last name are required</div>
+              <div id="centralPersonNameError" class="form-error" hidden>First name and last name are required</div>
               <div class="name-input-row">
                 <div class="name-input-group">
                   <label class="form-label name-sub-label" for="centralPersonFirstName">First Name <span class="required">*</span></label>
@@ -282,14 +330,14 @@
                 >?</button>
               </div>
               <input type="text" class="form-input" id="centralBirthdate" placeholder="06/01/1950" maxlength="10" inputmode="numeric" />
-              <p class="field-info" id="birthdateInfo" style="display: none;">Birthdate enables birthday calendar and birthday notifications.</p>
+              <p class="field-info" id="birthdateInfo" hidden>Birthdate enables birthday calendar and birthday notifications.</p>
             </div>
             <div class="form-group">
               <label class="form-label" for="centralPhotoUrl">Photo URL (Optional)</label>
               <input type="url" class="form-input" id="centralPhotoUrl" placeholder="https://example.com/photo.jpg" />
             </div>
 
-            <div class="form-group" id="relationshipGroup" style="display: none;">
+            <div class="form-group" id="relationshipGroup" hidden>
               <label class="form-label" for="creatorRelationship">Your relationship to this person (Optional)</label>
               <select class="form-input" id="creatorRelationship">
                 <option value="">Select relationship</option>
@@ -302,7 +350,7 @@
                 <option value="other">Other</option>
               </select>
             </div>
-            <div class="form-group" id="relationshipOtherGroup" style="display: none;">
+            <div class="form-group" id="relationshipOtherGroup" hidden>
               <label class="form-label" for="creatorRelationshipOther">Custom relationship (Optional)</label>
               <input type="text" class="form-input" id="creatorRelationshipOther" placeholder="Describe your relationship" />
             </div>
@@ -372,7 +420,7 @@
               </div>
             </div>
 
-            <div class="conditional-block" id="siblingsBlock" style="display: none;">
+            <div class="conditional-block" id="siblingsBlock" hidden>
               <div class="form-group">
                 <label class="form-label" id="siblingsListLabel">Add siblings</label>
                 <div id="siblingsList" class="person-list"></div>
@@ -420,14 +468,14 @@
               </div>
             </div>
 
-            <div class="conditional-block" id="childrenBlock" style="display: none;">
+            <div class="conditional-block" id="childrenBlock" hidden>
               <div class="form-group">
                 <label class="form-label" id="childrenListLabel">Add children</label>
                 <div id="childrenList" class="person-list"></div>
               </div>
             </div>
 
-            <div class="form-group" id="grandchildrenQuestionGroup" style="display: none;">
+            <div class="form-group" id="grandchildrenQuestionGroup" hidden>
               <label class="form-label" id="grandchildrenQuestion">Do you have grandchildren?</label>
               <div class="radio-group">
                 <label class="radio-label">
@@ -441,7 +489,7 @@
               </div>
             </div>
 
-            <div class="conditional-block" id="grandchildrenBlock" style="display: none;">
+            <div class="conditional-block" id="grandchildrenBlock" hidden>
               <div class="form-group">
                 <label class="form-label" id="grandchildrenListLabel">Add grandchildren</label>
                 <div id="grandchildrenList" class="person-list"></div>
@@ -466,9 +514,9 @@
   </div>
 
   <!-- Share Tree Modal -->
-  <div id="shareTreeModal" class="modal share-modal" role="dialog" aria-modal="true" aria-hidden="true" style="display: none;">
+  <div id="shareTreeModal" class="modal share-modal" role="dialog" aria-modal="true" aria-hidden="true" hidden>
     <div class="modal-dialog share-modal-dialog">
-      <div class="modal-content share-modal-card">
+      <div class="share-modal-card">
         <div class="share-modal-top">
           <div class="share-modal-icon" aria-hidden="true">
             <span class="material-symbols-outlined">link</span>
@@ -543,7 +591,7 @@
   </div>
 
   <!-- Delete Confirmation Modal -->
-  <div id="deleteModal" class="modal" style="display: none;">
+  <div id="deleteModal" class="modal" hidden>
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -563,7 +611,7 @@
   </div>
 
   <!-- Delete Account Modal -->
-  <div id="deleteAccountModal" class="modal" style="display: none;">
+  <div id="deleteAccountModal" class="modal" hidden>
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -581,7 +629,7 @@
             <label class="form-label" for="deleteAccountConfirmInput">Type DELETE to confirm</label>
             <input type="text" class="form-input" id="deleteAccountConfirmInput" autocomplete="off" />
           </div>
-          <div class="account-delete-reauth" id="deleteAccountReauth" style="display: none;">
+          <div class="account-delete-reauth" id="deleteAccountReauth" hidden>
             <p id="deleteAccountReauthCopy">For your security, please re-authenticate to finish deletion.</p>
             <div class="form-group" id="deleteAccountPasswordGroup">
               <label class="form-label" for="deleteAccountPassword">Password</label>
@@ -602,8 +650,7 @@
 
   <!-- Firebase SDK -->
   <script src="../scripts/runtime.js"></script>
-  <script src="../scripts/night-sky.js"></script>
-  <script src="../scripts/day-clouds.js"></script>
+  <script src="../scripts/utils.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -621,9 +668,9 @@
     data-cfasync="false"
     data-src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
     data-id="paulsuatean"
-    data-description="Support me on Buy me a coffee!"
+    data-description="Support me on Buy Me a Coffee!"
     data-message=""
-    data-color="#FFDD00"
+    data-color="auto"
     data-position="Right"
     data-x_margin="18"
     data-y_margin="18"

@@ -19,6 +19,26 @@
     }
   }
 
+  function buildSocialShareUrl(platform, shareUrl, title) {
+    const encodedUrl = encodeURIComponent(shareUrl || '');
+    const encodedTitle = encodeURIComponent(title || 'Family tree');
+
+    switch (platform) {
+      case 'facebook':
+        return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+      case 'x':
+        return `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
+      case 'whatsapp':
+        return `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`;
+      case 'telegram':
+        return `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`;
+      case 'linkedin':
+        return `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+      default:
+        return '';
+    }
+  }
+
   async function copyToClipboard(text) {
     const value = typeof text === 'string' ? text : '';
     if (!value) return false;
@@ -65,14 +85,66 @@
     }
     if (safeType === 'error') {
       console.error(safeMessage);
-      return;
     }
-    console.log(safeMessage);
+  }
+
+  function setSocialShareLinks(options) {
+    const opts = options && typeof options === 'object' ? options : {};
+    const shareUrl = typeof opts.shareUrl === 'string' ? opts.shareUrl : '';
+    const treeName = typeof opts.treeName === 'string' ? opts.treeName : 'Family tree';
+    const isPublic = opts.isPublic === true;
+    const links = Array.from(
+      opts.links || (global.document ? global.document.querySelectorAll('[data-share-platform]') : [])
+    );
+
+    links.forEach((link) => {
+      const platform = link && link.dataset ? link.dataset.sharePlatform : '';
+      if (!link || !platform) return;
+
+      if (!isPublic || !shareUrl) {
+        link.removeAttribute('href');
+        link.setAttribute('aria-disabled', 'true');
+        link.tabIndex = -1;
+        link.classList.add('is-disabled');
+        return;
+      }
+
+      const platformUrl = buildSocialShareUrl(platform, shareUrl, treeName);
+      if (platformUrl) {
+        link.href = platformUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+      }
+      link.removeAttribute('aria-disabled');
+      link.tabIndex = 0;
+      link.classList.remove('is-disabled');
+    });
+  }
+
+  async function copyShareLink(shareUrl, options) {
+    const opts = options && typeof options === 'object' ? options : {};
+    const safeShareUrl = typeof shareUrl === 'string' ? shareUrl : '';
+    if (!safeShareUrl) {
+      notifyShare(opts.unavailableMessage || 'Share link is not available.', 'warning');
+      return false;
+    }
+
+    const copied = await copyToClipboard(safeShareUrl);
+    if (copied) {
+      notifyShare(opts.successMessage || 'Share link copied.', 'success');
+      return true;
+    }
+
+    notifyShare(opts.failureMessage || 'Unable to copy link. Please copy it manually.', 'warning');
+    return false;
   }
 
   global.AncestrioShareUtils = {
     buildTreeShareUrl,
+    buildSocialShareUrl,
+    setSocialShareLinks,
     copyToClipboard,
+    copyShareLink,
     notifyShare
   };
 })(window);

@@ -32,34 +32,17 @@ const treeFirebaseBootstrapPromise = (
   !initialPreviewKey && (initialTreeId || initialInviteToken)
 )
   ? (
-      window.AncestrioDeps &&
-      typeof window.AncestrioDeps.ensureFirebaseApp === 'function'
-        ? window.AncestrioDeps.ensureFirebaseApp()
-        : Promise.resolve(typeof initializeFirebase === 'function' ? initializeFirebase() : false)
+      Promise.resolve(typeof initializeFirebase === 'function' ? initializeFirebase() : false)
     ).catch((error) => {
       console.error('Failed to load Firebase for tree viewer:', error);
       return false;
     })
   : Promise.resolve(false);
+const parseTreeFeatureFlag = typeof AncUtils.parseBooleanFlag === 'function'
+  ? AncUtils.parseBooleanFlag
+  : function parseTreeFeatureFlagFallback(_value, fallback = true) { return fallback; };
 
-function parseTreeFeatureFlag(value, fallback = true) {
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'number') return value !== 0;
-  if (typeof value === 'string') {
-    const normalized = value.trim().toLowerCase();
-    if (['1', 'true', 'yes', 'on', 'enabled'].includes(normalized)) return true;
-    if (['0', 'false', 'no', 'off', 'disabled'].includes(normalized)) return false;
-  }
-  return fallback;
-}
-
-function sanitizeTreeViewStyleValue(value, fallback, allowedValues) {
-  const normalized = String(value == null ? '' : value)
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, '');
-  return allowedValues.has(normalized) ? normalized : fallback;
-}
+const sanitizeTreeViewStyleValue = AncUtils.sanitizeViewStyleValue;
 
 function resolveTreeViewerSettings(source) {
   const calendarFlag = (source && Object.prototype.hasOwnProperty.call(source, 'enableCalendarDates'))
@@ -285,166 +268,4 @@ document.addEventListener('DOMContentLoaded', () => {
     const loggedIn = hasFirebaseApp && firebase.auth().currentUser;
     window.location.href = loggedIn ? 'dashboard.html' : '../index.html';
   });
-
-  // Initialize suggestion panel for invited users after tree data is ready
-  (window.FIREBASE_TREE_READY || Promise.resolve()).then(function () {
-    initSuggestPanel();
-  });
 });
-
-function initSuggestPanel() {
-  const invite = window.FIREBASE_INVITE_DATA;
-  if (!invite) return;
-
-  const panel = document.getElementById('suggestPanel');
-  const form = document.getElementById('suggestForm');
-  const nameInput = document.getElementById('suggestName');
-  const messageInput = document.getElementById('suggestMessage');
-  const submitBtn = document.getElementById('suggestSubmitBtn');
-  const loginPrompt = document.getElementById('suggestLoginPrompt');
-  const toggleBtn = document.getElementById('suggestPanelToggle');
-  const body = document.getElementById('suggestPanelBody');
-  const addDashboardSection = document.getElementById('suggestAddDashboard');
-  const addDashboardBtn = document.getElementById('addToDashboardBtn');
-
-  if (!panel) return;
-
-  // Tree data is already loaded at this point (called after FIREBASE_TREE_READY).
-  if (window.FIREBASE_TREE_LOAD_MODE === 'missing' || window.FIREBASE_TREE_LOAD_MODE === 'error') return;
-  panel.hidden = false;
-  // Check if the tree is already on the user's dashboard
-  initAddToDashboard();
-
-  // Toggle collapse
-  if (toggleBtn && body) {
-    toggleBtn.addEventListener('click', function () {
-      const expanded = toggleBtn.getAttribute('aria-expanded') === 'true';
-      toggleBtn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-      body.hidden = expanded;
-      const icon = toggleBtn.querySelector('.material-symbols-outlined');
-      if (icon && window.AncestrioIcons && typeof window.AncestrioIcons.setIcon === 'function') {
-        window.AncestrioIcons.setIcon(icon, expanded ? 'expand_less' : 'expand_more');
-      } else if (icon) {
-        icon.textContent = expanded ? 'expand_less' : 'expand_more';
-      }
-    });
-  }
-
-  // Check auth state for the form
-  function checkAuth() {
-    const hasFirebaseApp = typeof firebase !== 'undefined' && Array.isArray(firebase.apps) && firebase.apps.length > 0;
-    const user = hasFirebaseApp ? firebase.auth().currentUser : null;
-    if (user) {
-      if (form) form.hidden = false;
-      if (loginPrompt) loginPrompt.hidden = true;
-      if (nameInput && !nameInput.value) {
-        nameInput.value = user.displayName || user.email || '';
-      }
-    } else {
-      if (form) form.hidden = true;
-      if (loginPrompt) {
-        loginPrompt.hidden = false;
-        const link = loginPrompt.querySelector('a');
-        if (link) {
-          link.href = 'auth.html?next=' + encodeURIComponent(window.location.href);
-        }
-      }
-    }
-  }
-
-  // Run auth check — tree data is already loaded at this point
-  checkAuth();
-  try {
-    if (typeof firebase !== 'undefined' && firebase.auth) {
-      firebase.auth().onAuthStateChanged(checkAuth);
-    }
-  } catch (_) {}
-
-  // Form submission
-  if (form) {
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      if (!window.AncestrioCollab) return;
-
-      const message = (messageInput ? messageInput.value : '').trim();
-      if (!message) {
-        messageInput?.focus();
-        return;
-      }
-
-      if (submitBtn) submitBtn.disabled = true;
-
-      try {
-        await window.AncestrioCollab.submitSuggestion(
-          invite.treeId,
-          invite.ownerId,
-          message,
-          invite.treeName || window.FIREBASE_TREE_NAME || ''
-        );
-        window.AncestrioCollab.notify('Suggestion sent! The tree owner will review it.', 'success');
-        form.reset();
-      } catch (err) {
-        console.error('Failed to submit suggestion:', err);
-        window.AncestrioCollab.notify('Failed to send suggestion. Please sign in and try again.', 'error');
-      } finally {
-        if (submitBtn) submitBtn.disabled = false;
-      }
-    });
-  }
-
-  // "Add to My Dashboard" button
-  async function initAddToDashboard() {
-    if (!addDashboardBtn || !addDashboardSection || !window.AncestrioCollab) {
-      if (addDashboardSection) addDashboardSection.style.display = 'none';
-      return;
-    }
-    const hasFirebaseApp = typeof firebase !== 'undefined' && Array.isArray(firebase.apps) && firebase.apps.length > 0;
-    const user = hasFirebaseApp ? firebase.auth().currentUser : null;
-    if (!user) {
-      if (addDashboardSection) addDashboardSection.style.display = 'none';
-      return;
-    }
-    // Don't show if the user is the owner
-    if (user.uid === invite.ownerId) {
-      if (addDashboardSection) addDashboardSection.style.display = 'none';
-      return;
-    }
-    // Check if already added
-    try {
-      const already = await window.AncestrioCollab.hasSharedTree(invite.treeId);
-      if (already) {
-        addDashboardBtn.disabled = true;
-        addDashboardBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">check</span> Already on Dashboard';
-        return;
-      }
-    } catch (_) { /* proceed — show button anyway */ }
-
-    addDashboardBtn.addEventListener('click', async function () {
-      addDashboardBtn.disabled = true;
-      addDashboardBtn.textContent = 'Adding...';
-      try {
-        await window.AncestrioCollab.addSharedTree(
-          invite.treeId,
-          invite.ownerId,
-          invite.treeName || window.FIREBASE_TREE_NAME || '',
-          invite.id || ''
-        );
-        addDashboardBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">check</span> Added to Dashboard';
-        window.AncestrioCollab.notify('Tree added to your dashboard!', 'success');
-      } catch (err) {
-        console.error('Failed to add tree to dashboard:', err);
-        var msg;
-        if (err && err.message === 'Tree already added to your dashboard') {
-          msg = 'This tree is already on your dashboard.';
-        } else if (err && err.code === 'permission-denied') {
-          msg = 'Permission denied — Firestore rules may need to be deployed.';
-        } else {
-          msg = 'Failed to add tree. ' + ((err && err.message) || 'Please try again.');
-        }
-        window.AncestrioCollab.notify(msg, 'error');
-        addDashboardBtn.disabled = false;
-        addDashboardBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">dashboard_customize</span> Add to My Dashboard';
-      }
-    });
-  }
-}

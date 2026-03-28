@@ -25,10 +25,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  <script src="../scripts/theme-init.js"></script>
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="../styles/components.css" />
-  <link rel="stylesheet" href="../styles/page-overrides.css" />
   <link rel="stylesheet" href="../styles/pages/auth.css?v=3" />
   <link rel="stylesheet" href="../styles/shell.css?v=7" />
 </head>
@@ -50,11 +50,11 @@
         <a href="../index.html">Home</a>
         <a href="demo-tree.html">Demo</a>
         <a href="store.html?product=paper-print&source=auth&view=tree">Store</a>
-        <a href="contact.html">About &amp; Contact</a>
+        <a href="contact.html">About</a>
       </nav>
       <div class="site-header__actions">
         <a href="dashboard.html" class="site-btn site-btn--primary" hidden aria-hidden="true" tabindex="-1">Dashboard</a>
-        <button id="themeBtn" title="Switch theme" aria-label="Switch theme">
+        <button id="themeBtn" type="button" title="Switch theme" aria-label="Switch theme">
           <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
         </button>
       </div>
@@ -95,11 +95,6 @@
           </article>
         </div>
 
-        <div class="auth-story-note">
-          <strong>Need proof first?</strong>
-          <span>Open the demo tree to see the tree, calendar, and globe views before you create anything.</span>
-          <a href="demo-tree.html">View Demo Tree</a>
-        </div>
       </aside>
 
       <section class="auth-shell">
@@ -145,15 +140,9 @@
             </div>
 
             <form class="auth-form" id="signupForm">
-              <div class="signup-row">
-                <div class="form-group">
-                  <label class="form-label" for="signupUsername">Username</label>
-                  <input type="text" class="form-input" id="signupUsername" autocomplete="username" />
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="signupEmail">Email (optional)</label>
-                  <input type="email" class="form-input" id="signupEmail" autocomplete="email" />
-                </div>
+              <div class="form-group">
+                <label class="form-label" for="signupIdentifier">Email or Username</label>
+                <input type="text" class="form-input" id="signupIdentifier" required autocomplete="username" />
               </div>
               <div class="form-group">
                 <label class="form-label" for="signupPassword">Password</label>
@@ -202,7 +191,7 @@
       <div class="site-footer__links">
         <a href="store.html?product=paper-print&source=auth&view=tree">Store</a>
         <a href="demo-tree.html">Demo</a>
-        <a href="contact.html">About &amp; Contact</a>
+        <a href="contact.html">About</a>
         <a href="privacy.html">Privacy</a>
         <a href="terms.html">Terms</a>
         <a href="cookies.html">Cookies</a>
@@ -216,8 +205,7 @@
   </footer>
 
   <script src="../scripts/runtime.js"></script>
-  <script src="../scripts/night-sky.js"></script>
-  <script src="../scripts/day-clouds.js"></script>
+  <script src="../scripts/utils.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -232,9 +220,9 @@
     data-cfasync="false"
     data-src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
     data-id="paulsuatean"
-    data-description="Support me on Buy me a coffee!"
+    data-description="Support me on Buy Me a Coffee!"
     data-message=""
-    data-color="#FFDD00"
+    data-color="auto"
     data-position="Right"
     data-x_margin="18"
     data-y_margin="18"
@@ -242,3 +230,5 @@
   <script src="../scripts/cookie-consent.js"></script>
 </body>
 </html>
+
+

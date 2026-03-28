@@ -26,10 +26,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-    <link rel="stylesheet" href="../styles/theme.css" />
+    <script src="../scripts/theme-init.js"></script>
+  <link rel="stylesheet" href="../styles/theme.css" />
     <link rel="stylesheet" href="../styles/base.css" />
     <link rel="stylesheet" href="../styles/components.css" />
-    <link rel="stylesheet" href="../styles/page-overrides.css" />
     <link rel="stylesheet" href="../styles/pages/tree-viewer.css?v=3" />
     <link rel="stylesheet" href="../styles/shell.css?v=7" />
   </head>
@@ -39,7 +39,7 @@
         <div class="brand" id="treeName">Ancestrio - Tree Demo</div>
       </div>
       <div class="controls controls-tree">
-        <div class="upcoming-birthday-button" id="upcomingContainer" style="display: none;">
+        <div class="upcoming-birthday-button" id="upcomingContainer" hidden>
           <button id="upcomingBtn" class="upcoming-birthday-display" title="Upcoming birthday">
             <span id="upcomingPrev" class="upcoming-nav-arrow" aria-label="Previous birthday">&lt;</span>
             <span class="material-symbols-outlined" aria-hidden="true">cake</span>
@@ -189,9 +189,9 @@
       </div>
     </div>
 
-    <div id="shareTreeModal" class="modal share-modal" role="dialog" aria-modal="true" aria-hidden="true" style="display: none;">
+    <div id="shareTreeModal" class="modal share-modal" role="dialog" aria-modal="true" aria-hidden="true" hidden>
       <div class="modal-dialog share-modal-dialog">
-        <div class="modal-content share-modal-card">
+        <div class="share-modal-card">
           <div class="share-modal-top">
             <div class="share-modal-icon" aria-hidden="true">
               <span class="material-symbols-outlined">link</span>
@@ -270,8 +270,7 @@
     </noscript>
 
     <script src="../scripts/runtime.js"></script>
-    <script src="../scripts/night-sky.js"></script>
-    <script src="../scripts/day-clouds.js"></script>
+    <script src="../scripts/utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
     <script src="../scripts/theme-toggle.js"></script>
@@ -296,9 +295,9 @@
       data-cfasync="false"
       data-src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
       data-id="paulsuatean"
-      data-description="Support me on Buy me a coffee!"
+      data-description="Support me on Buy Me a Coffee!"
       data-message=""
-      data-color="#FFDD00"
+      data-color="auto"
       data-position="Right"
       data-x_margin="18"
       data-y_margin="18"
@@ -306,3 +305,5 @@
     <script src="../scripts/cookie-consent.js"></script>
   </body>
 </html>
+
+

@@ -66,17 +66,7 @@
     );
   }
 
-  function notifyUser(message, type = 'error', options = {}) {
-    if (global.AncestrioRuntime && typeof global.AncestrioRuntime.notify === 'function') {
-      global.AncestrioRuntime.notify(message, type, options);
-      return;
-    }
-    if (type === 'error') {
-      console.error(message);
-    } else {
-      console.warn(message);
-    }
-  }
+  const notifyUser = AncUtils.notifyUser;
 
   function probeAuthEmulator(url) {
     if (typeof fetch !== 'function') return;
@@ -464,6 +454,42 @@
     }
   }
 
+  function connectAuthEmulatorIfNeeded() {
+    if (!isDevelopment || authEmulatorConnected) return;
+    try {
+      authFacade.useEmulator(authEmulatorUrl);
+      authEmulatorConnected = true;
+      probeAuthEmulator(authEmulatorUrl);
+    } catch (error) {
+      console.error('Auth emulator connection failed:', error.message);
+    }
+  }
+
+  function connectFirestoreEmulatorIfNeeded(connectFn) {
+    if (!isDevelopment || firestoreEmulatorConnected || typeof connectFn !== 'function') return;
+    try {
+      connectFn();
+      firestoreEmulatorConnected = true;
+    } catch (error) {
+      console.error('Firestore emulator connection failed:', error.message);
+    }
+  }
+
+  function configureDevelopmentMode(connectFirestoreFn) {
+    if (!isDevelopment) return;
+    if (authFacade && authFacade.settings) {
+      authFacade.settings.appVerificationDisabledForTesting = true;
+    }
+    connectAuthEmulatorIfNeeded();
+    connectFirestoreEmulatorIfNeeded(connectFirestoreFn);
+  }
+
+  function handleInitializeError(error) {
+    console.error('Error initializing Firebase:', error);
+    notifyUser(`Firebase initialization failed: ${error.message}`, 'error', { duration: 7000 });
+    return false;
+  }
+
   function initializeCompatFirebase() {
     if (!hasCompatFirebase()) {
       return false;
@@ -482,35 +508,14 @@
       dbFacade = dbInstance;
       firebaseFacade = global.firebase;
 
-      if (isDevelopment) {
-        authFacade.settings.appVerificationDisabledForTesting = true;
-
-        if (!authEmulatorConnected) {
-          try {
-            authFacade.useEmulator(authEmulatorUrl);
-            authEmulatorConnected = true;
-            probeAuthEmulator(authEmulatorUrl);
-          } catch (error) {
-            console.error('Auth emulator connection failed:', error.message);
-          }
-        }
-
-        if (!firestoreEmulatorConnected) {
-          try {
-            dbFacade.useEmulator(emulatorHost, 8080);
-            firestoreEmulatorConnected = true;
-          } catch (error) {
-            console.error('Firestore emulator connection failed:', error.message);
-          }
-        }
-      }
+      configureDevelopmentMode(() => {
+        dbFacade.useEmulator(emulatorHost, 8080);
+      });
 
       dispatchReadyEvent();
       return true;
     } catch (error) {
-      console.error('Error initializing Firebase:', error);
-      notifyUser(`Firebase initialization failed: ${error.message}`, 'error', { duration: 7000 });
-      return false;
+      return handleInitializeError(error);
     }
   }
 
@@ -544,35 +549,14 @@
       buildAuthFacade();
       buildDbFacade();
 
-      if (isDevelopment) {
-        authFacade.settings.appVerificationDisabledForTesting = true;
-
-        if (!authEmulatorConnected) {
-          try {
-            authFacade.useEmulator(authEmulatorUrl);
-            authEmulatorConnected = true;
-            probeAuthEmulator(authEmulatorUrl);
-          } catch (error) {
-            console.error('Auth emulator connection failed:', error.message);
-          }
-        }
-
-        if (!firestoreEmulatorConnected) {
-          try {
-            modules.firestore.connectFirestoreEmulator(dbInstance, emulatorHost, 8080);
-            firestoreEmulatorConnected = true;
-          } catch (error) {
-            console.error('Firestore emulator connection failed:', error.message);
-          }
-        }
-      }
+      configureDevelopmentMode(() => {
+        modules.firestore.connectFirestoreEmulator(dbInstance, emulatorHost, 8080);
+      });
 
       dispatchReadyEvent();
       return true;
     } catch (error) {
-      console.error('Error initializing Firebase:', error);
-      notifyUser(`Firebase initialization failed: ${error.message}`, 'error', { duration: 7000 });
-      return false;
+      return handleInitializeError(error);
     }
   }
 

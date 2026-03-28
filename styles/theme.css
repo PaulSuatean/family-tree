@@ -1,59 +1,173 @@
 :root {
   color-scheme: light;
-  --bg: #f4f9ff;
+  --bg: #f5f9fe;
   --panel: #ffffff;
-  --panel-2: #edf5ff;
+  --panel-2: #eaf2fb;
   --font-body: "Manrope", "Segoe UI", sans-serif;
   --font-display: "Fraunces", Georgia, serif;
   --text: #17314f;
   --muted: #607592;
-  --line: #d4e3f1;
-  --accent: #3c80b5;
-  --accent-soft: #a8cdeb;
-  --accent-strong: #275a83;
-  --accent-2: #2f6d99;
+  --line: #c7d8ea;
+  --accent: #3a7eae;
+  --accent-soft: #b6d4ec;
+  --accent-strong: #1f4f76;
+  --accent-2: #255f89;
   --accent-3: #efb55f;
-  --page-bg: #f4f9ff;
-  --page-bg-2: #e7f2ff;
-  --page-bg-gradient:
-    radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.94), transparent 30%),
-    radial-gradient(circle at 84% 10%, rgba(141, 193, 245, 0.24), transparent 34%),
-    radial-gradient(circle at 50% 118%, rgba(245, 191, 103, 0.18), transparent 42%),
-    linear-gradient(180deg, #d4eaff 0%, #edf7ff 44%, #fff8ea 100%);
+  --theme-bg: #f5f9fe;
+  --theme-element: #ffffff;
+  --button-primary-bg: #255f89;
+  --button-primary-text: #ffffff;
+  --button-secondary-bg: #3a7eae;
+  --button-secondary-text: #ffffff;
+  --page-bg: #f5f9fe;
+  --page-bg-2: #e3edf8;
+  --page-bg-gradient: var(--page-bg);
   --surface: rgba(255, 255, 255, 0.94);
-  --surface-2: #f3f8ff;
-  --surface-3: #e7eff8;
-  --border: rgba(23, 49, 79, 0.12);
-  --ring-strong: rgba(60, 128, 181, 0.42);
-  --ring: rgba(60, 128, 181, 0.2);
-  --gradient-primary: linear-gradient(135deg, #4f95c8 0%, #2c6892 100%);
-  --gradient-secondary: linear-gradient(135deg, #355d8a 0%, #193452 100%);
-  --gradient-soft: linear-gradient(135deg, rgba(60, 128, 181, 0.14) 0%, rgba(239, 181, 95, 0.14) 100%);
+  --surface-2: #edf5fc;
+  --surface-3: #d4e2f1;
+  --border: rgba(23, 49, 79, 0.16);
+  --ring-strong: rgba(58, 126, 174, 0.42);
+  --ring: rgba(58, 126, 174, 0.2);
+  --gradient-primary: var(--accent);
+  --gradient-secondary: var(--accent-strong);
+  --gradient-soft: var(--surface-2);
   --calendar-panel-max: 36vh;
   --calendar-panel-max-mobile: 55vh;
   --calendar-toggle-clearance: 56px;
   --calendar-day-bg: #f1f7ff;
   --calendar-day-border: rgba(23, 49, 79, 0.08);
-  --calendar-day-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.52);
-  --calendar-bday-bg: linear-gradient(135deg, #ffd58f 0%, #efb55f 100%);
+  --calendar-day-shadow: none;
+  --calendar-bday-bg: #efb55f;
   --calendar-bday-border: #bb8137;
-  --calendar-bday-shadow: inset 0 0 0 1.5px rgba(187, 129, 55, 0.6);
+  --calendar-bday-shadow: none;
   --calendar-today-bg: #e4f0ff;
-  --calendar-today-shadow: inset 0 0 0 1.5px rgba(23, 49, 79, 0.08), 0 10px 22px rgba(43, 77, 114, 0.12);
+  --calendar-today-shadow: none;
   --calendar-today-text: #17314f;
   --feature-banner-height: 0px;
   --view-toggle-top: calc(env(safe-area-inset-top) + 76px + var(--feature-banner-height));
   --view-toggle-bottom: calc(env(safe-area-inset-bottom) + 16px);
   --month-card-height: 220px;
-  --shadow-sm: 0 8px 22px rgba(48, 79, 113, 0.08);
-  --shadow-md: 0 20px 42px rgba(40, 68, 102, 0.12);
-  --shadow-lg: 0 30px 60px rgba(31, 56, 88, 0.16);
-  --shadow-xl: 0 40px 82px rgba(20, 41, 67, 0.22);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --radius-xs: 6px;
+  --radius-pill: 999px;
   --radius-sm: 10px;
+  --radius-control-sm: 14px;
   --radius-control: 16px;
   --radius-md: 18px;
   --radius-lg: 26px;
   --radius-xl: 34px;
+  --radius-surface: 28px;
+  --radius-modal: 28px;
+  --radius-button: var(--radius-control);
+  --radius-button-icon: var(--radius-control-sm);
+  --radius-card: var(--radius-xl);
+  --on-primary: #ffffff;
+  --on-primary-soft: #fff8f1;
+  --ink-strong: #141414;
+  --overlay-scrim-soft: rgba(0, 0, 0, 0.5);
+  --overlay-scrim: rgba(0, 0, 0, 0.65);
+  --overlay-scrim-strong: rgba(0, 0, 0, 0.75);
+  --overlay-shell: rgba(18, 39, 65, 0.3);
+  --contrast-bg: #193452;
+  --contrast-text: #f6fbff;
+  --contrast-muted: rgba(236, 245, 255, 0.76);
+  --spinner-track: rgba(255, 255, 255, 0.3);
+  --spinner-active: color-mix(in srgb, var(--accent) 72%, white 28%);
+  --info: color-mix(in srgb, var(--accent) 92%, var(--accent-2) 8%);
+  --info-bg: color-mix(in srgb, var(--info) 14%, transparent);
+  --info-text: color-mix(in srgb, var(--accent-strong) 68%, var(--text) 32%);
+  --warning: #9a5a2f;
+  --warning-bg: rgba(154, 90, 47, 0.12);
+  --warning-text: #7e4825;
+  --danger: #b5493d;
+  --danger-text: #8f352d;
+  --danger-text-strong: #742b24;
+  --danger-text-muted: #864038;
+  --danger-bg: rgba(181, 73, 61, 0.14);
+  --danger-bg-soft: rgba(181, 73, 61, 0.1);
+  --danger-light: #c7776d;
+  --danger-hover: #913a30;
+  --danger-hover-strong: #772f27;
+  --danger-gradient-start: var(--danger);
+  --danger-gradient-end: var(--danger);
+  --danger-border: rgba(143, 53, 45, 0.24);
+  --error: var(--danger);
+  --error-bg: var(--danger-bg);
+  --error-text: var(--danger-text-strong);
+  --success: #22c55e;
+  --success-bg: rgba(34, 197, 94, 0.1);
+  --success-text: #16a34a;
+  --status-new-bg: var(--warning-bg);
+  --status-new-text: var(--warning-text);
+  --status-processing-bg: rgba(36, 92, 90, 0.12);
+  --status-processing-text: #1f5f73;
+  --status-shipped-bg: rgba(48, 92, 156, 0.14);
+  --status-shipped-text: #2f5f9f;
+  --status-delivered-bg: rgba(86, 132, 74, 0.14);
+  --status-delivered-text: #2f7a4f;
+  --status-cancelled-bg: var(--danger-bg);
+  --status-cancelled-text: #9b4338;
+  --social-facebook: #1877f2;
+  --social-x: #111111;
+  --social-whatsapp: #25d366;
+  --social-telegram: #0088cc;
+  --social-linkedin: #0a66c2;
+  --coffee-gradient-start: var(--accent-3);
+  --coffee-gradient-end: var(--accent-3);
+  --coffee-border: rgba(224, 161, 74, 0.26);
+  --coffee-text: #322618;
+  --cookie-launcher-bg-start: var(--accent-3);
+  --cookie-launcher-bg-end: color-mix(in srgb, var(--accent-3) 72%, var(--accent) 28%);
+  --cookie-launcher-text: color-mix(in srgb, var(--ink-strong) 76%, var(--text) 24%);
+  --cookie-panel-bg: var(--surface);
+  --cookie-panel-border: var(--border);
+  --cookie-panel-shadow: var(--shadow-xl);
+  --cookie-chip-bg: var(--surface-2);
+  --cookie-switch-track: var(--surface-3);
+  --cookie-switch-thumb: var(--on-primary);
+  --cookie-btn-bg: var(--surface);
+  --cookie-btn-text: var(--text);
+  --cookie-btn-accent-bg: var(--gradient-primary);
+  --cookie-btn-accent-text: var(--on-primary-soft);
+  --heritage-gold: #d4af37;
+  --heritage-gold-deep: #8c6b0b;
+  --heritage-gold-soft: #fff7d1;
+  --heritage-gold-line: rgba(139, 104, 10, 0.55);
+  --heritage-ribbon: #b44d3c;
+  --heritage-ribbon-deep: #8d3828;
+  --dna-stroke: var(--heritage-gold);
+  --globe-sphere-fill: #e6f0ff;
+  --globe-sphere-stroke: rgba(59, 130, 246, 0.35);
+  --globe-country-fill: rgba(59, 130, 246, 0.04);
+  --globe-country-stroke: rgba(15, 23, 42, 0.12);
+  --globe-visited-fill: rgba(212, 175, 55, 0.08);
+  --globe-visited-stroke: rgba(212, 175, 55, 0.9);
+  --globe-moved-fill: rgba(143, 198, 255, 0.26);
+  --globe-home-fill: rgba(143, 198, 255, 0.26);
+  --globe-home-stroke: rgba(59, 130, 246, 0.95);
+  --globe-moved-stroke-blue: rgba(96, 165, 250, 0.95);
+  --globe-moved-stroke-gold: rgba(212, 175, 55, 0.95);
+  --globe-legend-bg: rgba(143, 198, 255, 0.26);
+  --globe-legend-home-border: rgba(59, 130, 246, 0.95);
+  --globe-legend-moved-border: rgba(96, 165, 250, 0.95);
+  --globe-legend-visited-border: rgba(212, 175, 55, 0.9);
+  --view-bg-theme-default: var(--page-bg);
+  --view-bg-parchment-classic: color-mix(in srgb, var(--accent-3) 45%, var(--surface) 55%);
+  --view-bg-parchment-vintage: color-mix(in srgb, var(--accent-3) 60%, var(--surface-3) 40%);
+  --view-bg-parchment-minimal: color-mix(in srgb, var(--accent-3) 28%, var(--surface) 72%);
+  --view-bg-parchment-photo: color-mix(in srgb, var(--accent-3) 50%, var(--surface-2) 50%);
+  --bubble-name-warm: color-mix(in srgb, var(--text) 88%, var(--accent-3) 12%);
+  --bubble-meta-warm: color-mix(in srgb, var(--muted) 84%, var(--accent-3) 16%);
+  --bubble-ink-fill: color-mix(in srgb, var(--surface) 78%, var(--accent-3) 22%);
+  --bubble-ink-stroke: color-mix(in srgb, var(--accent-3) 58%, var(--text) 42%);
+  --bubble-ink-hover-fill: color-mix(in srgb, var(--surface) 70%, var(--accent-3) 30%);
+  --bubble-soft-fill: color-mix(in srgb, var(--surface) 86%, var(--accent-3) 14%);
+  --bubble-soft-stroke: color-mix(in srgb, var(--accent-3) 44%, var(--border) 56%);
+  --bubble-soft-hover-fill: color-mix(in srgb, var(--surface) 80%, var(--accent-3) 20%);
+  --font-heading: var(--font-display);
   --transition-fast: 150ms;
   --transition-base: 220ms;
   --transition-slow: 340ms;
@@ -62,7 +176,7 @@
   --button-hover-overlay-opacity: 0.06;
   --node-fill: rgba(249, 252, 255, 0.96);
   --node-stroke: rgba(23, 49, 79, 0.16);
-  --node-shadow: drop-shadow(0 12px 26px rgba(48, 79, 113, 0.14));
+  --node-shadow: none;
 }
 
 @supports (height: 100svh) {
@@ -112,6 +226,41 @@ body {
   line-height: 1.55;
   text-rendering: optimizeLegibility;
   transition: background var(--transition-slow) ease, color var(--transition-base) ease;
+  /* Always reserve scrollbar gutter so layout width is consistent across pages */
+  scrollbar-gutter: stable;
+}
+
+/* Firefox scrollbar */
+body {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 40%, transparent) transparent;
+}
+
+/* Custom scrollbar — Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent) 34%, transparent);
+  border-radius: 999px;
+  border: none;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--accent) 58%, transparent);
+  border: none;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 button,
@@ -131,7 +280,7 @@ button:not(.upcoming-birthday-display):not(.modal-close)::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 60%);
+  background: color-mix(in srgb, var(--on-primary) 10%, transparent);
   opacity: 0;
   transition: opacity var(--transition-base) ease;
   pointer-events: none;
@@ -154,137 +303,188 @@ header,
 .tw-toggle,
 .search-bar,
 .birthday-bar,
-.feature-banner,
-.landing-controls,
-.triangle-container {
+.feature-banner {
   position: relative;
   z-index: 1;
 }
 
-.night-sky {
+/* Ambient background layers should never participate in layout flow. */
+body[data-ambient-enabled] .night-sky,
+body[data-ambient-enabled] .day-clouds {
   position: fixed;
   inset: 0;
   overflow: hidden;
-  z-index: 0;
   pointer-events: none;
+  z-index: 0;
+}
+
+body[data-ambient-enabled] .night-sky {
   opacity: 0;
   transition: opacity var(--transition-slow) ease;
 }
 
-body.theme-dark .night-sky {
-  opacity: 0.88;
-}
-
-.night-sky__layer {
+body[data-ambient-enabled] .night-sky__layer {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  display: block;
+  transform: translate3d(0, 0, 0);
+}
+
+body[data-ambient-enabled] .day-clouds {
+  opacity: 1;
+  transition: opacity var(--transition-slow) ease;
+}
+
+body[data-ambient-enabled] .day-cloud {
+  position: absolute;
+  left: -14%;
+  display: block;
+  animation-name: dayCloudDrift;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
   transform: translate3d(0, 0, 0);
   will-change: transform;
 }
 
-.day-clouds {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.56;
-  transition: opacity var(--transition-slow) ease;
-}
-
-body.theme-dark .day-clouds {
-  opacity: 0;
-}
-
-.day-cloud {
-  position: absolute;
-  left: -150px;
-  height: auto;
-  animation-name: cloudFloat, cloudFade;
-  animation-iteration-count: infinite;
-  animation-fill-mode: forwards;
-  animation-timing-function: linear;
-  will-change: transform, opacity;
-}
-
-.day-cloud svg {
+body[data-ambient-enabled] .day-cloud svg {
   width: 100%;
   height: auto;
   display: block;
-  fill: #d8e8f8;
+  fill: color-mix(in srgb, #ffffff 86%, var(--accent-soft) 14%);
 }
 
-.day-cloud.cloud-foreground {
-  z-index: 3;
+body[data-ambient-enabled] .day-cloud.cloud-background svg {
+  fill: color-mix(in srgb, #ffffff 72%, var(--accent-soft) 28%);
 }
 
-.day-cloud.cloud-foreground svg {
-  fill: #f8fbff;
+@keyframes dayCloudDrift {
+  from {
+    transform: translate3d(-18vw, 0, 0);
+  }
+  to {
+    transform: translate3d(132vw, 0, 0);
+  }
 }
 
-.day-cloud.cloud-background {
-  z-index: 2;
-}
-
-.day-cloud.cloud-background svg {
-  fill: #ecf5ff;
-}
-
-@keyframes cloudFloat {
-  from { transform: translateX(0) translateZ(0); }
-  to { transform: translateX(calc(100vw + 150px)) translateZ(0); }
-}
-
-@keyframes cloudFade {
-  0%, 100% { opacity: 0; }
-  5%, 90% { opacity: var(--cloud-base-opacity, 0.22); }
-}
-
+html.theme-dark,
 body.theme-dark {
   color-scheme: dark;
   --bg: #081426;
-  --panel: #102441;
-  --panel-2: #183557;
+  --panel: #0f2340;
+  --panel-2: #173453;
   --text: #ebf4ff;
   --muted: #aec4de;
-  --line: rgba(235, 244, 255, 0.16);
-  --accent: #4f95c8;
-  --accent-soft: #82b8e2;
-  --accent-strong: #c3e3ff;
-  --ring-strong: rgba(79, 149, 200, 0.46);
-  --accent-2: #377bad;
+  --line: rgba(235, 244, 255, 0.22);
+  --accent: #5ca3d5;
+  --accent-soft: #97c8eb;
+  --accent-strong: #d9ecff;
+  --ring-strong: rgba(92, 163, 213, 0.46);
+  --accent-2: #2f6e9c;
   --accent-3: #f1c36f;
+  --theme-bg: #081426;
+  --theme-element: #122846;
+  --button-primary-bg: #255f89;
+  --button-primary-text: #ffffff;
+  --button-secondary-bg: #3a7eae;
+  --button-secondary-text: #ffffff;
   --page-bg: #081426;
-  --page-bg-2: #122540;
-  --page-bg-gradient:
-    radial-gradient(circle at 16% 14%, rgba(79, 149, 200, 0.34), transparent 24%),
-    radial-gradient(circle at 80% 12%, rgba(60, 128, 181, 0.22), transparent 24%),
-    radial-gradient(circle at 46% 56%, rgba(79, 149, 200, 0.22), transparent 32%),
-    radial-gradient(circle at 50% 118%, rgba(241, 195, 111, 0.14), transparent 38%),
-    linear-gradient(180deg, #06101f 0%, #0d1c35 28%, #153254 62%, #1d4167 100%);
-  --surface: rgba(15, 34, 62, 0.9);
-  --surface-2: #163150;
-  --surface-3: #214267;
-  --border: rgba(214, 230, 255, 0.14);
-  --ring: rgba(79, 149, 200, 0.24);
-  --gradient-primary: linear-gradient(135deg, #4f95c8 0%, #2c6892 100%);
-  --gradient-secondary: linear-gradient(135deg, #214976 0%, #102540 100%);
-  --gradient-soft: linear-gradient(135deg, rgba(79, 149, 200, 0.2) 0%, rgba(241, 195, 111, 0.12) 100%);
+  --page-bg-2: #122846;
+  --page-bg-gradient: var(--page-bg);
+  --surface: rgba(15, 35, 64, 0.9);
+  --surface-2: #1a3b5d;
+  --surface-3: #29527d;
+  --border: rgba(214, 230, 255, 0.2);
+  --ring: rgba(92, 163, 213, 0.24);
+  --gradient-primary: var(--accent);
+  --gradient-secondary: var(--accent-strong);
+  --gradient-soft: var(--surface-2);
   --calendar-day-bg: #132746;
   --calendar-day-border: rgba(235, 244, 255, 0.08);
-  --calendar-day-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-  --calendar-bday-bg: linear-gradient(135deg, rgba(241, 195, 111, 0.32) 0%, rgba(255, 223, 166, 0.48) 100%);
+  --calendar-day-shadow: none;
+  --calendar-bday-bg: rgba(241, 195, 111, 0.4);
   --calendar-bday-border: rgba(255, 216, 150, 0.76);
-  --calendar-bday-shadow: inset 0 0 0 1.5px rgba(255, 216, 150, 0.54);
+  --calendar-bday-shadow: none;
   --calendar-today-bg: #214976;
-  --calendar-today-shadow: inset 0 0 0 1.5px rgba(235, 244, 255, 0.1), 0 6px 16px rgba(0, 0, 0, 0.32);
+  --calendar-today-shadow: none;
   --calendar-today-text: #ebf4ff;
   --node-fill: rgba(16, 34, 59, 0.96);
   --node-stroke: rgba(173, 214, 255, 0.3);
-  --node-shadow: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.34));
-  background: #07111f;
+  --node-shadow: none;
+  --on-primary: #ffffff;
+  --on-primary-soft: #f6fbff;
+  --overlay-scrim-soft: rgba(0, 0, 0, 0.54);
+  --overlay-scrim: rgba(0, 0, 0, 0.7);
+  --overlay-scrim-strong: rgba(0, 0, 0, 0.78);
+  --overlay-shell: rgba(3, 9, 18, 0.62);
+  --contrast-bg: #0d1b33;
+  --contrast-text: #f6fbff;
+  --contrast-muted: rgba(236, 245, 255, 0.7);
+  --spinner-track: rgba(255, 255, 255, 0.26);
+  --spinner-active: color-mix(in srgb, var(--accent-soft) 72%, white 28%);
+  --info: color-mix(in srgb, var(--accent-soft) 88%, var(--accent) 12%);
+  --info-bg: color-mix(in srgb, var(--info) 22%, transparent);
+  --info-text: color-mix(in srgb, var(--accent-strong) 86%, var(--on-primary-soft) 14%);
+  --warning: #e0a24a;
+  --warning-bg: rgba(224, 162, 74, 0.2);
+  --warning-text: #f0c985;
+  --danger: #d18a80;
+  --danger-text: #f3cdc7;
+  --danger-text-strong: #f0b8b0;
+  --danger-text-muted: #efb3ab;
+  --danger-bg: rgba(209, 138, 128, 0.22);
+  --danger-bg-soft: rgba(209, 138, 128, 0.16);
+  --danger-light: #f0b8b0;
+  --danger-hover: #bf7469;
+  --danger-hover-strong: #ab5f55;
+  --danger-gradient-start: var(--danger);
+  --danger-gradient-end: var(--danger);
+  --danger-border: rgba(209, 138, 128, 0.34);
+  --error: var(--danger);
+  --error-bg: var(--danger-bg-soft);
+  --error-text: var(--danger-text-strong);
+  --success: #22c55e;
+  --success-bg: rgba(34, 197, 94, 0.15);
+  --success-text: #86efac;
+  --status-new-bg: rgba(224, 162, 74, 0.24);
+  --status-new-text: #f6d59f;
+  --status-processing-bg: rgba(59, 130, 246, 0.18);
+  --status-processing-text: #9fd2ff;
+  --status-shipped-bg: rgba(59, 130, 246, 0.18);
+  --status-shipped-text: #b9ccff;
+  --status-delivered-bg: rgba(34, 197, 94, 0.16);
+  --status-delivered-text: #7fe39d;
+  --status-cancelled-bg: var(--danger-bg-soft);
+  --status-cancelled-text: var(--danger-text-strong);
+  --coffee-border: rgba(241, 195, 111, 0.38);
+  --coffee-text: #1b150c;
+  --globe-sphere-fill: #0f2036;
+  --globe-sphere-stroke: rgba(148, 197, 255, 0.35);
+  --globe-country-fill: rgba(30, 50, 78, 0.35);
+  --globe-country-stroke: rgba(150, 180, 220, 0.45);
+  --globe-visited-stroke: rgba(212, 175, 55, 0.95);
+  --globe-moved-fill: rgba(86, 140, 212, 0.32);
+  --globe-home-fill: rgba(86, 140, 212, 0.32);
+  --globe-home-stroke: rgba(96, 165, 250, 1);
+  --globe-legend-bg: rgba(86, 140, 212, 0.32);
+  --globe-legend-home-border: rgba(96, 165, 250, 1);
+  --globe-legend-moved-border: rgba(96, 165, 250, 0.95);
+  --globe-legend-visited-border: rgba(212, 175, 55, 0.95);
+  --view-bg-theme-default: var(--page-bg);
+  --view-bg-parchment-classic: color-mix(in srgb, var(--accent-3) 36%, var(--surface-2) 64%);
+  --view-bg-parchment-vintage: color-mix(in srgb, var(--accent-3) 46%, var(--surface-3) 54%);
+  --view-bg-parchment-minimal: color-mix(in srgb, var(--accent-3) 26%, var(--surface-2) 74%);
+  --view-bg-parchment-photo: color-mix(in srgb, var(--accent-3) 40%, var(--surface-2) 60%);
+  --bubble-name-warm: color-mix(in srgb, var(--on-primary-soft) 84%, var(--accent-3) 16%);
+  --bubble-meta-warm: color-mix(in srgb, var(--contrast-muted) 80%, var(--accent-3) 20%);
+  --bubble-ink-fill: color-mix(in srgb, var(--surface-2) 72%, var(--accent-3) 28%);
+  --bubble-ink-stroke: color-mix(in srgb, var(--accent-3) 60%, var(--contrast-text) 40%);
+  --bubble-ink-hover-fill: color-mix(in srgb, var(--surface-2) 64%, var(--accent-3) 36%);
+  --bubble-soft-fill: color-mix(in srgb, var(--surface-2) 82%, var(--accent-3) 18%);
+  --bubble-soft-stroke: color-mix(in srgb, var(--accent-3) 52%, var(--border) 48%);
+  --bubble-soft-hover-fill: color-mix(in srgb, var(--surface-2) 74%, var(--accent-3) 26%);
+  background: var(--page-bg);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -301,3 +501,4 @@ body.theme-dark {
     scroll-behavior: auto !important;
   }
 }
+

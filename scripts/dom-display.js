@@ -7,10 +7,24 @@
     return target;
   }
 
+  function syncBodyScrollLock() {
+    const anyOpen = !!document.querySelector(
+      '.modal:not([hidden]), .modal.open, .help-modal.open, .add-member-modal.show'
+    );
+    document.body.classList.toggle('scroll-locked', anyOpen);
+  }
+
   function setDisplay(target, displayValue) {
     const el = resolveElement(target);
     if (!el) return null;
-    el.style.display = displayValue;
+    if (displayValue === 'none') {
+      el.setAttribute('hidden', '');
+      el.style.display = '';
+    } else {
+      el.removeAttribute('hidden');
+      el.style.display = displayValue;
+    }
+    syncBodyScrollLock();
     return el;
   }
 
@@ -25,7 +39,7 @@
   function isInlineVisible(target) {
     const el = resolveElement(target);
     if (!el) return false;
-    return el.style.display !== 'none';
+    return !el.hasAttribute('hidden') && el.style.display !== 'none';
   }
 
   function toggle(target, visible, displayValue = 'block') {
