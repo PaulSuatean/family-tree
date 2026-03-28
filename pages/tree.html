@@ -39,39 +39,48 @@
         <div class="brand" id="treeName">Loading...</div>
       </div>
       <div class="controls controls-tree">
-        <div class="upcoming-birthday-button" id="upcomingContainer" hidden>
-          <button id="upcomingBtn" class="upcoming-birthday-display" title="Upcoming birthday">
-            <span id="upcomingPrev" class="upcoming-nav-arrow" aria-label="Previous birthday">&lt;</span>
-            <span class="material-symbols-outlined" aria-hidden="true">cake</span>
-            <span id="upcomingName"></span>
-            <span id="upcomingNext" class="upcoming-nav-arrow" aria-label="Next birthday">&gt;</span>
+        <div class="viewer-control-group viewer-control-group--primary">
+          <div class="upcoming-birthday-button" id="upcomingContainer" hidden>
+            <button id="upcomingBtn" class="upcoming-birthday-display" title="Upcoming birthday">
+              <span id="upcomingPrev" class="upcoming-nav-arrow" aria-label="Previous birthday">&lt;</span>
+              <span class="material-symbols-outlined" aria-hidden="true">cake</span>
+              <span id="upcomingName"></span>
+              <span id="upcomingNext" class="upcoming-nav-arrow" aria-label="Next birthday">&gt;</span>
+            </button>
+          </div>
+          <button id="searchBtn" title="Search people" aria-label="Search people">
+            <span class="material-symbols-outlined" aria-hidden="true">search</span>
+          </button>
+          <button id="focusBtn" title="Enter focus mode" aria-pressed="false" aria-label="Enter focus mode">Focus</button>
+          <button id="shareTreeBtn" class="share-tree-btn" title="Share this family tree" aria-label="Share this family tree" hidden aria-hidden="true" tabindex="-1">
+            <span class="material-symbols-outlined" aria-hidden="true">share</span>
+            Share
+          </button>
+          <button id="orderPrintBtn" class="order-print-btn" title="Order a printed family tree" aria-label="Order a printed family tree">
+            <span class="material-symbols-outlined" aria-hidden="true">print</span>
+            Order Print
           </button>
         </div>
-        <button id="searchBtn" title="Search people" aria-label="Search people">
-          <span class="material-symbols-outlined" aria-hidden="true">search</span>
+
+        <button id="viewerMoreBtn" class="viewer-more-btn" type="button" aria-expanded="false" aria-controls="viewerMoreMenu" aria-label="Open more tools">
+          <span class="material-symbols-outlined" aria-hidden="true">tune</span>
+          More
         </button>
-        <button id="dnaBtn" title="Toggle lineage lines" aria-label="Toggle lineage lines">Show Lines</button>
-        <button id="zoomInBtn" title="Zoom in" aria-label="Zoom in">+</button>
-        <button id="zoomOutBtn" title="Zoom out" aria-label="Zoom out">-</button>
-        <button id="resetBtn" title="Reset position" aria-label="Reset tree view">Reset</button>
-        <button id="focusBtn" title="Enter focus mode" aria-pressed="false" aria-label="Enter focus mode">Focus</button>
-        <button id="shareTreeBtn" class="share-tree-btn" title="Share this family tree" aria-label="Share this family tree" hidden aria-hidden="true" tabindex="-1">
-          <span class="material-symbols-outlined" aria-hidden="true">share</span>
-          Share
-        </button>
-        <button id="orderPrintBtn" class="order-print-btn" title="Order a printed family tree" aria-label="Order a printed family tree">
-          <span class="material-symbols-outlined" aria-hidden="true">print</span>
-          Order Print
-        </button>
-        <button id="helpBtn" title="Help" aria-label="Help and shortcuts">
-          <span class="material-symbols-outlined" aria-hidden="true">help</span>
-        </button>
-        <button id="themeBtn" title="Switch theme" aria-label="Switch theme">
-          <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
-        </button>
-        <a href="../index.html" id="backBtn" class="icon-btn" title="Back to landing page" aria-label="Back to landing page">
-          <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
-        </a>
+        <div class="viewer-more-menu" id="viewerMoreMenu" hidden>
+          <button id="dnaBtn" title="Toggle lineage lines" aria-label="Toggle lineage lines">Show Lines</button>
+          <button id="zoomInBtn" title="Zoom in" aria-label="Zoom in">+</button>
+          <button id="zoomOutBtn" title="Zoom out" aria-label="Zoom out">-</button>
+          <button id="resetBtn" title="Reset position" aria-label="Reset tree view">Reset</button>
+          <button id="helpBtn" title="Help" aria-label="Help and shortcuts">
+            <span class="material-symbols-outlined" aria-hidden="true">help</span>
+          </button>
+          <button id="themeBtn" title="Switch theme" aria-label="Switch theme">
+            <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
+          </button>
+          <a href="../index.html" id="backBtn" class="icon-btn" title="Back to landing page" aria-label="Back to landing page">
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+          </a>
+        </div>
       </div>
     </header>
 
@@ -98,6 +107,19 @@
       <button id="searchClearBtn" aria-label="Close search">x</button>
       <div id="searchResults" class="search-results"></div>
     </div>
+
+    <section id="viewerOnboarding" class="viewer-onboarding" hidden aria-label="Viewer quick guide">
+      <div class="viewer-onboarding__copy">
+        <p class="viewer-onboarding__kicker">Quick Guide</p>
+        <h2>First 3 actions</h2>
+        <ol>
+          <li>Use <strong>Search</strong> to jump to a person.</li>
+          <li>Use <strong>Focus</strong> to remove distractions.</li>
+          <li>Use <strong>Share</strong> or <strong>Order Print</strong> when ready.</li>
+        </ol>
+      </div>
+      <button type="button" id="dismissViewerOnboardingBtn" class="viewer-onboarding__dismiss">Continue</button>
+    </section>
 
     <main class="page">
       <div class="canvas-wrap">

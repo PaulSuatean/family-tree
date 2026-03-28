@@ -35,6 +35,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const resetEmailInput = document.getElementById('resetEmail');
   const resetSubmitBtn = document.getElementById('resetSubmitBtn');
   const resetBackBtn = document.getElementById('passwordResetBack');
+  const focusLoginBtn = document.getElementById('focusLoginBtn');
+  const showSignupBtn = document.getElementById('showSignupBtn');
+  const loginIdentifierInput = document.getElementById('loginIdentifier');
+  const signupIdentifierInput = document.getElementById('signupIdentifier');
   const compactAuthLayout = window.matchMedia('(max-width: 768px)');
   const scheduleFormHeightSync = debounce(syncAuthFormHeights, 120);
   const postAuthRedirect = resolvePostAuthRedirect();
@@ -46,30 +50,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     showError('Cloud sign-in is unavailable right now. You can still continue as Guest (Local).');
   }
 
+  function activateTab(tab) {
+    const safeTab = tab === 'signup' ? 'signup' : 'login';
+    const activeBtn = Array.from(tabButtons).find((btn) => btn.dataset.tab === safeTab);
+    if (!activeBtn) return;
+
+    tabButtons.forEach((btn) => btn.classList.remove('active'));
+    activeBtn.classList.add('active');
+    forms.forEach((form) => form.classList.remove('active'));
+    document.getElementById(`${safeTab}Form`)?.classList.add('active');
+
+    if (safeTab !== 'login') {
+      setResetPanelVisible(false);
+    }
+    hideError();
+    syncAuthFormHeights();
+  }
+
   // Tab switching
-  tabButtons.forEach(button => {
+  tabButtons.forEach((button) => {
     button.addEventListener('click', () => {
-      const tab = button.dataset.tab;
-      
-      // Update active tab
-      tabButtons.forEach(btn => btn.classList.remove('active'));
-      button.classList.add('active');
-      
-      // Show corresponding form
-      forms.forEach(form => form.classList.remove('active'));
-      document.getElementById(`${tab}Form`).classList.add('active');
-
-      if (tab !== 'login') {
-        setResetPanelVisible(false);
-      }
-      
-      // Clear error
-      hideError();
-
-      // Keep card size stable when switching between login/signup layouts.
-      syncAuthFormHeights();
+      activateTab(button.dataset.tab);
     });
   });
+
+  if (focusLoginBtn) {
+    focusLoginBtn.addEventListener('click', () => {
+      activateTab('login');
+      loginIdentifierInput?.focus();
+    });
+  }
+
+  if (showSignupBtn) {
+    showSignupBtn.addEventListener('click', () => {
+      activateTab('signup');
+      signupIdentifierInput?.focus();
+    });
+  }
 
   syncAuthFormHeights();
   window.addEventListener('resize', scheduleFormHeightSync);
@@ -150,7 +167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Google Sign In
-  googleSignInBtn.addEventListener('click', async () => {
+  googleSignInBtn?.addEventListener('click', async () => {
     if (!firebaseReady) {
       showError('Google sign-in is unavailable right now. Try again later or use Guest mode.');
       return;

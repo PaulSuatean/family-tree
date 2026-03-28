@@ -82,6 +82,8 @@
   const searchResults = document.getElementById('searchResults');
   const searchBtn = document.getElementById('searchBtn');
   const searchClearBtn = document.getElementById('searchClearBtn');
+  const viewerMoreBtn = document.getElementById('viewerMoreBtn');
+  const viewerMoreMenu = document.getElementById('viewerMoreMenu');
   const helpBtn = document.getElementById('helpBtn');
   const shareTreeBtn = document.getElementById('shareTreeBtn');
   const shareTreeModal = document.getElementById('shareTreeModal');
@@ -100,6 +102,9 @@
   const upcomingName = document.getElementById('upcomingName');
   const upcomingPrev = document.getElementById('upcomingPrev');
   const upcomingNext = document.getElementById('upcomingNext');
+  const viewerOnboarding = document.getElementById('viewerOnboarding');
+  const dismissViewerOnboardingBtn = document.getElementById('dismissViewerOnboardingBtn');
+  const VIEWER_ONBOARDING_DISMISSED_KEY = 'ancestrio:viewer-onboarding:dismissed:v1';
   const personLookup = new Map();
   const personHierarchy = new Map(); // Store hierarchical info
   const mobileQuery = window.matchMedia('(max-width: 640px)');
@@ -613,6 +618,78 @@
     focusBtn.setAttribute('aria-label', label);
     focusBtn.setAttribute('title', label);
   }
+
+  function setViewerMoreMenuOpen(isOpen) {
+    if (!viewerMoreBtn || !viewerMoreMenu) return;
+    const nextOpen = Boolean(isOpen);
+    viewerMoreBtn.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
+    viewerMoreMenu.hidden = !nextOpen;
+    viewerMoreMenu.classList.toggle('is-open', nextOpen);
+  }
+
+  function isViewerMoreMenuOpen() {
+    if (!viewerMoreMenu) return false;
+    return !viewerMoreMenu.hidden;
+  }
+
+  function closeViewerMoreMenu() {
+    setViewerMoreMenuOpen(false);
+  }
+
+  if (viewerMoreBtn && viewerMoreMenu) {
+    viewerMoreBtn.addEventListener('click', () => {
+      setViewerMoreMenuOpen(!isViewerMoreMenuOpen());
+    });
+
+    viewerMoreMenu.addEventListener('click', (event) => {
+      const target = event.target instanceof Element ? event.target.closest('button, a') : null;
+      if (target) {
+        closeViewerMoreMenu();
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!isViewerMoreMenuOpen()) return;
+      if (viewerMoreMenu.contains(event.target) || viewerMoreBtn.contains(event.target)) return;
+      closeViewerMoreMenu();
+    });
+  }
+
+  function setViewerOnboardingDismissed(value) {
+    try {
+      if (value) {
+        localStorage.setItem(VIEWER_ONBOARDING_DISMISSED_KEY, '1');
+      } else {
+        localStorage.removeItem(VIEWER_ONBOARDING_DISMISSED_KEY);
+      }
+    } catch (_) {
+      // Storage can be unavailable.
+    }
+  }
+
+  function getViewerOnboardingDismissed() {
+    try {
+      return localStorage.getItem(VIEWER_ONBOARDING_DISMISSED_KEY) === '1';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function setupViewerOnboarding() {
+    if (!viewerOnboarding) return;
+    if (getViewerOnboardingDismissed()) {
+      viewerOnboarding.hidden = true;
+      return;
+    }
+    viewerOnboarding.hidden = false;
+  }
+
+  dismissViewerOnboardingBtn?.addEventListener('click', () => {
+    setViewerOnboardingDismissed(true);
+    if (viewerOnboarding) viewerOnboarding.hidden = true;
+  });
+
+  setupViewerOnboarding();
 
   // Upcoming birthday navigation
   if (upcomingPrev) {
@@ -1391,7 +1468,9 @@
 
     switch(e.key) {
       case 'Escape':
-        if (focusModeActive) {
+        if (isViewerMoreMenuOpen()) {
+          closeViewerMoreMenu();
+        } else if (focusModeActive) {
           focusBtn.click();
         } else if (modalEl && modalEl.classList.contains('open')) {
           closeModal();
@@ -1487,6 +1566,7 @@
     searchInput.addEventListener('input', (e) => performSearch(e.target.value));
   }
   window.addEventListener('resize', () => {
+    closeViewerMoreMenu();
     if (searchBar && searchBar.classList.contains('show')) {
       positionSearchBar();
     }

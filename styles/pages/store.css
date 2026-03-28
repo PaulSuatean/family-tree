@@ -815,6 +815,10 @@ body.store-page .modal-dialog.store-modal-dialog.store-product-dialog {
   animation: store-rise 0.45s ease both;
 }
 
+.order-form-section.is-hidden {
+  display: none;
+}
+
 .order-form-section:nth-of-type(1) {
   animation-delay: 0.04s;
 }
@@ -950,6 +954,47 @@ textarea.form-input {
   box-shadow: none;
 }
 
+.order-stepper {
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--shell-row-bg);
+  display: grid;
+  gap: 8px;
+}
+
+.order-stepper__title {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.order-stepper__status {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.order-stepper__track {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: var(--shell-field-bg);
+}
+
+.order-stepper__track > span {
+  display: block;
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gradient-primary);
+  transition: width var(--transition-base) ease;
+}
+
 .price-summary {
   position: relative;
   display: grid;
@@ -1000,6 +1045,12 @@ textarea.form-input {
   border-radius: var(--radius-control);
   background: var(--shell-field-bg-soft);
   line-height: 1.55;
+}
+
+.order-step-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
 }
 
 .order-submit-btn {
@@ -1106,6 +1157,10 @@ textarea.form-input {
 
   .store-product-actions {
     display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .order-step-actions {
     grid-template-columns: 1fr;
   }
 

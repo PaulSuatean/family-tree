@@ -17,6 +17,7 @@ const TREE_LOAD_TIMEOUT_MS = 12000;
 const LOCAL_GUEST_TREE_KEY = 'ancestrio:guest-tree:v1';
 const LOCAL_PREVIEW_PREFIX = 'ancestrio-preview:';
 const LOCAL_VIEW_STYLE_PREFIX = 'ancestrio:view-style:';
+const DASHBOARD_ONBOARDING_KEY = 'ancestrio:onboarding:v1';
 const DEFAULT_VIEW_BACKGROUND = 'theme-default';
 const VIEW_BACKGROUND_IDS = new Set([
   'theme-default',
@@ -157,7 +158,74 @@ function buildStoreUrlForDashboard(context = {}) {
 }
 
 function openStoreFromDashboard(context = {}) {
+  markOnboardingPrintVisited();
   window.location.href = buildStoreUrlForDashboard(context);
+}
+
+function readDashboardOnboardingState() {
+  try {
+    const raw = localStorage.getItem(DASHBOARD_ONBOARDING_KEY);
+    if (!raw) return { printFlowOpened: false };
+    const parsed = JSON.parse(raw);
+    return {
+      printFlowOpened: Boolean(parsed && parsed.printFlowOpened)
+    };
+  } catch (_) {
+    return { printFlowOpened: false };
+  }
+}
+
+function writeDashboardOnboardingState(nextState) {
+  try {
+    const payload = {
+      printFlowOpened: Boolean(nextState && nextState.printFlowOpened)
+    };
+    localStorage.setItem(DASHBOARD_ONBOARDING_KEY, JSON.stringify(payload));
+    return payload;
+  } catch (_) {
+    return {
+      printFlowOpened: Boolean(nextState && nextState.printFlowOpened)
+    };
+  }
+}
+
+function markOnboardingPrintVisited() {
+  const state = readDashboardOnboardingState();
+  if (state.printFlowOpened) return;
+  writeDashboardOnboardingState({ ...state, printFlowOpened: true });
+  updateDashboardOnboardingChecklist();
+}
+
+function setOnboardingStatus(el, isComplete) {
+  if (!el) return;
+  el.textContent = isComplete ? 'Done' : 'Pending';
+  el.classList.toggle('is-complete', isComplete);
+}
+
+function updateDashboardOnboardingChecklist() {
+  const progressText = document.getElementById('onboardingProgressText');
+  const progressBar = document.getElementById('onboardingProgressBar');
+  if (!progressText && !progressBar) return;
+
+  const onboardingState = readDashboardOnboardingState();
+  const hasTrees = trees.length > 0;
+  const hasFiveMembers = trees.some((tree) => countMembers(tree.data || {}) >= 5);
+  const hasPublicShare = trees.some((tree) => String(tree.privacy || '').toLowerCase() === 'public');
+  const hasOpenedPrint = onboardingState.printFlowOpened;
+
+  setOnboardingStatus(document.getElementById('onboardingCreateState'), hasTrees);
+  setOnboardingStatus(document.getElementById('onboardingMembersState'), hasFiveMembers);
+  setOnboardingStatus(document.getElementById('onboardingShareState'), hasPublicShare);
+  setOnboardingStatus(document.getElementById('onboardingPrintState'), hasOpenedPrint);
+
+  const completedCount = [hasTrees, hasFiveMembers, hasPublicShare, hasOpenedPrint].filter(Boolean).length;
+  const totalSteps = 4;
+  if (progressText) {
+    progressText.textContent = `${completedCount}/${totalSteps} complete`;
+  }
+  if (progressBar) {
+    progressBar.style.width = `${Math.round((completedCount / totalSteps) * 100)}%`;
+  }
 }
 
 function buildShareUrlForTree(treeId) {
@@ -281,6 +349,7 @@ async function confirmShare() {
       });
       treeToShare.privacy = 'public';
       updateTreeCardPrivacyBadge(treeToShare.id, 'public');
+      updateDashboardOnboardingChecklist();
     }
     updateShareModalUI(treeToShare);
     const shareUrl = buildShareUrlForTree(treeToShare.id);
@@ -337,6 +406,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       view: 'tree'
     });
   });
+  document.getElementById('openCreateFromChecklistBtn')?.addEventListener('click', showCreateModeModal);
   document.getElementById('logoutBtn').addEventListener('click', logout);
   document.getElementById('createTreeBtn').addEventListener('click', showCreateModeModal);
   document.getElementById('createTreeBtnEmpty')?.addEventListener('click', showCreateModeModal);
@@ -391,6 +461,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('keydown', handleDashboardModalEscapeKey);
   
   setupWizardEventListeners();
+  updateDashboardOnboardingChecklist();
 
   const urlParams = new URLSearchParams(window.location.search);
   isLocalGuestMode = localStorage.getItem('guestMode') === 'true' || urlParams.get('guest') === '1';
@@ -517,7 +588,6 @@ function setupWizardEventListeners() {
     document.getElementById(fieldId).addEventListener('input', () => {
       wizardCenterNameTouched = true;
       syncCentralNameValidationState();
-      updateWizardPerspective();
     });
   });
 
@@ -531,7 +601,9 @@ function setupWizardEventListeners() {
     });
   });
   document.querySelectorAll('input[name="enableGlobeCountries"]').forEach((input) => {
-    input.addEventListener('change', updateWizardPerspective);
+    input.addEventListener('change', () => {
+      // Globe toggle updates payload only; no perspective labels depend on it.
+    });
   });
 
   document.getElementById('creatorRelationship').addEventListener('change', updateRelationshipOtherVisibility);
@@ -1224,10 +1296,12 @@ function renderTreesState(treesGrid, emptyState) {
   setCreateTreeButtonVisibility();
   if (!hasTrees) {
     window.AncestrioDomDisplay.show(emptyState);
+    updateDashboardOnboardingChecklist();
     return;
   }
   window.AncestrioDomDisplay.hide(emptyState);
   trees.forEach((tree) => renderTreeCard(tree));
+  updateDashboardOnboardingChecklist();
 }
 
 async function loadTrees() {
@@ -1246,6 +1320,7 @@ async function loadTrees() {
     setCreateTreeButtonVisibility();
     updateGuestEmptyState(hasStoredGuestTree());
     window.AncestrioDomDisplay.show(emptyState);
+    updateDashboardOnboardingChecklist();
     return;
   }
 
@@ -1309,8 +1384,10 @@ async function loadTrees() {
     
     // Show empty state so user can still create trees
     if (!renderedCachedTrees) window.AncestrioDomDisplay.show(emptyState);
+    updateDashboardOnboardingChecklist();
   } finally {
     window.AncestrioDomDisplay.hide(loadingState);
+    updateDashboardOnboardingChecklist();
   }
 }
 

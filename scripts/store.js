@@ -59,6 +59,8 @@
   let selectedPreviewIndex = 0;
   let ordersUnsubscribe = null;
   let ordersSubscriptionUserId = '';
+  let currentOrderStep = 1;
+  const ORDER_STEPS_TOTAL = 3;
 
   const refs = {};
 
@@ -597,6 +599,131 @@
     }
   }
 
+  function getOrderStepLabel(step) {
+    if (step === 1) return 'Step 1 of 3: Product and contact';
+    if (step === 2) return 'Step 2 of 3: Shipping';
+    return 'Step 3 of 3: Notes and review';
+  }
+
+  function validateOrderWizardStep(step) {
+    if (step === 1) {
+      const contactName = sanitizeText(refs.contactName?.value, 120);
+      const contactEmail = sanitizeText(refs.contactEmail?.value, 160);
+      const contactPhone = sanitizePhoneNumber(refs.contactPhone?.value);
+      const printStyle = sanitizeText(refs.printStyle?.value, 32);
+      const paperFinish = sanitizeText(refs.paperFinish?.value, 32);
+      const printSize = sanitizeText(refs.printSize?.value, 32);
+
+      if (!contactName) {
+        notifyUser('Contact name is required.', 'warning');
+        refs.contactName?.focus();
+        return false;
+      }
+      if (!contactEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) {
+        notifyUser('Enter a valid contact email.', 'warning');
+        refs.contactEmail?.focus();
+        return false;
+      }
+      if (!contactPhone || !isValidPhoneNumber(contactPhone)) {
+        notifyUser('Enter a valid phone number.', 'warning');
+        refs.contactPhone?.focus();
+        return false;
+      }
+      if (!isAllowedPrintStyle(printStyle)) {
+        notifyUser('Choose a valid print style.', 'warning');
+        refs.printStyle?.focus();
+        return false;
+      }
+      if (!isAllowedPaperFinish(paperFinish)) {
+        notifyUser('Choose a valid paper finish.', 'warning');
+        refs.paperFinish?.focus();
+        return false;
+      }
+      if (!isAllowedPrintSize(printSize)) {
+        notifyUser('Choose a valid print size.', 'warning');
+        refs.printSize?.focus();
+        return false;
+      }
+      return true;
+    }
+
+    if (step === 2) {
+      const shippingAddress1 = sanitizeText(refs.shippingAddress1?.value, 160);
+      const shippingCity = sanitizeText(refs.shippingCity?.value, 80);
+      const shippingRegion = sanitizeText(refs.shippingRegion?.value, 80);
+      const shippingPostalCode = sanitizeText(refs.shippingPostalCode?.value, 20);
+      const shippingCountry = sanitizeText(refs.shippingCountry?.value, 80);
+
+      if (!shippingAddress1) {
+        notifyUser('Address line 1 is required.', 'warning');
+        refs.shippingAddress1?.focus();
+        return false;
+      }
+      if (!shippingCity) {
+        notifyUser('City is required.', 'warning');
+        refs.shippingCity?.focus();
+        return false;
+      }
+      if (!shippingRegion) {
+        notifyUser('State or province is required.', 'warning');
+        refs.shippingRegion?.focus();
+        return false;
+      }
+      if (!shippingPostalCode) {
+        notifyUser('Postal code is required.', 'warning');
+        refs.shippingPostalCode?.focus();
+        return false;
+      }
+      if (!shippingCountry) {
+        notifyUser('Country is required.', 'warning');
+        refs.shippingCountry?.focus();
+        return false;
+      }
+      return true;
+    }
+
+    return true;
+  }
+
+  function setOrderStep(step, options = {}) {
+    const normalized = Math.min(ORDER_STEPS_TOTAL, Math.max(1, Number(step) || 1));
+    currentOrderStep = normalized;
+
+    const sections = refs.orderFormFields?.querySelectorAll('.order-form-section[data-order-step]') || [];
+    sections.forEach((section) => {
+      const sectionStep = Number(section.getAttribute('data-order-step') || '1');
+      section.classList.toggle('is-hidden', sectionStep !== currentOrderStep);
+    });
+
+    if (refs.orderStepLabel) {
+      refs.orderStepLabel.textContent = getOrderStepLabel(currentOrderStep);
+    }
+    if (refs.orderStepBar) {
+      refs.orderStepBar.style.width = `${Math.round((currentOrderStep / ORDER_STEPS_TOTAL) * 100)}%`;
+    }
+    if (refs.orderStepPrevBtn) {
+      refs.orderStepPrevBtn.disabled = currentOrderStep === 1;
+    }
+    if (refs.orderStepNextBtn) {
+      refs.orderStepNextBtn.hidden = currentOrderStep >= ORDER_STEPS_TOTAL;
+      refs.orderStepNextBtn.disabled = currentOrderStep >= ORDER_STEPS_TOTAL;
+    }
+    if (refs.submitOrderBtn) {
+      refs.submitOrderBtn.hidden = currentOrderStep < ORDER_STEPS_TOTAL;
+    }
+
+    if (options.focus === false) return;
+    if (currentOrderStep === 1) {
+      refs.contactName?.focus();
+      return;
+    }
+    if (currentOrderStep === 2) {
+      refs.shippingAddress1?.focus();
+      return;
+    }
+    refs.orderNote?.focus();
+  }
+
   function setSelectedProduct(nextProduct, options = {}) {
     const safeProduct = normalizeSelectableProduct(nextProduct, 'paper-print');
     const shouldSyncSelect = options.syncSelect !== false;
@@ -624,11 +751,7 @@
   }
 
   function focusOrderPageStart() {
-    if (refs.printStyle instanceof HTMLElement) {
-      refs.printStyle.focus();
-      return;
-    }
-    refs.contactName?.focus();
+    setOrderStep(currentOrderStep, { focus: true });
   }
 
   function setActiveModalPage(nextPage, options = {}) {
@@ -859,6 +982,7 @@
     if (!refs.storeProductModal) return;
     refs.storeProductModal.classList.add('open');
     refs.storeProductModal.setAttribute('aria-hidden', 'false');
+    setOrderStep(1, { focus: false });
     setActiveModalPage('order', { manageFocus: false });
     updateBodyModalLock();
     setActiveModalPage('order');
@@ -1133,10 +1257,17 @@
     if (refs.printSize) refs.printSize.value = 'A3';
     updatePriceSummary();
     prefillContactFromUser();
+    setOrderStep(1, { focus: false });
   }
 
   async function submitOrder(event) {
     event.preventDefault();
+
+    if (currentOrderStep < ORDER_STEPS_TOTAL) {
+      if (!validateOrderWizardStep(currentOrderStep)) return;
+      setOrderStep(currentOrderStep + 1);
+      return;
+    }
 
     const endpoint = resolveOrderEmailEndpoint();
     if (!endpoint) {
@@ -1337,6 +1468,13 @@
     });
     refs.orderQuantity?.addEventListener('input', () => updatePriceSummary());
     refs.orderForm?.addEventListener('submit', submitOrder);
+    refs.orderStepNextBtn?.addEventListener('click', () => {
+      if (!validateOrderWizardStep(currentOrderStep)) return;
+      setOrderStep(currentOrderStep + 1);
+    });
+    refs.orderStepPrevBtn?.addEventListener('click', () => {
+      setOrderStep(currentOrderStep - 1);
+    });
 
     refs.openOrderFromPreviewBtn?.addEventListener('click', () => {
       const trigger = lastProductModalTrigger instanceof HTMLElement
@@ -1384,6 +1522,11 @@
     refs.summaryDiscount = document.getElementById('summaryDiscount');
     refs.summaryTotal = document.getElementById('summaryTotal');
     refs.submitOrderBtn = document.getElementById('submitOrderBtn');
+    refs.orderFormFields = refs.orderForm ? refs.orderForm.querySelector('.order-form-fields') : null;
+    refs.orderStepLabel = document.getElementById('orderStepLabel');
+    refs.orderStepBar = document.getElementById('orderStepBar');
+    refs.orderStepNextBtn = document.getElementById('orderStepNextBtn');
+    refs.orderStepPrevBtn = document.getElementById('orderStepPrevBtn');
     refs.storeBackBtn = document.getElementById('storeBackBtn');
     refs.storeOrdersPanel = document.getElementById('storeOrdersPanel');
     refs.storeOrdersSubtitle = document.getElementById('storeOrdersSubtitle');
@@ -1428,6 +1571,7 @@
     updateContextText();
     setSelectedProduct(selectedProduct, { updateUrl: false });
     renderProductPreview();
+    setOrderStep(1, { focus: false });
     setActiveModalPage('preview', { manageFocus: false });
     syncStoreSectionHeight();
     syncProductModalWidth();

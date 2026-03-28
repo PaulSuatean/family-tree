@@ -90,17 +90,28 @@
   </header>
 
   <main class="page-container landing-main">
+    <nav class="journey-rail" aria-label="Ancestrio journey">
+      <ol class="journey-rail__list">
+        <li><a href="pages/auth.html" aria-current="step">Create</a></li>
+        <li><a href="pages/dashboard.html">Edit</a></li>
+        <li><a href="pages/demo-tree.html">Share</a></li>
+        <li><a href="pages/store.html?product=paper-print&source=landing&view=tree">Print</a></li>
+      </ol>
+    </nav>
+
     <section class="landing-hero-section" aria-labelledby="landingHeroTitle">
       <div class="landing-hero-grid">
         <div class="landing-hero-copy">
           <p class="landing-kicker">Private Family Workspace</p>
-          <h1 id="landingHeroTitle">Build your family tree once, then share or print from the same source.</h1>
+          <h1 id="landingHeroTitle">Keep your family story in one place from first draft to final print.</h1>
           <p class="landing-subtitle">
-            Ancestrio keeps names, relationships, dates, and places in one private workspace so you can review details before sharing a link or requesting a keepsake.
+            Build your tree privately, review details with relatives, and order a wall-ready keepsake from the same record without rebuilding your data.
           </p>
-          <p class="landing-subtitle">
-            Instead of splitting work between notes, spreadsheets, and redesign requests, you keep the full story in one record from draft to final handoff.
-          </p>
+          <ul class="landing-proof-list" aria-label="Key product promises">
+            <li>Private by default</li>
+            <li>No ad tracking scripts</li>
+            <li>Open-source codebase</li>
+          </ul>
           <div class="landing-hero-cta">
             <a href="pages/auth.html" class="landing-btn landing-btn-primary">Start Building</a>
             <a href="pages/demo-tree.html" class="landing-btn landing-btn-secondary">View Demo</a>
@@ -113,27 +124,53 @@
       </div>
     </section>
 
+    <section class="landing-trust-section" aria-labelledby="landingTrustTitle">
+      <div class="landing-trust-layout">
+        <article class="landing-trust-panel">
+          <div class="section-heading">
+            <p class="landing-kicker">Trust</p>
+            <h2 id="landingTrustTitle">Designed for family history, not traffic metrics.</h2>
+            <p class="section-intro">You keep control of visibility, link sharing, and when your data becomes print-ready.</p>
+          </div>
+          <ul class="landing-trust-list">
+            <li><strong>Private by default.</strong><span>Trees start private and only become shareable when you choose.</span></li>
+            <li><strong>Source is inspectable.</strong><span>Feature behavior and roadmap stay visible in the repository.</span></li>
+            <li><strong>No ad-based incentives.</strong><span>The product direction is not optimized for ad impressions.</span></li>
+          </ul>
+        </article>
+
+        <article class="landing-print-teaser">
+          <p class="landing-kicker">Keepsake</p>
+          <h3>Print from the same tree data when your family approves the final story.</h3>
+          <p>Choose style, finish, and size after research and review are complete, not before.</p>
+          <p>Proof and delivery details are confirmed by email before production.</p>
+          <a href="pages/store.html?product=paper-print&source=landing&view=tree" class="landing-print-teaser__link">Explore Print Options</a>
+          <img src="images/landing/print-01.webp" alt="Classic heritage printed family tree" loading="lazy" decoding="async" />
+        </article>
+      </div>
+    </section>
+
     <section class="landing-flow-section" aria-labelledby="landingFlowTitle">
       <div class="section-heading">
         <p class="landing-kicker">Workflow</p>
-        <h2 id="landingFlowTitle">A simple 3-step flow.</h2>
-        <p class="section-intro">The product is designed to keep research, family review, and keepsake handoff in one sequence.</p>
+        <h2 id="landingFlowTitle">One path from setup to keepsake.</h2>
+        <p class="section-intro">No spreadsheet detours and no second rebuild before sharing or ordering.</p>
       </div>
       <div class="landing-flow-grid">
         <article class="landing-flow-card">
           <p class="landing-flow-card__index">01</p>
-          <h3>Build privately</h3>
-          <p>Add people, dates, and notes in your private workspace while details are still changing.</p>
+          <h3>Create</h3>
+          <p>Start your private tree with names, relationships, dates, and places.</p>
         </article>
         <article class="landing-flow-card">
           <p class="landing-flow-card__index">02</p>
-          <h3>Review and share</h3>
-          <p>Use the viewer to check the story, then send one clear link to relatives.</p>
+          <h3>Edit and review</h3>
+          <p>Use one viewer link to gather family feedback and confirm details.</p>
         </article>
         <article class="landing-flow-card">
           <p class="landing-flow-card__index">03</p>
-          <h3>Print when ready</h3>
-          <p>Request a keepsake only after the family tree is clean and approved.</p>
+          <h3>Share or print</h3>
+          <p>Send a digital link or request a print when the tree is finalized.</p>
         </article>
       </div>
     </section>
@@ -141,50 +178,24 @@
     <section class="landing-features-section" aria-labelledby="landingFeaturesTitle">
       <div class="section-heading">
         <p class="landing-kicker">Core Capabilities</p>
-        <h2 id="landingFeaturesTitle">Everything stays in one system.</h2>
-        <p class="section-intro">The same workspace powers your private edits, shared view link, and print-ready output.</p>
+        <h2 id="landingFeaturesTitle">Built for ongoing family updates.</h2>
+        <p class="section-intro">The same workspace powers editing, viewer sharing, and print context.</p>
       </div>
       <div class="landing-feature-grid">
         <article class="landing-feature-card">
           <span class="material-symbols-outlined" aria-hidden="true">account_tree</span>
-          <h3>Readable branch editing</h3>
-          <p>Track parents, spouses, and children without spreadsheet cleanup.</p>
+          <h3>Relationship-first editing</h3>
+          <p>Add parents, spouses, and children without restructuring files manually.</p>
         </article>
         <article class="landing-feature-card">
           <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
-          <h3>Birthday and date review</h3>
-          <p>Catch missing dates before the tree leaves draft mode.</p>
+          <h3>Date clarity</h3>
+          <p>Review birthdays and missing dates before you share the link publicly.</p>
         </article>
         <article class="landing-feature-card">
           <span class="material-symbols-outlined" aria-hidden="true">public</span>
-          <h3>Places with context</h3>
-          <p>Keep origins and location notes attached to the same people record.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="landing-trust-section" aria-labelledby="landingTrustTitle">
-      <div class="landing-trust-layout">
-        <article class="landing-trust-panel">
-          <div class="section-heading">
-            <p class="landing-kicker">Trust</p>
-            <h2 id="landingTrustTitle">Built for family history, not ad traffic.</h2>
-            <p class="section-intro">Families need confidence before they upload personal history, so these product promises stay explicit.</p>
-          </div>
-          <ul class="landing-trust-list">
-            <li><strong>Private by default.</strong><span>You decide when a tree becomes shareable.</span></li>
-            <li><strong>Open source codebase.</strong><span>Product direction and implementation stay inspectable.</span></li>
-            <li><strong>No third-party ads.</strong><span>The product does not rely on ad tracking scripts.</span></li>
-          </ul>
-        </article>
-
-        <article class="landing-print-teaser">
-          <p class="landing-kicker">Keepsake</p>
-          <h3>When the story feels final, order a print-ready version.</h3>
-          <p>Choose style and finish after the same tree has been researched and reviewed.</p>
-          <p>The request flow starts from your existing tree data, so there is no second rebuild before print proofing.</p>
-          <a href="pages/store.html?product=paper-print&source=landing&view=tree" class="landing-print-teaser__link">Explore Print Options</a>
-          <img src="images/landing/print-01.webp" alt="Classic heritage printed family tree" loading="lazy" decoding="async" />
+          <h3>Location context</h3>
+          <p>Keep migration and travel notes attached to the relevant people.</p>
         </article>
       </div>
     </section>
@@ -192,8 +203,8 @@
     <section class="landing-cta" aria-labelledby="landingCtaTitle">
       <div class="landing-cta-copy">
         <p class="landing-kicker">Ready To Begin</p>
-        <h2 id="landingCtaTitle">Start your family workspace today.</h2>
-        <p>Create privately now, share when ready, and come back to print only when the tree is settled. The project is designed for ongoing family updates, not one-time static exports, for every branch.</p>
+        <h2 id="landingCtaTitle">Start with one branch and grow over time.</h2>
+        <p>Create privately now, share when ready, then return for print when the story is settled.</p>
       </div>
       <div class="landing-hero-cta">
         <a href="pages/auth.html" class="landing-btn landing-btn-primary">Start Building</a>
@@ -201,6 +212,10 @@
       </div>
     </section>
   </main>
+
+  <div class="landing-mobile-cta" aria-label="Quick start">
+    <a href="pages/auth.html" class="landing-btn landing-btn-primary">Start Building</a>
+  </div>
 
   <footer class="site-footer">
     <div class="site-footer__inner">

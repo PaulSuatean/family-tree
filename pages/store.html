@@ -94,6 +94,15 @@
   </header>
 
   <main class="page-container store-main">
+    <nav class="journey-rail" aria-label="Ancestrio journey">
+      <ol class="journey-rail__list">
+        <li><a href="auth.html">Create</a></li>
+        <li><a href="dashboard.html">Edit</a></li>
+        <li><a href="demo-tree.html">Share</a></li>
+        <li><span aria-current="step">Print</span></li>
+      </ol>
+    </nav>
+
     <section class="store-hero page-hero">
       <div class="store-hero-copy">
         <p class="store-kicker page-kicker">Printed Paper Store</p>
@@ -296,7 +305,7 @@
           <div class="store-modal-body">
             <div class="store-order-header">
               <button type="button" class="store-order-back-btn" id="orderPageBackBtn">Back to details</button>
-              <p class="store-order-step">Step 2 of 2</p>
+              <p class="store-order-step">3-step order flow</p>
             </div>
             <div class="store-order-title-block">
               <p class="store-modal-kicker">Customize and Order</p>
@@ -314,7 +323,7 @@
             <form id="orderForm" novalidate data-formspree-endpoint="https://formsubmit.co/ajax/suatean.paul@gmail.com">
               <div class="order-form-grid">
                 <div class="order-form-fields">
-                  <section class="order-form-section">
+                  <section class="order-form-section" data-order-step="1">
                     <h3>Product</h3>
                     <div class="form-group">
                       <label class="form-label" for="orderProduct">Product</label>
@@ -352,7 +361,7 @@
                     </div>
                   </section>
 
-                  <section class="order-form-section">
+                  <section class="order-form-section" data-order-step="1">
                     <h3>Contact</h3>
                     <div class="form-group">
                       <label class="form-label" for="contactName">Contact Name</label>
@@ -368,7 +377,7 @@
                     </div>
                   </section>
 
-                  <section class="order-form-section order-form-section--wide">
+                  <section class="order-form-section order-form-section--wide" data-order-step="2">
                     <h3>Shipping</h3>
                     <p class="form-hint">We use this to confirm delivery region and timeline before printing.</p>
                     <div class="form-group form-group-wide">
@@ -397,7 +406,7 @@
                     </div>
                   </section>
 
-                  <section class="order-form-section order-form-section--wide">
+                  <section class="order-form-section order-form-section--wide" data-order-step="3">
                     <h3>Notes</h3>
                     <div class="form-group form-group-wide">
                       <label class="form-label" for="orderNote">Note (Optional)</label>
@@ -407,6 +416,13 @@
                 </div>
 
                 <div class="order-form-actions">
+                  <div class="order-stepper" id="orderStepper" aria-label="Order wizard progress">
+                    <p class="order-stepper__title">Order Steps</p>
+                    <p class="order-stepper__status" id="orderStepLabel">Step 1 of 3: Product and contact</p>
+                    <div class="order-stepper__track">
+                      <span id="orderStepBar"></span>
+                    </div>
+                  </div>
                   <div class="price-summary" id="priceSummary">
                     <div class="summary-row">
                       <span>Unit price</span>
@@ -427,6 +443,10 @@
                   </div>
 
                   <p class="store-order-trust">No online payment is processed here. We confirm proof and delivery by email.</p>
+                  <div class="order-step-actions">
+                    <button type="button" class="store-order-back-btn" id="orderStepPrevBtn">Back</button>
+                    <button type="button" class="btn-primary store-order-open-btn" id="orderStepNextBtn">Next Step</button>
+                  </div>
                   <button type="submit" class="btn-primary order-submit-btn" id="submitOrderBtn">Submit Order</button>
                 </div>
               </div>

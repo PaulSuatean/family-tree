@@ -319,6 +319,64 @@ body.theme-dark .site-menu-btn {
   padding: var(--shell-section-gap) 0 var(--shell-space-9);
 }
 
+.journey-rail {
+  margin: 0 0 var(--shell-section-gap);
+  padding: 10px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--shell-surface-accented-strong);
+}
+
+.journey-rail__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.journey-rail__list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.journey-rail__list li:not(:last-child)::after {
+  content: "arrow_forward";
+  font-family: "Material Symbols Outlined";
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.journey-rail__list a,
+.journey-rail__list span {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--shell-field-bg-soft);
+}
+
+.journey-rail__list a:hover,
+.journey-rail__list a:focus-visible {
+  color: var(--text);
+  outline: none;
+}
+
+.journey-rail__list [aria-current="step"] {
+  color: var(--on-primary);
+  background: var(--gradient-primary);
+}
+
 /* Cross-page overflow guard moved from legacy page-overrides.css */
 .page-container > *,
 .surface-card > *,
@@ -1054,6 +1112,26 @@ body.dashboard-page.site-shell .dashboard-main {
   .site-footer__inner {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .journey-rail {
+    padding: 8px;
+  }
+
+  .journey-rail__list {
+    gap: 6px;
+  }
+
+  .journey-rail__list li:not(:last-child)::after {
+    font-size: 14px;
+  }
+
+  .journey-rail__list a,
+  .journey-rail__list span {
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
   }
 
   body.has-app-toolbar:not(.focus-mode) .app-header {

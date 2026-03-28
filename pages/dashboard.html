@@ -90,7 +90,52 @@
   </header>
 
   <main class="dashboard-main page-container">
+    <nav class="journey-rail" aria-label="Ancestrio journey">
+      <ol class="journey-rail__list">
+        <li><span aria-current="step">Create</span></li>
+        <li><a href="demo-tree.html">Edit</a></li>
+        <li><a href="demo-tree.html">Share</a></li>
+        <li><a href="store.html?product=paper-print&source=dashboard&view=tree">Print</a></li>
+      </ol>
+    </nav>
+
     <div class="dashboard-container">
+      <section class="dashboard-onboarding surface-card" id="dashboardOnboarding" aria-labelledby="dashboardOnboardingTitle">
+        <div class="dashboard-onboarding__header">
+          <div>
+            <p class="app-kicker">Onboarding Checklist</p>
+            <h2 id="dashboardOnboardingTitle">Complete your first family workflow.</h2>
+            <p class="dashboard-onboarding__subtitle">Track progress from first tree creation to share and print handoff.</p>
+          </div>
+          <button type="button" class="btn-primary dashboard-onboarding__action" id="openCreateFromChecklistBtn">
+            <span class="material-symbols-outlined" aria-hidden="true">add</span>
+            Start Guided Setup
+          </button>
+        </div>
+        <div class="dashboard-onboarding__progress" aria-label="Checklist progress">
+          <span id="onboardingProgressBar"></span>
+        </div>
+        <p class="dashboard-onboarding__meta"><strong id="onboardingProgressText">0/4 complete</strong></p>
+        <ul class="dashboard-onboarding__list">
+          <li>
+            <span>Create your first tree</span>
+            <strong id="onboardingCreateState">Pending</strong>
+          </li>
+          <li>
+            <span>Add at least 5 members</span>
+            <strong id="onboardingMembersState">Pending</strong>
+          </li>
+          <li>
+            <span>Share at least one public link</span>
+            <strong id="onboardingShareState">Pending</strong>
+          </li>
+          <li>
+            <span>Open print ordering flow</span>
+            <strong id="onboardingPrintState">Pending</strong>
+          </li>
+        </ul>
+      </section>
+
       <div id="treesGrid" class="trees-grid">
         <!-- Trees will be loaded here -->
       </div>
@@ -142,13 +187,18 @@
           <button class="modal-close" id="closeCreateModeModal" aria-label="Close create options">&times;</button>
         </div>
         <div class="modal-body create-mode-body">
-          <p class="step-subtitle">Choose how you want to start your next family tree.</p>
+          <p class="step-subtitle">Recommended: start with guided setup so required details appear in sequence.</p>
           <button type="button" class="btn-primary create-mode-action" id="startWizardBtn">
-            Guided setup (Wizard)
+            Start Guided Setup
           </button>
-          <button type="button" class="btn-secondary create-mode-action" id="startManualBtn">
-            Create manually from scratch
-          </button>
+          <details class="create-mode-advanced">
+            <summary>Advanced options</summary>
+            <div class="create-mode-advanced__body">
+              <button type="button" class="btn-secondary create-mode-action" id="startManualBtn">
+                Create manually from scratch
+              </button>
+            </div>
+          </details>
         </div>
       </div>
     </div>

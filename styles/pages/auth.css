@@ -161,6 +161,44 @@
   box-shadow: none;
 }
 
+.auth-primary-path {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius-control);
+  background: var(--shell-row-bg-accented);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.auth-primary-path__title {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.auth-inline-link {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.auth-inline-link:hover,
+.auth-inline-link:focus-visible {
+  color: var(--text);
+  outline: none;
+}
+
 .auth-form {
   display: none;
 }
@@ -315,6 +353,46 @@
 
 .guest-button {
   background: var(--shell-field-bg);
+}
+
+.auth-alt-modes {
+  margin-top: 16px;
+  border-radius: var(--radius-lg);
+  background: var(--shell-surface-base);
+}
+
+.auth-alt-modes summary {
+  list-style: none;
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.auth-alt-modes summary::-webkit-details-marker {
+  display: none;
+}
+
+.auth-alt-modes summary::after {
+  content: "expand_more";
+  font-family: "Material Symbols Outlined";
+  font-size: 20px;
+  color: var(--muted);
+  transition: transform var(--transition-base) ease;
+}
+
+.auth-alt-modes[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.auth-alt-modes-body {
+  padding: 0 14px 14px;
 }
 
 .error-message {

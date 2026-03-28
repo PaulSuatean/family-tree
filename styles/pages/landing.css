@@ -24,6 +24,10 @@ body.landing-page .landing-main {
   gap: 26px;
 }
 
+body.landing-page .journey-rail {
+  margin-bottom: 0;
+}
+
 .section-heading {
   display: grid;
   gap: 10px;
@@ -95,6 +99,28 @@ body.landing-page .landing-main {
   margin: 0;
   color: var(--landing-muted);
   line-height: 1.66;
+}
+
+.landing-proof-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.landing-proof-list li {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  background: var(--landing-card-soft);
+  color: var(--landing-text);
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .landing-hero-cta {
@@ -268,6 +294,10 @@ body.landing-page .site-menu-btn:focus-visible {
   gap: 10px;
 }
 
+.landing-mobile-cta {
+  display: none;
+}
+
 @media (max-width: 1080px) {
   .landing-hero-grid,
   .landing-trust-layout,
@@ -287,6 +317,7 @@ body.landing-page .site-menu-btn:focus-visible {
   body.landing-page .landing-main {
     width: min(100%, calc(100% - 16px));
     padding-top: 22px;
+    padding-bottom: 96px;
     gap: 20px;
   }
 
@@ -314,5 +345,23 @@ body.landing-page .site-menu-btn:focus-visible {
 
   .landing-btn {
     width: 100%;
+  }
+
+  .landing-proof-list {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .landing-mobile-cta {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    z-index: 42;
+    display: block;
+    padding: 8px;
+    border-radius: var(--radius-lg);
+    background: var(--landing-surface);
+    box-shadow: none;
   }
 }
