@@ -58,21 +58,21 @@ body.site-shell {
   position: relative;
   isolation: isolate;
   --shell-page-bg: var(--theme-bg);
-  --shell-panel-border: var(--border);
-  --shell-panel-border-strong: var(--border);
-  --shell-panel-border-soft: var(--border);
-  --shell-panel-bg: var(--theme-element);
-  --shell-panel-bg-strong: var(--theme-element);
-  --shell-panel-bg-soft: var(--theme-element);
-  --shell-panel-bg-muted: var(--theme-element);
-  --shell-field-bg: var(--theme-element);
-  --shell-field-bg-soft: var(--theme-element);
-  --shell-chip-bg: var(--theme-element);
-  --shell-row-bg: var(--theme-element);
+  --shell-panel-border: var(--border-soft);
+  --shell-panel-border-strong: var(--border-strong);
+  --shell-panel-border-soft: var(--border-soft);
+  --shell-panel-bg: var(--surface-base);
+  --shell-panel-bg-strong: var(--surface-raised);
+  --shell-panel-bg-soft: color-mix(in srgb, var(--surface-base) 86%, var(--surface-emphasis) 14%);
+  --shell-panel-bg-muted: var(--surface-emphasis);
+  --shell-field-bg: color-mix(in srgb, var(--surface-base) 88%, var(--surface-emphasis) 12%);
+  --shell-field-bg-soft: color-mix(in srgb, var(--surface-base) 76%, var(--surface-emphasis) 24%);
+  --shell-chip-bg: color-mix(in srgb, var(--surface-base) 74%, var(--surface-emphasis) 26%);
+  --shell-row-bg: color-mix(in srgb, var(--surface-base) 84%, var(--surface-emphasis) 16%);
   --shell-overlay-bg: var(--overlay-shell);
-  --shell-panel-bg-accented: var(--theme-element);
-  --shell-panel-bg-accented-strong: var(--theme-element);
-  --shell-row-bg-accented: var(--theme-element);
+  --shell-panel-bg-accented: color-mix(in srgb, var(--surface-base) 86%, var(--surface-emphasis) 14%);
+  --shell-panel-bg-accented-strong: color-mix(in srgb, var(--surface-base) 68%, var(--surface-emphasis) 32%);
+  --shell-row-bg-accented: color-mix(in srgb, var(--surface-base) 66%, var(--surface-emphasis) 34%);
   --shell-surface-base: var(--shell-panel-bg);
   --shell-surface-soft: var(--shell-panel-bg-soft);
   --shell-surface-accented: var(--shell-panel-bg-accented);
@@ -85,21 +85,21 @@ body.site-shell {
 
 body.theme-dark.site-shell {
   --shell-page-bg: var(--theme-bg);
-  --shell-panel-border: var(--border);
-  --shell-panel-border-strong: var(--border);
-  --shell-panel-border-soft: var(--border);
-  --shell-panel-bg: var(--theme-element);
-  --shell-panel-bg-strong: var(--theme-element);
-  --shell-panel-bg-soft: var(--theme-element);
-  --shell-panel-bg-muted: var(--theme-element);
-  --shell-field-bg: var(--theme-element);
-  --shell-field-bg-soft: var(--theme-element);
-  --shell-chip-bg: var(--theme-element);
-  --shell-row-bg: var(--theme-element);
+  --shell-panel-border: var(--border-soft);
+  --shell-panel-border-strong: var(--border-strong);
+  --shell-panel-border-soft: var(--border-soft);
+  --shell-panel-bg: var(--surface-base);
+  --shell-panel-bg-strong: var(--surface-raised);
+  --shell-panel-bg-soft: color-mix(in srgb, var(--surface-base) 86%, var(--surface-emphasis) 14%);
+  --shell-panel-bg-muted: var(--surface-emphasis);
+  --shell-field-bg: color-mix(in srgb, var(--surface-base) 88%, var(--surface-emphasis) 12%);
+  --shell-field-bg-soft: color-mix(in srgb, var(--surface-base) 76%, var(--surface-emphasis) 24%);
+  --shell-chip-bg: color-mix(in srgb, var(--surface-base) 74%, var(--surface-emphasis) 26%);
+  --shell-row-bg: color-mix(in srgb, var(--surface-base) 84%, var(--surface-emphasis) 16%);
   --shell-overlay-bg: var(--overlay-shell);
-  --shell-panel-bg-accented: var(--theme-element);
-  --shell-panel-bg-accented-strong: var(--theme-element);
-  --shell-row-bg-accented: var(--theme-element);
+  --shell-panel-bg-accented: color-mix(in srgb, var(--surface-base) 86%, var(--surface-emphasis) 14%);
+  --shell-panel-bg-accented-strong: color-mix(in srgb, var(--surface-base) 68%, var(--surface-emphasis) 32%);
+  --shell-row-bg-accented: color-mix(in srgb, var(--surface-base) 66%, var(--surface-emphasis) 34%);
   --shell-surface-base: var(--shell-panel-bg);
   --shell-surface-soft: var(--shell-panel-bg-soft);
   --shell-surface-accented: var(--shell-panel-bg-accented);
@@ -136,7 +136,7 @@ body.site-shell:not(.has-app-toolbar) {
   position: sticky;
   top: 0;
   z-index: 30;
-  padding-top: var(--site-header-button-gap);
+  padding-top: calc(var(--site-header-button-gap) + 2px);
 }
 
 .site-header__inner {
@@ -146,10 +146,12 @@ body.site-shell:not(.has-app-toolbar) {
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 18px;
-  padding: var(--site-header-button-gap) 18px;
+  padding: 10px 18px;
   border-radius: var(--radius-pill);
-  background: var(--shell-panel-bg-accented-strong);
-  box-shadow: none;
+  background: color-mix(in srgb, var(--shell-panel-bg-accented-strong) 94%, transparent);
+  border: 1px solid var(--shell-panel-border-soft);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(12px) saturate(115%);
 }
 
 .site-header__inner > * {
@@ -163,7 +165,7 @@ body.site-shell:not(.has-app-toolbar) {
   font-size: 1.25rem;
   font-weight: 600;
   text-decoration: none;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.005em;
   white-space: nowrap;
 }
 
@@ -181,26 +183,29 @@ body.site-shell:not(.has-app-toolbar) {
   font-size: 0.92rem;
   font-weight: 700;
   text-decoration: none;
-  padding: 10px 14px;
+  min-height: 44px;
+  padding: 0 14px;
   border-radius: var(--radius-pill);
-  transition: color var(--transition-base) ease, background var(--transition-base) ease;
+  transition: color var(--transition-base) ease, background var(--transition-base) ease, transform var(--transition-base) ease;
 }
 
 .site-header__nav a:hover {
-  color: var(--button-secondary-text);
-  background: var(--button-secondary-bg);
+  color: var(--text);
+  background: var(--shell-field-bg-soft);
+  transform: translateY(-1px);
 }
 
 .site-header__nav a:focus-visible {
-  color: var(--button-secondary-text);
-  background: var(--button-secondary-bg);
+  color: var(--text);
+  background: var(--shell-field-bg-soft);
   outline: 3px solid var(--ring-strong);
   outline-offset: 3px;
 }
 
 .site-header__nav a[aria-current="page"] {
-  color: var(--button-primary-text);
-  background: var(--button-primary-bg);
+  color: var(--on-primary);
+  background: var(--gradient-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .site-header__actions {
@@ -230,42 +235,43 @@ body.site-shell:not(.has-app-toolbar) {
   align-items: center;
   justify-content: center;
   padding: 0 18px;
-  border: none;
+  border: 1px solid transparent;
   font-size: 0.9rem;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .site-btn:hover {
-  box-shadow: none;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .site-btn:focus-visible {
-  box-shadow: none;
+  box-shadow: var(--focus-ring), var(--shadow-md);
   outline: 3px solid var(--ring-strong);
   outline-offset: 3px;
 }
 
 .site-btn--primary {
-  background: var(--button-primary-bg);
+  background: var(--gradient-primary);
   border-color: transparent;
   color: var(--button-primary-text);
 }
 
 .site-btn--secondary {
-  background: var(--button-secondary-bg);
-  border-color: transparent;
-  color: var(--button-secondary-text);
+  background: var(--shell-field-bg-soft);
+  border-color: var(--shell-panel-border-soft);
+  color: var(--text);
 }
 
 body.theme-dark .site-btn--secondary {
-  background: var(--button-secondary-bg);
+  background: var(--shell-field-bg-soft);
 }
 
 .site-header__actions .site-btn[aria-current="page"] {
-  box-shadow: none;
+  box-shadow: var(--shadow-md);
 }
 
 .site-header #themeBtn,
@@ -274,14 +280,14 @@ body.theme-dark .site-btn--secondary {
   width: var(--shell-control-height-icon);
   min-width: var(--shell-control-height-icon);
   padding: 0;
-  border: none;
+  border: 1px solid var(--shell-panel-border-soft);
   background: var(--shell-field-bg-soft);
   color: var(--text);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
 }
 
 body.theme-dark .site-header #themeBtn,
@@ -291,14 +297,15 @@ body.theme-dark .site-menu-btn {
 
 .site-header #themeBtn:hover,
 .site-menu-btn:hover {
-  border-color: transparent;
-  box-shadow: none;
+  border-color: var(--shell-panel-border-strong);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .site-header #themeBtn:focus-visible,
 .site-menu-btn:focus-visible {
-  border-color: transparent;
-  box-shadow: none;
+  border-color: var(--shell-panel-border-strong);
+  box-shadow: var(--focus-ring), var(--shadow-md);
   outline: 3px solid var(--ring-strong);
   outline-offset: 3px;
 }
@@ -323,7 +330,9 @@ body.theme-dark .site-menu-btn {
   margin: 0 0 var(--shell-section-gap);
   padding: 10px 12px;
   border-radius: var(--radius-pill);
-  background: var(--shell-surface-accented-strong);
+  background: color-mix(in srgb, var(--shell-surface-accented-strong) 92%, transparent);
+  border: 1px solid var(--shell-panel-border-soft);
+  box-shadow: var(--shadow-sm);
 }
 
 .journey-rail__list {
@@ -351,7 +360,7 @@ body.theme-dark .site-menu-btn {
 
 .journey-rail__list a,
 .journey-rail__list span {
-  min-height: 34px;
+  min-height: 44px;
   padding: 0 12px;
   border-radius: var(--radius-pill);
   display: inline-flex;
@@ -364,17 +373,20 @@ body.theme-dark .site-menu-btn {
   text-transform: uppercase;
   color: var(--muted);
   background: var(--shell-field-bg-soft);
+  border: 1px solid transparent;
 }
 
 .journey-rail__list a:hover,
 .journey-rail__list a:focus-visible {
   color: var(--text);
+  border-color: var(--shell-panel-border-soft);
   outline: none;
 }
 
 .journey-rail__list [aria-current="step"] {
   color: var(--on-primary);
   background: var(--gradient-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Cross-page overflow guard moved from legacy page-overrides.css */
@@ -393,8 +405,13 @@ body.site-public .page-container {
   margin-bottom: var(--shell-section-gap);
   padding: clamp(var(--shell-space-6), 4vw, 38px);
   border-radius: var(--radius-surface);
-  background: var(--shell-surface-accented-strong);
-  box-shadow: none;
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--shell-surface-accented-strong) 88%, var(--surface-emphasis) 12%) 0%,
+    color-mix(in srgb, var(--shell-surface-accented) 72%, var(--surface-base) 28%) 100%
+  );
+  border: 1px solid var(--shell-panel-border-soft);
+  box-shadow: var(--shadow-lg);
 }
 
 .page-kicker,
@@ -435,7 +452,8 @@ body.site-public .page-container {
 .surface-card {
   border-radius: var(--radius-lg);
   background: var(--shell-surface-accented);
-  box-shadow: none;
+  border: 1px solid var(--shell-panel-border-soft);
+  box-shadow: var(--shadow-md);
 }
 
 .site-footer {
@@ -443,7 +461,8 @@ body.site-public .page-container {
   margin: 16px auto 24px;
   border-radius: var(--radius-lg);
   background: var(--shell-panel-bg);
-  box-shadow: none;
+  border: 1px solid var(--shell-panel-border-soft);
+  box-shadow: var(--shadow-md);
 }
 
 .site-footer__inner {
@@ -522,7 +541,7 @@ body.site-shell :is(
   min-height: var(--shell-control-height);
   padding: 0 16px;
   border-radius: var(--shell-control-radius-standard);
-  border: none;
+  border: 1px solid transparent;
   font-size: 0.92rem;
   font-weight: 800;
   line-height: 1.1;
@@ -530,12 +549,14 @@ body.site-shell :is(
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
   text-decoration: none;
   transition:
+    transform var(--transition-base) ease,
     border-color var(--transition-base) ease,
     background var(--transition-base) ease,
-    color var(--transition-base) ease;
+    color var(--transition-base) ease,
+    box-shadow var(--transition-base) ease;
 }
 
 body.site-shell :is(
@@ -551,6 +572,7 @@ body.site-shell :is(
   background: var(--gradient-primary);
   border-color: transparent;
   color: var(--on-primary-soft);
+  box-shadow: var(--shadow-md);
 }
 
 body.site-shell :is(
@@ -564,7 +586,7 @@ body.site-shell :is(
   .create-tree-btn-secondary
 ) {
   background: var(--shell-field-bg);
-  border-color: transparent;
+  border-color: var(--shell-panel-border-soft);
   color: var(--text);
 }
 
@@ -584,7 +606,7 @@ body.theme-dark.site-shell :is(
 body.site-shell .btn-danger {
   --btn-hover-border: var(--danger-border);
   background: var(--danger-bg-soft);
-  border-color: transparent;
+  border-color: var(--danger-border);
   color: var(--danger-text-strong);
 }
 
@@ -596,8 +618,8 @@ body.site-shell .btn-danger:focus-visible {
 
 body.site-shell .coffee-btn {
   --btn-hover-border: var(--coffee-border);
-  background: var(--coffee-gradient-start);
-  border-color: transparent;
+  background: linear-gradient(140deg, var(--coffee-gradient-start), var(--coffee-gradient-end));
+  border-color: var(--coffee-border);
   color: var(--coffee-text);
 }
 
@@ -641,9 +663,33 @@ body.site-shell :is(
   .wizard-nav-btn,
   .coffee-btn
 ):focus-visible {
-  border-color: transparent;
-  box-shadow: none;
+  border-color: var(--btn-hover-border);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
   outline: none;
+}
+
+body.site-shell :is(
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger,
+  .form-button,
+  .google-button,
+  .landing-btn,
+  .product-cta,
+  .dashboard-fab,
+  .create-tree-btn-secondary,
+  .tool-btn,
+  .store-continue-btn,
+  .store-order-back-btn,
+  .store-orders-login-link,
+  .order-submit-btn,
+  .store-order-open-btn,
+  .login-order-btn,
+  .wizard-nav-btn,
+  .coffee-btn
+):focus-visible {
+  box-shadow: var(--focus-ring), var(--shadow-md);
 }
 
 body.site-shell :is(
@@ -668,6 +714,7 @@ body.site-shell :is(
   opacity: 0.56;
   cursor: not-allowed;
   box-shadow: none;
+  transform: none;
 }
 
 body.site-shell .form-input,
@@ -675,13 +722,15 @@ body.site-shell .field-input {
   width: 100%;
   min-height: 48px;
   padding: 12px 14px;
-  border: none;
+  border: 1px solid var(--shell-panel-border-soft);
   border-radius: var(--radius-control);
   background: var(--shell-field-bg);
   color: var(--text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
   transition:
     border-color var(--transition-base) ease,
-    background var(--transition-base) ease;
+    background var(--transition-base) ease,
+    box-shadow var(--transition-base) ease;
 }
 
 body.theme-dark.site-shell .form-input,
@@ -697,8 +746,8 @@ body.site-shell .field-input::placeholder {
 body.site-shell .form-input:focus,
 body.site-shell .field-input:focus {
   outline: none;
-  border-color: transparent;
-  box-shadow: none;
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring);
 }
 
 body.site-shell .modal,
@@ -719,7 +768,8 @@ body.site-shell .add-member-card,
 body.site-shell .store-modal-dialog {
   border-radius: var(--radius-modal);
   background: var(--shell-panel-bg-accented-strong);
-  box-shadow: none;
+  border: 1px solid var(--shell-panel-border-soft);
+  box-shadow: var(--shadow-xl);
 }
 
 body.site-shell .modal-dialog,

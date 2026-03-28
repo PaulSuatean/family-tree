@@ -1,4 +1,4 @@
-﻿.tw-toggle {
+.tw-toggle {
   position: fixed;
   top: auto;
   bottom: var(--view-toggle-bottom);
@@ -10,9 +10,10 @@
   gap: 4px;
   padding: 4px;
   background: var(--shell-panel-bg-soft);
+  border: 1px solid var(--shell-panel-border-soft);
   transition: bottom var(--transition-base) ease;
   border-radius: var(--radius-pill);
-  box-shadow: none;
+  box-shadow: var(--shadow-md);
 }
 
 .tw-toggle input {
@@ -20,7 +21,7 @@
 }
 
 .tw-toggle label {
-  border: none;
+  border: 1px solid transparent;
   background: transparent;
   color: var(--text);
   padding: 6px 10px;
@@ -41,6 +42,7 @@
 }
 
 .tw-toggle label:hover {
+  border-color: var(--shell-panel-border-soft);
   transform: translateY(-1px);
 }
 
@@ -54,6 +56,8 @@
 .tw-toggle input#view-globe:checked + label {
   background: var(--gradient-secondary);
   color: var(--on-primary);
+  border-color: transparent;
+  box-shadow: var(--shadow-sm);
 }
 
 body.theme-dark .tw-toggle {
@@ -93,10 +97,10 @@ body.focus-mode #resetBtn { display: inline-flex; }
 .globe-panel {
   width: min(100%, 980px);
   margin: 0 auto;
-  background: transparent;
-  border: none;
+  background: color-mix(in srgb, var(--shell-panel-bg-accented-strong) 62%, transparent);
+  border: 1px solid var(--shell-panel-border-soft);
   border-radius: var(--radius-surface);
-  box-shadow: none;
+  box-shadow: var(--shadow-lg);
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -165,7 +169,8 @@ body.focus-mode #resetBtn { display: inline-flex; }
   background: var(--shell-panel-bg-strong);
   border-radius: var(--radius-sm);
   padding: 8px 12px;
-  box-shadow: none;
+  border: 1px solid var(--shell-panel-border-soft);
+  box-shadow: var(--shadow-md);
   color: var(--text);
   font-size: 12px;
   pointer-events: none;
@@ -265,12 +270,14 @@ body.view-calendar #zoomOutBtn { display: none; }
 
 .birthday-bar {
   background: var(--shell-panel-bg);
-  box-shadow: none;
+  border-top: 1px solid var(--shell-panel-border-soft);
+  box-shadow: var(--shadow-md);
 }
 
 .month-card {
   background: var(--shell-panel-bg);
-  box-shadow: none;
+  border: 1px solid var(--shell-panel-border-soft);
+  box-shadow: var(--shadow-sm);
 }
 .month-card::before {
   content: '';
@@ -287,7 +294,7 @@ body.view-calendar #zoomOutBtn { display: none; }
 .month-card.expanded::after { background: var(--border); z-index: 1; }
 .month-card:hover {
   border-color: transparent;
-  box-shadow: none;
+  box-shadow: var(--shadow-md);
 }
 .month-card:hover::before { opacity: 1; }
 .month-card.current::before { opacity: 0; }
@@ -328,16 +335,16 @@ body.theme-dark .month-head:hover .month-expand-icon {
 
 .day-cell {
   background: var(--calendar-day-bg);
-  box-shadow: none;
+  box-shadow: var(--calendar-day-shadow);
   transition: all var(--transition-base) ease;
 }
 .day-cell.has-birthday {
   background: var(--calendar-bday-bg);
-  box-shadow: none;
+  box-shadow: var(--calendar-bday-shadow);
 }
 .day-cell.today {
   background: var(--calendar-day-bg);
-  box-shadow: none;
+  box-shadow: var(--calendar-today-shadow);
   min-height: 20px;
   padding: 1px 6px 1px;
 }
@@ -356,14 +363,16 @@ body.theme-dark .month-head:hover .month-expand-icon {
 
 .birthday-tooltip {
   background: var(--shell-panel-bg-strong);
-  box-shadow: none;
+  border: 1px solid var(--shell-panel-border-soft);
+  box-shadow: var(--shadow-md);
   color: var(--text);
 }
 
 .modal-dialog {
   background: var(--shell-panel-bg-strong);
   color: var(--text);
-  box-shadow: none;
+  border: 1px solid var(--shell-panel-border-soft);
+  box-shadow: var(--shadow-xl);
 }
 .modal-img { background: var(--shell-field-bg-soft); }
 .modal-meta {
@@ -455,7 +464,7 @@ body.theme-dark .month-head:hover .month-expand-icon {
 }
 
 .share-modal-link-input {
-  border: none;
+  border: 1px solid transparent;
   background: transparent;
   color: var(--text);
   font-size: 0.92rem;
@@ -1078,6 +1087,7 @@ body.theme-dark .ancestrio-toast--error {
   border-color: transparent;
   color: var(--error-text);
 }
+
 
 
 

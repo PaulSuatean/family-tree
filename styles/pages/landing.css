@@ -1,5 +1,15 @@
-﻿body.landing-page {
-  --landing-surface: var(--shell-panel-bg-accented-strong);
+body.landing-page {
+  --landing-surface: color-mix(in srgb, var(--shell-panel-bg-accented-strong) 84%, var(--surface-emphasis) 16%);
+  --landing-surface-hero: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--surface-base) 78%, var(--surface-emphasis) 22%) 0%,
+    color-mix(in srgb, var(--surface-base) 64%, var(--surface-emphasis) 36%) 100%
+  );
+  --landing-surface-flow: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--surface-base) 92%, transparent) 0%,
+    color-mix(in srgb, var(--surface-emphasis) 60%, var(--surface-base) 40%) 100%
+  );
   --landing-card: var(--shell-panel-bg);
   --landing-card-soft: var(--shell-panel-bg-soft);
   --landing-text: var(--text);
@@ -7,6 +17,7 @@
   --landing-accent: var(--accent);
   --landing-accent-soft: var(--accent-soft);
   --landing-kicker: color-mix(in srgb, var(--accent-3) 72%, var(--text) 28%);
+  --landing-border: color-mix(in srgb, var(--shell-panel-border-soft) 74%, transparent);
 }
 
 body.landing-page,
@@ -31,7 +42,7 @@ body.landing-page .journey-rail {
 .section-heading {
   display: grid;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .landing-kicker,
@@ -62,7 +73,41 @@ body.landing-page .journey-rail {
 .landing-cta {
   border-radius: var(--radius-surface);
   background: var(--landing-surface);
+  border: 1px solid var(--landing-border);
+  box-shadow: var(--shadow-lg);
   padding: clamp(20px, 3vw, 32px);
+}
+
+.landing-hero-section {
+  background: var(--landing-surface-hero);
+}
+
+.landing-flow-section {
+  background: var(--landing-surface-flow);
+}
+
+.landing-features-section {
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--surface-base) 86%, var(--surface-emphasis) 14%) 0%,
+    color-mix(in srgb, var(--surface-base) 62%, var(--surface-emphasis) 38%) 100%
+  );
+}
+
+.landing-trust-section {
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--surface-base) 68%, var(--surface-emphasis) 32%) 0%,
+    color-mix(in srgb, var(--surface-base) 86%, var(--surface-emphasis) 14%) 100%
+  );
+}
+
+.landing-cta {
+  background: linear-gradient(
+    140deg,
+    color-mix(in srgb, var(--surface-base) 76%, var(--accent-3) 24%) 0%,
+    color-mix(in srgb, var(--surface-base) 60%, var(--accent) 40%) 100%
+  );
 }
 
 .landing-hero-grid {
@@ -111,10 +156,11 @@ body.landing-page .journey-rail {
 }
 
 .landing-proof-list li {
-  min-height: 32px;
+  min-height: 36px;
   padding: 0 12px;
   border-radius: var(--radius-pill);
   background: var(--landing-card-soft);
+  border: 1px solid var(--landing-border);
   color: var(--landing-text);
   display: inline-flex;
   align-items: center;
@@ -133,29 +179,43 @@ body.landing-page .journey-rail {
   min-height: var(--shell-control-height);
   padding: 0 18px;
   border-radius: var(--radius-button);
-  border: none;
+  border: 1px solid transparent;
   text-decoration: none;
   font-weight: 800;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background var(--transition-base) ease, color var(--transition-base) ease;
+  box-shadow: var(--shadow-sm);
+  transition:
+    background var(--transition-base) ease,
+    color var(--transition-base) ease,
+    border-color var(--transition-base) ease,
+    transform var(--transition-base) ease,
+    box-shadow var(--transition-base) ease;
 }
 
 .landing-btn-primary {
-  background: var(--button-primary-bg);
+  background: var(--gradient-primary);
   color: var(--button-primary-text);
+  box-shadow: var(--shadow-md);
 }
 
 .landing-btn-secondary {
-  background: var(--button-secondary-bg);
-  color: var(--button-secondary-text);
+  background: var(--landing-card-soft);
+  color: var(--landing-text);
+  border-color: var(--landing-border);
+}
+
+.landing-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .landing-btn:focus-visible,
 body.landing-page .site-btn:focus-visible,
 body.landing-page .site-header #themeBtn:focus-visible,
 body.landing-page .site-menu-btn:focus-visible {
+  box-shadow: var(--focus-ring), var(--shadow-md);
   outline: 3px solid var(--ring-strong);
   outline-offset: 3px;
 }
@@ -165,6 +225,8 @@ body.landing-page .site-menu-btn:focus-visible {
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--landing-card-soft);
+  border: 1px solid var(--landing-border);
+  box-shadow: var(--shadow-md);
 }
 
 .landing-hero-media img {
@@ -191,12 +253,31 @@ body.landing-page .site-menu-btn:focus-visible {
 .landing-print-teaser {
   border-radius: var(--radius-lg);
   background: var(--landing-card);
+  border: 1px solid var(--landing-border);
+  box-shadow: var(--shadow-sm);
 }
 
 .landing-flow-card {
   padding: 20px;
   display: grid;
   gap: 8px;
+  transition: transform var(--transition-base) ease, box-shadow var(--transition-base) ease;
+}
+
+.landing-flow-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.landing-flow-card__index {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface-base) 82%);
+  border: 1px solid var(--landing-border);
 }
 
 .landing-flow-card h3,
@@ -218,6 +299,12 @@ body.landing-page .site-menu-btn:focus-visible {
   padding: 20px;
   display: grid;
   gap: 12px;
+  transition: transform var(--transition-base) ease, box-shadow var(--transition-base) ease;
+}
+
+.landing-feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .landing-feature-card .material-symbols-outlined {
@@ -226,6 +313,7 @@ body.landing-page .site-menu-btn:focus-visible {
   border-radius: var(--radius-control-sm);
   background: var(--landing-card-soft);
   color: var(--landing-accent);
+  border: 1px solid var(--landing-border);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -265,12 +353,14 @@ body.landing-page .site-menu-btn:focus-visible {
   width: fit-content;
   color: var(--landing-accent);
   font-weight: 800;
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .landing-print-teaser__link:hover,
 .landing-print-teaser__link:focus-visible {
   text-decoration: underline;
+  color: var(--landing-text);
   outline: none;
 }
 
@@ -362,6 +452,8 @@ body.landing-page .site-menu-btn:focus-visible {
     padding: 8px;
     border-radius: var(--radius-lg);
     background: var(--landing-surface);
-    box-shadow: none;
+    border: 1px solid var(--landing-border);
+    box-shadow: var(--shadow-lg);
   }
 }
+
